@@ -1,7 +1,3 @@
-[build]
-  base = "/"
-  command = "npm install vite && npm run build"
-  publish = "dist"
 
 [functions]
   directory = "netlify/functions"
