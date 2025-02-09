@@ -1,6 +1,6 @@
 [build]
   base = "/"
-  command = "npm install && cd netlify && npm install && cd ../ npm run build"
+  command = "npm install && cd netlify && npm install && cd ../ && npm run build"
   publish = "build"
 
 [functions]
