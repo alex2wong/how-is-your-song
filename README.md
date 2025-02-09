@@ -1,4 +1,4 @@
-# 音乐分析评价系统
+# 音乐 AI 分析系统
 
 试试你的音乐作品能得几分？
 
@@ -30,7 +30,7 @@
 
 1. 安装依赖：
 
-   > npm install && cd server && npm install && cd ../
+   > npm run install:all
 
 2. 启动开发服务器并且自动打开页面（http://localhost:5173）
 
