@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' :  '/.netlify/functions';
+
 export const analyzeMusic = async (file) => {
   const geminiKey = localStorage.getItem('gemini_key');
   if (!geminiKey) {
@@ -17,9 +19,10 @@ export const analyzeMusic = async (file) => {
   formData.append('audio', file)
   formData.append('file_name', file.name)
 
-  const response = await axios.post(`http://localhost:3000/api/upload?gemini_key=${geminiKey}`, formData, {
+  const response = await axios.post(`${apiBase}/analyze?gemini_key=${geminiKey}`, formData, {
     headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json'
     }
   })
 

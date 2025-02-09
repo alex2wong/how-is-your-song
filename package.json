@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:web\"",
-    "dev:web": "vite dev",
+    "dev:web": "NODE_ENV=development && vite dev",
     "dev:server": "cd server && npm run dev",
     "install:all": "npm install && cd server && npm install",
     "build": "vite build",

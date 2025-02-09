@@ -113,7 +113,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1>音乐分析评价系统 (Music Analyze & Evaluate)</h1>
+      <h1>音乐智能分析系统</h1>
       <Settings />
       
       <div className="upload-section">
