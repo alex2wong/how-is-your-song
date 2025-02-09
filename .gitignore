@@ -1,0 +1,7 @@
+/node_modules
+/dist
+/server/node_modules
+/server/uploads
+
+# Local Netlify folder
+.netlify

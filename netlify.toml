@@ -1,0 +1,17 @@
+[build]
+  base = "/"
+  command = "npm run build"
+  publish = "build"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200 
+  force = true
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[dev]
+  functionsPort = 8888
