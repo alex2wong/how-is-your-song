@@ -1,7 +1,7 @@
 [build]
   base = "/"
-  command = "npm install && cd netlify && npm install && cd ../ && npm run build"
-  publish = "build"
+  command = "npm install vite && npm run build"
+  publish = "dist"
 
 [functions]
   directory = "netlify/functions"
