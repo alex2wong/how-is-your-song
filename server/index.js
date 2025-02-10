@@ -43,11 +43,15 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     return res.status(400).json({ error: '请提供 Gemini API Key' });
   }
 
-  // 假设音频文件上传成功, 调用 analyzeMusic
-  const filePath = req.file.path;
-  console.log('# upload as localfile done, path ', filePath);
-  const result = await analyzeMusic(filePath, apiKey);
-  res.json(result);
+  try {
+    // 假设音频文件上传成功, 调用 analyzeMusic
+    const filePath = req.file.path;
+    console.log('# upload as localfile done, path ', filePath);
+    const result = await analyzeMusic(filePath, apiKey);
+    res.json(result);
+  } catch (error) {
+    return res.status(500).json({ error: '执行失败' });
+  }
 });
 
 app.listen(port, () => {
