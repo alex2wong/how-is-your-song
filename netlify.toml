@@ -1,8 +1,13 @@
 
+[build]
+  base = "/"
+  command = "npm install && npm run build"
+  publish = "dist"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
 [dev]
-  functionsPort = 8888
-  targetPort = 8888
+  functionsPort = 5178
+  targetPort = 5178
