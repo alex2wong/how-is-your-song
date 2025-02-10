@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const { analyzeMusic } = require('./genai-analyze');
 
 const app = express();
@@ -9,6 +10,12 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// 确保uploads目录存在
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)){
+    fs.mkdirSync(uploadsDir);
+}
 
 // 配置文件上传
 const storage = multer.diskStorage({
