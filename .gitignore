@@ -5,3 +5,4 @@
 # Local Netlify folder
 .netlify
 /netlify/node_modules
+dist/
