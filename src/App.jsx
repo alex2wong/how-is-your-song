@@ -165,6 +165,10 @@ function App() {
         <button
           onClick={handleUpload}
           disabled={!file || loading}
+          style={{
+            marginLeft: 'auto',
+            display: 'block'
+          }}
         >
           {loading ? '分析中...' : '开始分析'}
         </button>

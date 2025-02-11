@@ -4,6 +4,7 @@ const {
   HarmBlockThreshold,
 } = require("@google/generative-ai");
 const { GoogleAIFileManager } = require("@google/generative-ai/server");
+const path = require('path');
 
 // const apiKey = process.env.GEMINI_API_KEY;
 
@@ -15,12 +16,13 @@ const { GoogleAIFileManager } = require("@google/generative-ai/server");
 async function uploadToGemini(path, mimeType, apiKey) {
   const fileManager = new GoogleAIFileManager(apiKey);
   // 生成一个安全的文件名，只包含时间戳和扩展名
-  const safeFileName = `audio_${Date.now()}${require('path').extname(path)}`;
-  console.log('upload to gemini:', path, mimeType);
+  const safeFileName = path.split('/')[1];
+  console.log('upload to gemini:', path, mimeType, safeFileName);
   const uploadResult = await fileManager.uploadFile(path, {
     mimeType,
     displayName: safeFileName,
   });
+  console.log('upload to gemini done:', path, mimeType, safeFileName, uploadResult);
   return uploadResult;
 }
 
@@ -33,7 +35,7 @@ const generationConfig = {
 };
 
 async function analyzeMusic(audioPath, apiKey) {
-  console.log('apikey:', apiKey.slice(0,4)+'...'+apiKey.slice(-4));
+  console.log('analyzeMusic:',audioPath, apiKey.slice(0,4)+'...'+apiKey.slice(-4));
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-pro-exp-02-05",
@@ -46,8 +48,10 @@ async function analyzeMusic(audioPath, apiKey) {
     await uploadToGemini(audioPath, "audio/wav", apiKey),
   ];
 
+  console.log('files:', files);
+
   // file uri example: https://generativelanguage.googleapis.com/v1beta/files/cnqym46w30lc, use FileManager.listfiles to get download url by apiKey
-  console.log(`Uploaded file ${files[0].uri}, ${files[0].downloadUri} `);
+  console.log(`Uploaded file ${files[0].file.uri}, ${files[0].file.uri} `);
 
   const chatSession = model.startChat({
     generationConfig,
@@ -57,8 +61,8 @@ async function analyzeMusic(audioPath, apiKey) {
         parts: [
           {
             fileData: {
-              mimeType: files[0].mimeType,
-              fileUri: files[0].uri,
+              mimeType: files[0].file.mimeType,
+              fileUri: files[0].file.uri,
             },
           },
           { text: "可以从流行音乐专业角度评价下这个音乐的编曲质量、人声质量和旋律、歌词内容故事性等方面吗" },

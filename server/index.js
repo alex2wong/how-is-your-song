@@ -81,7 +81,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     const filePath = req.file.path;
     const fileName = path.basename(filePath); // 使用上传后的安全文件名
 
-    console.log('# upload as localfile done, path ', filePath);
+    console.log('# upload as localfile done, path ', filePath, fileName);
     const result = await analyzeMusic(filePath, apiKey);
     
     // 增加分析次数
