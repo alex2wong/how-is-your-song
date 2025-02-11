@@ -8,6 +8,31 @@ const { analyzeMusic } = require('./genai-analyze');
 const app = express();
 const port = 3000;
 
+// 统计数据
+let stats = {
+  visitors: 0,
+  analyses: 0
+};
+
+// 尝试从文件加载统计数据
+const statsFile = path.join(__dirname, 'stats.json');
+try {
+  if (fs.existsSync(statsFile)) {
+    stats = JSON.parse(fs.readFileSync(statsFile, 'utf8'));
+  }
+} catch (error) {
+  console.error('加载统计数据失败:', error);
+}
+
+// 定期保存统计数据到文件
+setInterval(() => {
+  try {
+    fs.writeFileSync(statsFile, JSON.stringify(stats), 'utf8');
+  } catch (error) {
+    console.error('保存统计数据失败:', error);
+  }
+}, 5000);
+
 app.use(cors());
 app.use(express.json());
 
@@ -33,6 +58,12 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from API!' });
 })
 
+app.get('/api/stats', (req, res) => {
+  // 增加访问人次
+  stats.visitors += 1;
+  res.json(stats);
+});
+
 // 处理音频文件上传
 app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   if (!req.file) {
@@ -49,10 +80,22 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     const fileName = req.query.file_name;
 
     console.log('# upload as localfile done, path ', filePath, fileName);
-    const result = await analyzeMusic(filePath, apiKey);
-    res.json({...result, song_name: fileName });
+    const result = await analyzeMusic(filePath, fileName, apiKey);
+    
+    // 增加分析次数
+    stats.analyses += 1;
+    
+    res.json(result);
   } catch (error) {
-    return res.status(500).json({ error: '执行失败: ' + JSON.stringify(error) });
+    console.error('分析失败:', error);
+    res.status(500).json({ error: '分析失败: ' + error.message });
+  } finally {
+    // 删除上传的文件
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('删除文件失败:', err);
+      });
+    }
   }
 });
 

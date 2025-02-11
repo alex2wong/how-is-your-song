@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FaGithub } from 'react-icons/fa'
 import './App.css'
 import Settings from './components/Settings'
@@ -8,7 +8,18 @@ function App() {
   const [file, setFile] = useState(null)
   const [rating, setRating] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [audioUrl, setAudioUrl] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(null)
+  const [stats, setStats] = useState({ visitors: 0, analyses: 0 })
+
+  useEffect(() => {
+    // 页面加载时获取统计数据
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => {
+        setStats(data)
+      })
+      .catch(console.error)
+  }, [])
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -36,6 +47,11 @@ function App() {
       const response = await analyzeMusic(file);
       if (response) {
         setRating(response.data)
+        // 更新分析次数
+        setStats(prev => ({
+          ...prev,
+          analyses: prev.analyses + 1
+        }))
       }
     } catch (error) {
       console.error('上传失败:', error)
@@ -168,6 +184,21 @@ function App() {
 
         </div>
       )}
+      <div 
+        style={{
+          position: 'fixed',
+          left: '1rem',
+          bottom: '1rem',
+          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+          padding: '0.5rem',
+          borderRadius: '4px',
+          fontSize: '0.9rem',
+          color: '#666'
+        }}
+      >
+        <div>访问人次：{stats.visitors}</div>
+        <div>分析次数：{stats.analyses}</div>
+      </div>
     </div>
   )
 }
