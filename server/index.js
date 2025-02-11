@@ -15,7 +15,7 @@ let stats = {
 };
 
 // 尝试从文件加载统计数据
-const statsFile = path.join(__dirname, 'stats.json');
+const statsFile = path.join(__dirname, '../stats.json');
 try {
   if (fs.existsSync(statsFile)) {
     stats = JSON.parse(fs.readFileSync(statsFile, 'utf8'));
@@ -48,7 +48,9 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/')
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname))
+    // 使用时间戳作为文件名，保留原始扩展名
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + ext)
   }
 });
 
@@ -75,17 +77,21 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   }
 
   try {
-    // 假设音频文件上传成功, 调用 analyzeMusic
+    // 使用上传后的文件名（已经是时间戳格式）作为安全的文件名
     const filePath = req.file.path;
-    const fileName = req.query.file_name;
+    const fileName = path.basename(filePath); // 使用上传后的安全文件名
 
-    console.log('# upload as localfile done, path ', filePath, fileName);
+    console.log('# upload as localfile done, path ', filePath);
     const result = await analyzeMusic(filePath, fileName, apiKey);
     
     // 增加分析次数
     stats.analyses += 1;
     
-    res.json(result);
+    // 在返回结果中使用原始文件名
+    res.json({
+      ...result,
+      song_name: req.query.file_name || '未知歌曲'
+    });
   } catch (error) {
     console.error('分析失败:', error);
     res.status(500).json({ error: '分析失败: ' + error.message });

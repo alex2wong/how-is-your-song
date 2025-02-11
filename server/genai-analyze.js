@@ -14,12 +14,14 @@ const {
    */
   async function uploadToGemini(path, mimeType, apiKey) {
     const fileManager = new GoogleAIFileManager(apiKey);
+    // 生成一个安全的文件名，只包含时间戳和扩展名
+    const safeFileName = `audio_${Date.now()}${require('path').extname(path)}`;
+    console.log('upload to gemini:', path, mimeType);
     const uploadResult = await fileManager.uploadFile(path, {
       mimeType,
-      displayName: path,
+      displayName: safeFileName,
     });
-    const file = uploadResult.file;    
-    return file;
+    return uploadResult;
   }
   
   const generationConfig = {
@@ -34,7 +36,7 @@ async function analyzeMusic(audioPath, apiKey) {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-pro-exp-02-05",
-    systemInstruction: "你是一个专业且优秀的音乐评论员。当你收到一个音乐文件，可以首先从整体印象（音乐风格和氛围），然后简要分析编曲配器质量、人声质量和旋律、歌词内容故事性等几个方面，分别简要评价并且打分，分项满分 10分，汇总一个总分数。并且给出一个额外字段是歌曲在各维度的标签，例如 #Cinematic #电子音乐 #合成器 #贝斯 #Dreaming Vocal 。 注意打分差距拉大一些，优秀的作品的分数要比一般的高很多，例如优秀作品大于 8 分，一般的作品小于 8 分",
+    systemInstruction: "你是一个专业且优秀的音乐评论员。当你收到一个音乐文件，可以首先从整体印象（音乐风格和氛围），然后简要分析编曲配器质量、人声质量和旋律、歌词内容故事性等几个方面，分别简要评价并且打分，分项满分 10分，汇总一个总分数。并且给出一个额外字段是歌曲在各维度的标签，例如 #Cinematic #电子音乐 #合成器 #贝斯 #Dreaming Vocal 。 注意打分差距拉大一些，优秀的作品的分数要比一般的作品高很多，例如优秀作品大于 8 分，一般的作品小于 8 分",
   });
 
     // TODO Make these files available on the local file system

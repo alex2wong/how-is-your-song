@@ -10,6 +10,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [audioUrl, setAudioUrl] = useState(null)
   const [stats, setStats] = useState({ visitors: 0, analyses: 0 })
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   useEffect(() => {
     // 页面加载时获取统计数据
@@ -43,11 +44,13 @@ function App() {
     }
 
     setLoading(true)
+    setUploadProgress(0)
     try {
-      const response = await analyzeMusic(file);
+      const response = await analyzeMusic(file, (progress) => {
+        setUploadProgress(progress)
+      })
       if (response) {
         setRating(response.data)
-        // 更新分析次数
         setStats(prev => ({
           ...prev,
           analyses: prev.analyses + 1
@@ -58,6 +61,7 @@ function App() {
       alert('上传失败，请重试')
     }
     setLoading(false)
+    setUploadProgress(0)
   }
 
   const renderScoreClass = (rating) => {
@@ -162,8 +166,34 @@ function App() {
           onClick={handleUpload}
           disabled={!file || loading}
         >
-          {loading ? '评分中...' : '上传并评分'}
+          {loading ? '分析中...' : '开始分析'}
         </button>
+        {loading && (
+          <div style={{ marginTop: '1rem', width: '100%' }}>
+            <div style={{ 
+              width: '100%', 
+              height: '4px', 
+              backgroundColor: '#eee',
+              borderRadius: '2px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${uploadProgress}%`,
+                height: '100%',
+                backgroundColor: '#4CAF50',
+                transition: 'width 0.3s ease-in-out'
+              }} />
+            </div>
+            <div style={{ 
+              textAlign: 'center', 
+              marginTop: '0.5rem',
+              fontSize: '0.9rem',
+              color: '#666'
+            }}>
+              上传进度：{uploadProgress}%
+            </div>
+          </div>
+        )}
       </div>
 
       {rating && (
@@ -203,4 +233,4 @@ function App() {
   )
 }
 
-export default App 
+export default App
