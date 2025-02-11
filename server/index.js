@@ -46,11 +46,13 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   try {
     // 假设音频文件上传成功, 调用 analyzeMusic
     const filePath = req.file.path;
-    console.log('# upload as localfile done, path ', filePath);
+    const fileName = req.query.file_name;
+
+    console.log('# upload as localfile done, path ', filePath, fileName);
     const result = await analyzeMusic(filePath, apiKey);
-    res.json(result);
+    res.json({...result, song_name: fileName });
   } catch (error) {
-    return res.status(500).json({ error: '执行失败' });
+    return res.status(500).json({ error: '执行失败: ' + JSON.stringify(error) });
   }
 });
 
