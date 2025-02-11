@@ -94,7 +94,7 @@ async function analyzeMusic(audioPath, apiKey) {
       ],
     });
   
-    const result = await chatSession.sendMessage("从流行音乐专业角度评价下这个音乐的编曲配器质量、人声质量和旋律、歌词内容故事性等几个方面，并且在标签中返回 细分曲风、乐器等重要标签；注意打分差距拉大一些，有一些亮点的作品就大胆地大于8分，没有太多亮点的就6-8分之间；对于各维度的评价，要求不要那么高，避免每个维度都有负向评价的情况。");
+    const result = await chatSession.sendMessage("从流行音乐专业角度评价下这个音乐的编曲配器质量、人声质量和旋律、歌词内容故事性等几个方面，并且在标签中返回 细分曲风、乐器等重要标签；注意打分差距拉大一些，有一些亮点的作品就大胆地大于8分，没有太多亮点的就6-8分之间；各角度详细分析的时候，要多介绍一些你听到的歌曲细节，用来证明你真的是听到歌曲而不是胡编乱造的，具体的细节可以考虑包括（但不限于）：整体歌曲时长，前奏的乐器、歌曲的调式、拍子、和弦走向等等。在给出评分时，如果分数小于8分，要具体说明各维度有哪些明显的不足之处，给出优化建议");
     const resultTxt = result.response.text();
     console.log(resultTxt);
     // console.log(typeof resultTxt);

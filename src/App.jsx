@@ -60,7 +60,7 @@ function App() {
         classTxt = '较一般'
         className = 'normal'
     }
-    return (<p className={className}>得分：{rating.overall_score} {classTxt}</p>)
+    return (<p className={className}> 《{rating.song_name}》 得分：{rating.overall_score} {classTxt}</p>)
   }
 
 /**

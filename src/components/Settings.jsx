@@ -18,7 +18,7 @@ export default function Settings() {
 
   return (
     <div className="settings-container" style={{ position: 'absolute', top: '1rem', right: '1rem', fontSize: 14 }}>
-      <button style={{ outline: 'none' }} onClick={() => setIsOpen(!isOpen)}> 设置 </button>
+      <button style={{ outline: 'none' }} onClick={() => setIsOpen(!isOpen)}> 设置 (API Key) </button>
       
       {isOpen && (
         <div className="settings-modal" style={{ 
@@ -30,7 +30,7 @@ export default function Settings() {
           borderRadius: '4px',
         }}>
           <div>
-            <span>Gemini API Key:</span>
+            <span>Gemini API Key（<a href='https://aistudio.google.com/apikey' target='_blank'>申请地址</a>）:</span>
             <input 
               type="password"
               value={apiKey}
