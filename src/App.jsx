@@ -155,7 +155,6 @@ function App() {
         <input
           type="file"
           accept=".mp3,audio/*"
-          capture="user"
           onChange={handleFileChange}
         />
         {audioUrl && (
