@@ -154,7 +154,8 @@ function App() {
       <div className="upload-section">
         <input
           type="file"
-          accept="audio/*"
+          accept=".mp3,audio/*"
+          capture="user"
           onChange={handleFileChange}
         />
         {audioUrl && (
