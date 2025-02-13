@@ -5,6 +5,7 @@ const {
 } = require("@google/generative-ai");
 const { GoogleAIFileManager } = require("@google/generative-ai/server");
 const path = require('path');
+const JSON5 = require('json5');
 
 // const apiKey = process.env.GEMINI_API_KEY;
 
@@ -106,7 +107,7 @@ async function analyzeMusic(audioPath, apiKey) {
   console.log(resultTxt);
   // console.log(typeof resultTxt);
   // const resultObj = await result.response.json();
-  return JSON.parse(resultTxt);
+  return JSON5.parse(resultTxt);
 }
 
 // 对 result.response.text() 进行解析
