@@ -103,7 +103,7 @@ function App() {
         </thead>
         <tbody>
           {Object.entries(dimensions).map(([dimension, value]) => value && (
-            <tr key={dimension}>
+            <tr className='dimension-row' key={dimension}>
               <td>{dimension}</td>
               <td>{value.score}</td>
               <td>{value.comments}</td>
