@@ -3,6 +3,7 @@ import { FaGithub } from 'react-icons/fa'
 import './App.css'
 import Settings from './components/Settings'
 import { analyzeMusic } from './api/analyze'
+import { ProjectIntro } from './components/ProjectIntro'
 
 function App() {
   const [file, setFile] = useState(null)
@@ -108,7 +109,7 @@ function App() {
         </thead>
         <tbody>
           {Object.entries(dimensions).map(([dimension, value]) => value && (
-            <tr key={dimension}>
+            <tr className='dimension-row' key={dimension}>
               <td>{dimension}</td>
               <td>{value.score}</td>
               <td>{value.comments}</td>
@@ -218,12 +219,13 @@ function App() {
           <div className="comments">
             <h3>详细解析</h3>
             <div>
-              {renderDimensionsTable({ '编曲': rating.arrangement, '人声': rating.vocal, '旋律': rating.melody, '歌词': rating.lyrics })}
+              {renderDimensionsTable({ '编曲': rating.arrangement, '人声': rating.vocal, '结构': rating.melody_structure || rating.structure, '歌词': rating.lyrics })}
             </div>
           </div>
 
         </div>
       )}
+      <ProjectIntro />
       <div 
         style={{
           position: 'fixed',
