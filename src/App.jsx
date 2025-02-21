@@ -64,8 +64,9 @@ function App() {
         }))
       }
     } catch (error) {
-      console.error('上传失败:', error)
-      alert('上传失败，请重试')
+      console.error('分析失败:', error)
+      const errorMessage = error.response?.data?.message || error.response?.data || error.message || '分析失败'
+      alert("分析失败: " + errorMessage)
     }
     setLoading(false)
     setUploadProgress(0)
