@@ -66,7 +66,7 @@ function App() {
     } catch (error) {
       console.error('分析失败:', error)
       const errorMessage = error.response?.data?.message || error.response?.data || error.message || '分析失败'
-      alert("分析失败: " + JSON.stringify(errorMessage, null, 2));
+      alert(errorMessage.error);
     }
     setLoading(false)
     setUploadProgress(0)
