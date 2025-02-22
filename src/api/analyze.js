@@ -7,11 +7,8 @@ export const analyzeMusic = async (file, onProgress) => {
   formData.append('audio', file);
 
   const geminiKey = localStorage.getItem('gemini_key');
-  if (!geminiKey) {
-    throw new Error('请先设置 Gemini API Key');
-  }
 
-  const response = await axios.post(`${apiBase}/analyze?gemini_key=${geminiKey}&file_name=${encodeURIComponent(file.name)}`, formData, {
+  const response = await axios.post(`${apiBase}/analyze?file_name=${encodeURIComponent(file.name)}${geminiKey ? `&gemini_key=${geminiKey}` : ''}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
