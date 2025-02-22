@@ -5,6 +5,8 @@ import Settings from './components/Settings'
 import { analyzeMusic } from './api/analyze'
 import { ProjectIntro } from './components/ProjectIntro'
 
+const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
+
 function App() {
   const [file, setFile] = useState(null)
   const [rating, setRating] = useState(null)
@@ -15,7 +17,7 @@ function App() {
 
   useEffect(() => {
     // 页面加载时获取统计数据
-    fetch('/api/stats')
+    fetch(`${apiBase}/stats`)
       .then(res => res.json())
       .then(data => {
         setStats(data)
@@ -236,6 +238,31 @@ function App() {
         <div>访问人次：{stats.visitors}</div>
         <div>分析次数：{stats.analyses}</div>
       </div>
+
+      {stats.rank && stats.rank.length > 0 && (
+        <div style={{
+          margin: '20px 0',
+          padding: '20px',
+          border: '1px solid #eee',
+          borderRadius: '8px'
+        }}>
+          <h3 style={{ margin: '0 0 16px', color: '#333' }}>最受AI喜爱的歌曲</h3>
+          {stats.rank.map((song, index) => (
+            <div key={index} style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '12px',
+              backgroundColor: '#f8f8f8',
+              borderRadius: '6px',
+              marginBottom: '8px'
+            }}>
+              <span style={{ fontWeight: 'bold', color: '#4CAF50', marginRight: '12px' }}>#{index + 1}</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>{song.song_name}</span>
+              <span style={{ fontWeight: 'bold', color: '#4CAF50' }}>{song.overall_score.toFixed(1)}分</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
