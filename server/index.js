@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { analyzeMusic } = require('./genai-analyze');
+require('dotenv').config()
 
 const app = express();
 const port = 3000;
@@ -71,9 +72,9 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   if (!req.file) {
     return res.status(400).send('未上传文件');
   }
-  const apiKey = req.query.gemini_key;
+  let apiKey = req.query.gemini_key;
   if (!apiKey) {
-    return res.status(400).json({ error: '请提供 Gemini API Key' });
+    apiKey = process.env.APIKEY.split(',')[Date.now() % process.env.APIKEY.split(',').length];
   }
 
   try {
