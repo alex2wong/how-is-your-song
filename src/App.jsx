@@ -44,12 +44,6 @@ function App() {
       return
     }
 
-    const savedKey = localStorage.getItem('gemini_key');
-    if (!savedKey) {
-      alert('请先设置 Gemini API Key')
-      return
-    }
-
     setLoading(true)
     setUploadProgress(0)
     try {
