@@ -83,8 +83,13 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     const fileName = path.basename(filePath); // 使用上传后的安全文件名
 
     console.log('# upload as localfile done, path ', filePath, fileName);
-    const result = await analyzeMusic(filePath, apiKey);
+    let result = await analyzeMusic(filePath, apiKey);
     
+    // 在返回结果中使用原始文件名
+    result = {
+      ...result,
+      song_name: req.query.file_name || '未知歌曲'
+    };
     // 增加分析次数
     stats.analyses += 1;
 
@@ -97,11 +102,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
       stats.rank = rank;
     }
     
-    // 在返回结果中使用原始文件名
-    res.json({
-      ...result,
-      song_name: req.query.file_name || '未知歌曲'
-    });
+    res.json(result);
   } catch (error) {
     console.error('分析失败:', error);
     res.status(500).json({ error: '分析失败: ' + error.message });
