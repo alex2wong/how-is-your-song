@@ -98,7 +98,10 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
       const rank = stats.rank || [];
       rank.push({ song_name: result.song_name, overall_score: result.overall_score });
       rank.sort((a, b) => b.overall_score - a.overall_score);
-      rank.length = 30;
+      if (rank.length > 30) {
+        rank.length = 30;
+      }
+
       stats.rank = rank;
     }
     
