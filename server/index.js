@@ -87,6 +87,15 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     
     // 增加分析次数
     stats.analyses += 1;
+
+    // 根据result中的"song_name"和"overall_score": 8.3, 字段，制作一个仅显示前30名的排行榜，保存到本地，并在stats api中返回
+    if (result.song_name && result.overall_score) {
+      const rank = stats.rank || [];
+      rank.push({ song_name: result.song_name, overall_score: result.overall_score });
+      rank.sort((a, b) => b.overall_score - a.overall_score);
+      rank.length = 30;
+      stats.rank = rank;
+    }
     
     // 在返回结果中使用原始文件名
     res.json({
