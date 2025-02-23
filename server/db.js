@@ -87,7 +87,13 @@ async function getSongRank(tagName) {
     // 查找 song tags 中包含tagName的歌曲并排行，取前100名。如果tagName为空，则为全局排行，按overall_score分数进行排行
     const songs = await db.collection('songs').find({
         "tags": { $regex: tagName ? `.*${tagName}.*` : '' }
-    }).sort({ "overall_score": -1 }).limit(100).toArray();
+    }, {
+        projection: {
+            song_name: 1,
+            overall_score: 1,
+            _id: 1
+        }
+    }).sort({ "overall_score": -1 }).limit(300).toArray();
     return songs;
 }
 
