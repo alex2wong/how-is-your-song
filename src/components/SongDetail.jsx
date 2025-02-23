@@ -1,3 +1,5 @@
+import { apiBase } from "../utils";
+import MediaPlayer from "./MediaPlayer";
 
 
 export const SongDetail = ({ selectedSong, scoreRender, onClose }) => {
@@ -24,6 +26,8 @@ export const SongDetail = ({ selectedSong, scoreRender, onClose }) => {
         e.stopPropagation();
     }
 
+    const audioUrl = `${apiBase}/audio/${selectedSong.url.replace('uploads/', '')}`;
+
     return (
         <div style={{
           position: 'fixed',
@@ -41,7 +45,10 @@ export const SongDetail = ({ selectedSong, scoreRender, onClose }) => {
           zIndex: 1000
         }} onScroll={handleScroll}>
           <div style={{ position: 'sticky', top: 0, padding: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', backgroundColor: '#fff', }}>
-            <h2 style={{ margin: 0 }}>{selectedSong.song_name}</h2>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexDirection: 'row', width:'80vw' }}>
+              <h2 style={{ margin: 0 }}>{selectedSong.song_name}</h2><MediaPlayer audioUrl={audioUrl} />
+            </div>
             <button 
               onClick={onClose}
               style={{
@@ -55,7 +62,6 @@ export const SongDetail = ({ selectedSong, scoreRender, onClose }) => {
               ×
             </button>
           </div>
-
           <div style={{ marginTop: 50, marginBottom: '24px' }}>
             {scoreRender(selectedSong)}
             <p className='summary-quote' style={{ fontSize: '16px', lineHeight: '1.6' }}>{selectedSong.comments}</p>

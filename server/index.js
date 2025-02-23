@@ -78,6 +78,47 @@ app.get('/api/tags', async (req, res) => {
   res.json(tags);
 });
 
+
+// 支持的音频格式及其MIME类型映射
+const audioMimeTypes = {
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.m4a': 'audio/mp4',
+  '.mp4': 'audio/mp4',
+  '.aac': 'audio/aac',
+  '.flac': 'audio/flac'
+};
+
+app.get('/api/audio/:uri', async (req, res) => {
+  const uri = req.params.uri;
+  const filePath = path.join(__dirname, 'uploads', uri);
+
+  console.log('# Request song media by uri: ', req.params.uri, filePath);
+
+  // 检查文件是否存在
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('File not found');
+  }
+
+  // 获取文件扩展名并确定MIME类型
+  const ext = path.extname(filePath).toLowerCase();
+  const contentType = audioMimeTypes[ext] || 'application/octet-stream';
+
+  // 获取文件大小
+  const stat = fs.statSync(filePath);
+
+  // 设置响应头
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Length', stat.size);
+  res.setHeader('Accept-Ranges', 'bytes');
+  res.setHeader('Content-Disposition', 'inline');
+
+  // 使用流式传输
+  const stream = fs.createReadStream(filePath);
+  stream.pipe(res);
+});
+
 app.get('/api/song/:id', async (req, res) => {
   console.log('# Request song detail: ', req.params.id);
   const song = await getSongById(req.params.id);
@@ -129,10 +170,9 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     console.error('分析失败:', error);
     res.status(500).json({ error: '分析失败: ' + error.message });
   } finally {
-
   }
 });
 
 app.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);
-}); 
+});
