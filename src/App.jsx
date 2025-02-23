@@ -18,6 +18,7 @@ function App() {
   const [selectedTag, setSelectedTag] = useState('')
   const [rankList, setRankList] = useState([])
   const [selectedSong, setSelectedSong] = useState(null)
+  const [showAllTags, setShowAllTags] = useState(false);
 
   useEffect(() => {
     // 页面加载时获取统计数据、标签列表和排行榜
@@ -295,7 +296,7 @@ function App() {
           borderRadius: '8px'
         }}>
           <h3 style={{ margin: '0 0 16px', color: '#333' }}>最受AI喜爱的歌曲</h3>
-          <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px', position: 'relative' }}>
             <span
               onClick={() => handleTagClick('')}
               style={{
@@ -308,7 +309,7 @@ function App() {
             >
               全部
             </span>
-            {tags.map((tagObj, index) => {
+            {tags.slice(0, showAllTags ? tags.length : 10).map((tagObj, index) => {
               const tagValue = tagObj.tag.startsWith('#') ? tagObj.tag.slice(1) : tagObj.tag;
               return (
                 <span
@@ -326,6 +327,21 @@ function App() {
                 </span>
               );
             })}
+            {tags.length > 10 && (
+              <span
+                onClick={() => setShowAllTags(!showAllTags)}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: '16px',
+                  cursor: 'pointer',
+                  backgroundColor: '#e0e0e0',
+                  color: '#666',
+                  fontSize: '14px'
+                }}
+              >
+                {showAllTags ? '收起' : `更多 (${tags.length - 10})`}
+              </span>
+            )}
           </div>
           {rankList.map((song, index) => (
             <div 
