@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { analyzeMusic } = require('./genai-analyze');
+const { insertSong, getSongRank, getTags, getSongById } = require('./db');
 require('dotenv').config()
 
 const app = express();
@@ -67,6 +68,22 @@ app.get('/api/stats', (req, res) => {
   res.json(stats);
 });
 
+app.get('/api/rank', async (req, res) => {
+  const songs = await getSongRank(req.query.tag ? '#'+req.query.tag : undefined);
+  res.json(songs);
+});
+
+app.get('/api/tags', async (req, res) => {
+  const tags = await getTags();
+  res.json(tags);
+});
+
+app.get('/api/song/:id', async (req, res) => {
+  console.log('# Request song detail: ', req.params.id);
+  const song = await getSongById(req.params.id);
+  res.json(song);
+});
+
 // 处理音频文件上传
 app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   if (!req.file) {
@@ -101,6 +118,8 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
       if (rank.length > 100) {
         rank.length = 100;
       }
+      result.url = filePath;
+      await insertSong(result);
 
       stats.rank = rank;
     }

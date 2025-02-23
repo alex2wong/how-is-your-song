@@ -14,13 +14,22 @@ function App() {
   const [audioUrl, setAudioUrl] = useState(null)
   const [stats, setStats] = useState({ visitors: 0, analyses: 0 })
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [tags, setTags] = useState([])
+  const [selectedTag, setSelectedTag] = useState('')
+  const [rankList, setRankList] = useState([])
+  const [selectedSong, setSelectedSong] = useState(null)
 
   useEffect(() => {
-    // 页面加载时获取统计数据
-    fetch(`${apiBase}/stats`)
-      .then(res => res.json())
-      .then(data => {
-        setStats(data)
+    // 页面加载时获取统计数据、标签列表和排行榜
+    Promise.all([
+      fetch(`${apiBase}/stats`).then(res => res.json()),
+      fetch(`${apiBase}/tags`).then(res => res.json()),
+      fetch(`${apiBase}/rank`).then(res => res.json())
+    ])
+      .then(([statsData, tagsData, rankData]) => {
+        setStats(statsData)
+        setTags(tagsData)
+        setRankList(rankData)
       })
       .catch(console.error)
   }, [])
@@ -66,6 +75,45 @@ function App() {
     }
     setLoading(false)
     setUploadProgress(0)
+  }
+
+  const handleTagClick = async (tag) => {
+    setSelectedTag(tag)
+    try {
+      const response = await fetch(`${apiBase}/rank${tag ? `?tag=${tag}` : ''}`)
+      const data = await response.json()
+      setRankList(data)
+    } catch (error) {
+      console.error('获取排行榜失败:', error)
+    }
+  }
+
+  const fetchSongDetail = async (id) => {
+    try {
+      console.log('# Fetching song detail: ', id);
+      const response = await fetch(`${apiBase}/song/${id}`)
+      const data = await response.json()
+      setSelectedSong(data[0]) // 修正：获取数组的第一个元素
+    } catch (error) {
+      console.error('获取歌曲详情失败:', error)
+    }
+  }
+
+  const parseLyrics = (structureComment) => {
+    if (!structureComment) return [];
+    const matches = structureComment.match(/\[\d{2}:\d{2}\.\d{2}\].*?(?=\n|$)/g);
+    if (!matches) return [];
+    return matches.map(line => {
+      const timeMatch = line.match(/\[(\d{2}):(\d{2}\.\d{2})\]/);
+      const text = line.replace(/\[\d{2}:\d{2}\.\d{2}\]/, '').trim();
+      if (timeMatch) {
+        const minutes = parseInt(timeMatch[1]);
+        const seconds = parseFloat(timeMatch[2]);
+        const time = minutes * 60 + seconds;
+        return { time, text };
+      }
+      return null;
+    }).filter(item => item !== null);
   }
 
   const renderScoreClass = (rating) => {
@@ -239,7 +287,7 @@ function App() {
         <div>分析次数：{stats.analyses}</div>
       </div>
 
-      {stats.rank && stats.rank.length > 0 && (
+      {rankList && rankList.length > 0 && (
         <div style={{
           margin: '20px 0',
           padding: '20px',
@@ -247,20 +295,187 @@ function App() {
           borderRadius: '8px'
         }}>
           <h3 style={{ margin: '0 0 16px', color: '#333' }}>最受AI喜爱的歌曲</h3>
-          {stats.rank.map((song, index) => (
-            <div key={index} style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '12px',
-              backgroundColor: '#f8f8f8',
-              borderRadius: '6px',
-              marginBottom: '8px'
-            }}>
+          <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <span
+              onClick={() => handleTagClick('')}
+              style={{
+                padding: '4px 12px',
+                borderRadius: '16px',
+                cursor: 'pointer',
+                backgroundColor: selectedTag === '' ? '#4CAF50' : '#f0f0f0',
+                color: selectedTag === '' ? 'white' : '#333'
+              }}
+            >
+              全部
+            </span>
+            {tags.map((tagObj, index) => {
+              const tagValue = tagObj.tag.startsWith('#') ? tagObj.tag.slice(1) : tagObj.tag;
+              return (
+                <span
+                  key={tagObj._id}
+                  onClick={() => handleTagClick(tagValue)}
+                  style={{
+                    padding: '4px 12px',
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    backgroundColor: selectedTag === tagValue ? '#4CAF50' : '#f0f0f0',
+                    color: selectedTag === tagValue ? 'white' : '#333'
+                  }}
+                >
+                  {tagObj.tag}
+                </span>
+              );
+            })}
+          </div>
+          {rankList.map((song, index) => (
+            <div 
+              key={index} 
+              onClick={() => fetchSongDetail(song._id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '12px',
+                backgroundColor: '#f8f8f8',
+                borderRadius: '6px',
+                marginBottom: '8px',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+            >
               <span style={{ fontWeight: 'bold', color: '#4CAF50', marginRight: '12px' }}>#{index + 1}</span>
               <span style={{ flex: 1, textAlign: 'left' }}>{song.song_name}</span>
               <span style={{ fontWeight: 'bold', color: '#4CAF50' }}>{song.overall_score.toFixed(1)}分</span>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 歌曲详情弹窗 */}
+      {selectedSong && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'white',
+          padding: '24px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          maxWidth: '90%',
+          width: '800px',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          zIndex: 1000
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ margin: 0 }}>{selectedSong.song_name}</h2>
+            <button 
+              onClick={() => setSelectedSong(null)}
+              style={{
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                fontSize: '24px',
+                color: '#666'
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            {renderScoreClass(selectedSong)}
+            <p className='summary-quote' style={{ fontSize: '16px', lineHeight: '1.6' }}>{selectedSong.comments}</p>
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+            {selectedSong.tags.map((tag, index) => (
+              <span
+                key={index}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: '16px',
+                  backgroundColor: '#f0f0f0',
+                  color: '#333',
+                  fontSize: '14px'
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <div className="comments" style={{ marginBottom: '24px' }}>
+            <h3 style={{ borderBottom: '2px solid #4CAF50', paddingBottom: '8px', marginBottom: '16px' }}>详细解析</h3>
+            <div style={{ display: 'grid', gap: '20px' }}>
+              {[
+                { title: '编曲', data: selectedSong.arrangement },
+                { title: '人声', data: selectedSong.vocal },
+                { title: '结构', data: selectedSong.structure },
+                { title: '歌词', data: selectedSong.lyrics }
+              ].map(section => (
+                <div key={section.title} style={{ 
+                  padding: '16px', 
+                  backgroundColor: '#f8f8f8', 
+                  borderRadius: '8px',
+                  border: '1px solid #eee'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '8px'
+                  }}>
+                    <h4 style={{ margin: 0 }}>{section.title}</h4>
+                    <span style={{ 
+                      backgroundColor: '#4CAF50',
+                      color: 'white',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                    }}>
+                      {section.data?.score}分
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.6', textAlign: 'left' }}>{section.data?.comments}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 歌词时间轴 */}
+          {selectedSong.structure && selectedSong.structure.comments && (
+            <div style={{ marginTop: '24px' }}>
+              <h3 style={{ borderBottom: '2px solid #4CAF50', paddingBottom: '8px', marginBottom: '16px' }}>歌词时间轴</h3>
+              <div style={{ 
+                maxHeight: '300px', 
+                overflowY: 'auto',
+                padding: '16px',
+                backgroundColor: '#f8f8f8',
+                borderRadius: '8px',
+                border: '1px solid #eee'
+              }}>
+                {parseLyrics(selectedSong.structure.comments).map((lyric, index) => (
+                  <div key={index} style={{ 
+                    display: 'flex',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    lineHeight: '1.6'
+                  }}>
+                    <span style={{ 
+                      color: '#4CAF50',
+                      marginRight: '16px',
+                      fontFamily: 'monospace'
+                    }}>
+                      {Math.floor(lyric.time/60).toString().padStart(2, '0')}:
+                      {(lyric.time%60).toFixed(2).padStart(5, '0')}
+                    </span>
+                    <span>{lyric.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

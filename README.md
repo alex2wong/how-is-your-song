@@ -25,6 +25,7 @@
 - 前端：React + Vite
 - 后端：Express + Node.js
 - AI：Google Gemini AI 2.0 Pro Multi-Model
+- 数据库: mongodb
 
 ## 快速开始
 
@@ -38,3 +39,7 @@
 
 3. 点击右上角设置按钮，配置你的 Gemini API Key.
    Gemini API Key [官网申请地址](https://aistudio.google.com/apikey)
+
+4. 安装docker，启动mongodb数据库
+   > wget -qO- https://get.docker.com/ | sh
+   > docker run -d --name mongodb -p 27017:27017 -v /data/mongodb/data:/data/db mongo
