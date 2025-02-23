@@ -129,12 +129,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     console.error('分析失败:', error);
     res.status(500).json({ error: '分析失败: ' + error.message });
   } finally {
-    // 删除上传的文件
-    if (req.file) {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.error('删除文件失败:', err);
-      });
-    }
+
   }
 });
 
