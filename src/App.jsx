@@ -309,7 +309,7 @@ function App() {
             >
               全部
             </span>
-            {tags.slice(0, showAllTags ? tags.length : 10).map((tagObj, index) => {
+            {[...tags].sort((a, b) => a.tag.localeCompare(b.tag, 'zh-CN')).slice(0, showAllTags ? tags.length : 10).map((tagObj, index) => {
               const tagValue = tagObj.tag.startsWith('#') ? tagObj.tag.slice(1) : tagObj.tag;
               return (
                 <span
