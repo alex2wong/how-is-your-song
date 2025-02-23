@@ -33,7 +33,7 @@ async function getTags() {
 }
 
 async function insertSong(songJson) {
-    await insertTags(songJson.tags);
+    await insertTags(songJson.tags ? songJson.tags : (songJson.arrangement?.tags ? songJson.arrangement.tags : []));
     const db = await connectToDb();
     return db.collection('songs').insertOne(songJson);
 }
