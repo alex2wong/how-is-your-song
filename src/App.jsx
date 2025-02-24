@@ -5,6 +5,7 @@ import Settings from './components/Settings'
 import { analyzeMusic } from './api/analyze'
 import { ProjectIntro } from './components/ProjectIntro'
 import { SongDetail } from './components/SongDetail'
+import { scoreClassStyles } from './utils'
 
 const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
 
@@ -344,7 +345,7 @@ function App() {
             >
               <span style={{ fontWeight: 'bold', color: '#4CAF50', marginRight: '12px' }}>#{index + 1}</span>
               <span style={{ flex: 1, textAlign: 'left' }}>{song.song_name}</span>
-              <span style={{ fontWeight: 'bold', color: '#4CAF50' }}>{song.overall_score.toFixed(1)}分</span>
+              <span style={{ fontWeight: 'bold', color: scoreClassStyles(song.overall_score).bgColor }}>{song.overall_score.toFixed(1)}分</span>
             </div>
           ))}
         </div>

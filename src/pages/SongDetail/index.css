@@ -1,0 +1,15 @@
+.score {
+    font-size: 24px;
+    font-weight: bold;
+    /* color: #4CAF50; */
+  
+    .exellent {
+      color: #4CAF50;
+    }
+    .good {
+      color: #f7cb73;
+    }
+    .normal {
+      color: #ff3c00;
+    }
+  }
