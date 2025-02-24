@@ -13,8 +13,6 @@ const MediaPlayer = ({ audioUrl }) => {
     if (audioRef.current) {
       const currentTime = audioRef.current.currentTime;
       const duration = audioRef.current.duration;
-      console.log('# current time update ', currentTime, duration)
-
       setProgress((currentTime / duration) * 100);
     }
   };
