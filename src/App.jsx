@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { FaGithub } from 'react-icons/fa'
 import './App.css'
 import Settings from './components/Settings'
@@ -6,6 +6,7 @@ import { analyzeMusic } from './api/analyze'
 import { ProjectIntro } from './components/ProjectIntro'
 import { SongDetail } from './components/SongDetail'
 import { scoreClassStyles } from './utils'
+import { debounce } from 'lodash';
 
 const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
 
@@ -22,6 +23,8 @@ function App() {
   const [activeRankTab, setActiveRankTab] = useState('24hours')
   const [selectedSong, setSelectedSong] = useState(null)
   const [showAllTags, setShowAllTags] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   // 获取指定时间范围内的排行榜数据
   const fetchRankList = async (tag, timestamp) => {
@@ -263,6 +266,36 @@ function App() {
     )
   }
 
+  // 搜索歌曲
+  const searchSongs = async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    try {
+      const response = await fetch(`${apiBase}/songs?name=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error('搜索歌曲失败:', error);
+      setSearchResults([]);
+    }
+  };
+
+  // 创建一个防抖的搜索函数，延迟300ms
+  const debouncedSearch = useCallback(
+    debounce((query) => {
+      searchSongs(query);
+    }, 300),
+    [] // 空依赖数组，确保防抖函数只创建一次
+  );
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value); // 立即更新输入框的值
+    debouncedSearch(value); // 防抖处理搜索请求
+  };
+
   return (
     <div className="app">
       <a
@@ -366,6 +399,67 @@ function App() {
         <div>分析次数：{stats.analyses}</div>
       </div>
 
+      <div style={{
+          margin: '20px 0',
+          padding: '20px',
+          border: '1px solid #eee',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          justifyItems: 'center',
+          borderRadius: '8px' }} >
+          {/* 搜索框 */}
+          <div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleInputChange}
+              placeholder="搜索歌曲..."
+              style={{
+                width: '95%',
+                padding: '8px 12px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+
+          {/* 搜索结果 */}
+          {searchResults.length > 0 && (
+            <div style={{ marginBottom: '16px' }}>
+              <h4 style={{ margin: '18px 0 8px', color: '#666' }}>搜索结果</h4>
+              <div style={{ 
+                maxHeight: '300px', 
+                overflowY: 'auto',
+                border: '1px solid #eee',
+                borderRadius: '4px'
+              }}>
+                {searchResults.map((song, index) => (
+                  <div 
+                    key={index} 
+                    onClick={() => fetchSongDetail(song._id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '12px',
+                      backgroundColor: '#f8f8f8',
+                      borderRadius: '6px',
+                      marginBottom: '8px',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                  >
+                    <span style={{ fontWeight: 'bold', color: '#4CAF50', marginRight: '12px' }}>#{index + 1}</span>
+                    <span style={{ flex: 1, textAlign: 'left' }}>{song.song_name}</span>
+                    <span style={{ fontWeight: 'bold', color: scoreClassStyles(song.overall_score).bgColor }}>{song.overall_score.toFixed(1)}分</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+      </div>
+
       {(
         <div style={{
           margin: '20px 0',
@@ -374,6 +468,9 @@ function App() {
           borderRadius: '8px'
         }}>
           <h3 style={{ margin: '0 0 16px', color: '#333' }}>最受AI喜爱的歌曲</h3>
+          
+        
+
           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
             {[
               { id: '24hours', name: '24小时榜' },

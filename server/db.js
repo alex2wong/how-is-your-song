@@ -46,6 +46,11 @@ async function getSongById(songId) {
     return db.collection('songs').find({ _id: id }).toArray();
 }
 
+async function getSongsByName(name) {
+    const db = await connectToDb();
+    return db.collection('songs').find({ song_name: { $regex: name, $options: 'i' } }).toArray();
+}
+
 /*
  {
    "song_name": "未知歌曲名",
@@ -114,4 +119,4 @@ async function getSongRankReverse() {
     return songs;
 }
 
-module.exports = { connectToDb, insertTags, getTags, insertSong, getSongRank, getSongRankReverse, getSongById };
+module.exports = { connectToDb, insertTags, getTags, insertSong, getSongRank, getSongRankReverse, getSongById, getSongsByName };

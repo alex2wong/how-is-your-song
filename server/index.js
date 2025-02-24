@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { analyzeMusic } = require('./genai-analyze');
-const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse } = require('./db');
+const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName } = require('./db');
 require('dotenv').config()
 
 const app = express();
@@ -81,6 +81,11 @@ app.get('/api/rank-reverse', async (req, res) => {
 app.get('/api/tags', async (req, res) => {
   const tags = await getTags();
   res.json(tags);
+});
+
+app.get('/api/songs', async (req, res) => {
+  const songs = await getSongsByName(req.query.name);
+  res.json(songs);
 });
 
 
