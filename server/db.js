@@ -35,6 +35,28 @@ async function getTags() {
 async function insertSong(songJson) {
     await insertTags(songJson.tags ? songJson.tags : (songJson.arrangement?.tags ? songJson.arrangement.tags : []));
     const db = await connectToDb();
+    songJson.createAt = Date.now();
+    // re-calc overall_score
+    let totalItem = 0;
+    let totalScore = 0;
+    if (songJson.arrangement?.score) {
+        totalItem += 1;
+        totalScore += songJson.arrangement.score;
+    }
+    if (songJson.vocal?.score) {
+        totalItem += 1;
+        totalScore += songJson.vocal.score;
+    }
+    if (songJson.structure?.score) {
+        totalItem += 1;
+        totalScore += songJson.structure.score;
+    }
+    if (songJson.lyrics?.score) {
+        totalItem += 1;
+        totalScore += songJson.lyrics.score;
+    }
+    songJson.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
+
     return db.collection('songs').insertOne(songJson);
 }
 
@@ -82,11 +104,14 @@ async function getSongById(songId) {
    }
 */
 
-async function getSongRank(tagName) {
+async function getSongRank(tagName, timestamp) {
+    console.log('getSongRank', tagName, timestamp);
     const db = await connectToDb();
     // 查找 song tags 中包含tagName的歌曲并排行，取前100名。如果tagName为空，则为全局排行，按overall_score分数进行排行
+    // 如果timestamp不为空，则只返回timestamp之后的歌曲
     const songs = await db.collection('songs').find({
-        "tags": { $regex: tagName ? `.*${tagName}.*` : '' }
+        "tags": { $regex: tagName ? `.*${tagName}.*` : '' },
+        ...(timestamp ? { "createAt": { $gte: Number(timestamp) } } : {})
     }, {
         projection: {
             song_name: 1,
@@ -97,4 +122,17 @@ async function getSongRank(tagName) {
     return songs;
 }
 
-module.exports = { connectToDb, insertTags, getTags, insertSong, getSongRank, getSongById };
+async function getSongRankReverse() {
+    const db = await connectToDb();
+    // 最低分数排行，取前100名
+    const songs = await db.collection('songs').find({}, {
+        projection: {
+            song_name: 1,
+            overall_score: 1,
+            _id: 1
+        }
+    }).sort({ "overall_score": 1 }).limit(300).toArray();
+    return songs;
+}
+
+module.exports = { connectToDb, insertTags, getTags, insertSong, getSongRank, getSongRankReverse, getSongById };
