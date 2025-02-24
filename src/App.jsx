@@ -19,7 +19,7 @@ function App() {
   const [tags, setTags] = useState([])
   const [selectedTag, setSelectedTag] = useState('')
   const [rankList, setRankList] = useState([])
-  const [activeRankTab, setActiveRankTab] = useState('total')
+  const [activeRankTab, setActiveRankTab] = useState('24hours')
   const [selectedSong, setSelectedSong] = useState(null)
   const [showAllTags, setShowAllTags] = useState(false);
 
@@ -63,12 +63,16 @@ function App() {
     const now = Date.now();
     const DAY = 24 * 60 * 60 * 1000;
     const WEEK = 7 * DAY;
+    const MONTH = 30 * DAY;
     
     let tag, timestamp;
     
     switch (activeRankTab) {
       case 'weekly':
         timestamp = now - WEEK;
+        break;
+      case 'monthly':
+        timestamp = now - MONTH;
         break;
       case '48hours':
         timestamp = now - 2 * DAY;
@@ -372,10 +376,11 @@ function App() {
           <h3 style={{ margin: '0 0 16px', color: '#333' }}>最受AI喜爱的歌曲</h3>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
             {[
-              { id: 'total', name: '总榜' },
-              { id: 'weekly', name: '周榜' },
-              { id: '48hours', name: '48小时榜' },
               { id: '24hours', name: '24小时榜' },
+              { id: '48hours', name: '48小时榜' },
+              { id: 'weekly', name: '周榜' },
+              { id: 'monthly', name: '月榜' },
+              { id: 'total', name: '总榜' },
               { id: 'pop', name: '流行榜' },
               { id: 'rock', name: '摇滚榜' },
               { id: 'electronic', name: '电子榜' },
@@ -390,7 +395,7 @@ function App() {
               // { id: 'blues', name: '布鲁斯榜' },
               { id: 'metal', name: '金属榜' },
               { id: 'edm', name: 'EDM榜' },
-              { id: 'worst', name: '最烂榜', style: { backgroundColor: '#ff4444', color: 'white' } }
+              { id: 'worst', name: '低分榜', style: { backgroundColor: '#ff4444', color: 'white' } }
             ].map(tab => (
               <button
                 key={tab.id}
