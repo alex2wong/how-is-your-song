@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { analyzeMusic } = require('./genai-analyze');
-const { insertSong, getSongRank, getTags, getSongById } = require('./db');
+const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse } = require('./db');
 require('dotenv').config()
 
 const app = express();
@@ -69,7 +69,12 @@ app.get('/api/stats', (req, res) => {
 });
 
 app.get('/api/rank', async (req, res) => {
-  const songs = await getSongRank(req.query.tag ? '#'+req.query.tag : undefined);
+  const songs = await getSongRank(req.query.tag ? '#'+req.query.tag : undefined, req.query.timestamp);
+  res.json(songs);
+});
+
+app.get('/api/rank-reverse', async (req, res) => {
+  const songs = await getSongRankReverse();
   res.json(songs);
 });
 
@@ -160,6 +165,28 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
         rank.length = 100;
       }
       result.url = filePath;
+
+      // re-calc overall_score
+      let totalItem = 0;
+      let totalScore = 0;
+      if (result.arrangement?.score) {
+          totalItem += 1;
+          totalScore += result.arrangement.score;
+      }
+      if (result.vocal?.score) {
+          totalItem += 1;
+          totalScore += result.vocal.score;
+      }
+      if (result.structure?.score) {
+          totalItem += 1;
+          totalScore += result.structure.score;
+      }
+      if (result.lyrics?.score) {
+          totalItem += 1;
+          totalScore += result.lyrics.score;
+      }
+      result.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
+
       await insertSong(result);
 
       stats.rank = rank;

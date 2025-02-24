@@ -19,23 +19,112 @@ function App() {
   const [tags, setTags] = useState([])
   const [selectedTag, setSelectedTag] = useState('')
   const [rankList, setRankList] = useState([])
+  const [activeRankTab, setActiveRankTab] = useState('total')
   const [selectedSong, setSelectedSong] = useState(null)
   const [showAllTags, setShowAllTags] = useState(false);
+
+  // 获取指定时间范围内的排行榜数据
+  const fetchRankList = async (tag, timestamp) => {
+    try {
+      if (tag === 'worst') {
+        const response = await fetch(`${apiBase}/rank-reverse`);
+        const data = await response.json();
+        return data;
+      }
+      
+      const params = new URLSearchParams();
+      if (tag) params.append('tag', tag);
+      if (timestamp) params.append('timestamp', timestamp);
+      
+      const response = await fetch(`${apiBase}/rank?${params.toString()}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('获取排行榜失败:', error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     // 页面加载时获取统计数据、标签列表和排行榜
     Promise.all([
       fetch(`${apiBase}/stats`).then(res => res.json()),
-      fetch(`${apiBase}/tags`).then(res => res.json()),
-      fetch(`${apiBase}/rank`).then(res => res.json())
+      fetch(`${apiBase}/tags`).then(res => res.json())
     ])
-      .then(([statsData, tagsData, rankData]) => {
-        setStats(statsData)
-        setTags(tagsData)
-        setRankList(rankData)
+      .then(([statsData, tagsData]) => {
+        setStats(statsData);
+        setTags(tagsData);
       })
-      .catch(console.error)
-  }, [])
+      .catch(console.error);
+  }, []);
+
+  // 监听activeRankTab变化，获取对应的排行榜数据
+  useEffect(() => {
+    const now = Date.now();
+    const DAY = 24 * 60 * 60 * 1000;
+    const WEEK = 7 * DAY;
+    
+    let tag, timestamp;
+    
+    switch (activeRankTab) {
+      case 'weekly':
+        timestamp = now - WEEK;
+        break;
+      case '48hours':
+        timestamp = now - 2 * DAY;
+        break;
+      case '24hours':
+        timestamp = now - DAY;
+        break;
+      case 'worst':
+        tag = 'worst';
+        break;
+      case 'pop':
+        tag = '流行';
+        break;
+      case 'rock':
+        tag = '摇滚';
+        break;
+      case 'electronic':
+        tag = '电子';
+        break;
+      case 'symphony':
+        tag = '交响';
+        break;
+      case 'jazz':
+        tag = '爵士';
+        break;
+      case 'folk':
+        tag = '民谣';
+        break;
+      case 'reggae':
+        tag = '雷鬼';
+        break;
+      case 'rap':
+        tag = '说唱';
+        break;
+      case 'rnb':
+        tag = 'R&B';
+        break;
+      case 'instrumental':
+        tag = '纯音乐';
+        break;
+      case 'chinese':
+        tag = '国风';
+        break;
+      case 'blues':
+        tag = '布鲁斯';
+        break;
+      case 'metal':
+        tag = '金属';
+        break;
+      case 'edm':
+        tag = 'EDM';
+        break;
+    }
+    
+    fetchRankList(tag, timestamp).then(setRankList);
+  }, [activeRankTab]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -273,7 +362,7 @@ function App() {
         <div>分析次数：{stats.analyses}</div>
       </div>
 
-      {rankList && rankList.length > 0 && (
+      {(
         <div style={{
           margin: '20px 0',
           padding: '20px',
@@ -281,52 +370,45 @@ function App() {
           borderRadius: '8px'
         }}>
           <h3 style={{ margin: '0 0 16px', color: '#333' }}>最受AI喜爱的歌曲</h3>
-          <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px', position: 'relative' }}>
-            <span
-              onClick={() => handleTagClick('')}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '16px',
-                cursor: 'pointer',
-                backgroundColor: selectedTag === '' ? '#4CAF50' : '#f0f0f0',
-                color: selectedTag === '' ? 'white' : '#333'
-              }}
-            >
-              全部
-            </span>
-            {[...tags].sort((a, b) => a.tag.localeCompare(b.tag, 'zh-CN')).slice(0, showAllTags ? tags.length : 10).map((tagObj, index) => {
-              const tagValue = tagObj.tag.startsWith('#') ? tagObj.tag.slice(1) : tagObj.tag;
-              return (
-                <span
-                  key={tagObj._id}
-                  onClick={() => handleTagClick(tagValue)}
-                  style={{
-                    padding: '4px 12px',
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    backgroundColor: selectedTag === tagValue ? '#4CAF50' : '#f0f0f0',
-                    color: selectedTag === tagValue ? 'white' : '#333'
-                  }}
-                >
-                  {tagObj.tag}
-                </span>
-              );
-            })}
-            {tags.length > 10 && (
-              <span
-                onClick={() => setShowAllTags(!showAllTags)}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            {[
+              { id: 'total', name: '总榜' },
+              { id: 'weekly', name: '周榜' },
+              { id: '48hours', name: '48小时榜' },
+              { id: '24hours', name: '24小时榜' },
+              { id: 'pop', name: '流行榜' },
+              { id: 'rock', name: '摇滚榜' },
+              { id: 'electronic', name: '电子榜' },
+              { id: 'symphony', name: '交响乐榜' },
+              { id: 'jazz', name: '爵士乐榜' },
+              { id: 'folk', name: '民谣榜' },
+              { id: 'reggae', name: '雷鬼榜' },
+              { id: 'rap', name: '说唱榜' },
+              { id: 'rnb', name: 'R&B榜' },
+              { id: 'instrumental', name: '纯音乐榜' },
+              { id: 'chinese', name: '国风榜' },
+              // { id: 'blues', name: '布鲁斯榜' },
+              { id: 'metal', name: '金属榜' },
+              { id: 'edm', name: 'EDM榜' },
+              { id: 'worst', name: '最烂榜', style: { backgroundColor: '#ff4444', color: 'white' } }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveRankTab(tab.id)}
                 style={{
-                  padding: '4px 12px',
-                  borderRadius: '16px',
+                  padding: '8px 16px',
+                  border: 'none',
+                  borderRadius: '20px',
+                  backgroundColor: activeRankTab === tab.id ? (tab.style?.backgroundColor || '#4CAF50') : '#f0f0f0',
+                  color: activeRankTab === tab.id ? (tab.style?.color || 'white') : '#666',
                   cursor: 'pointer',
-                  backgroundColor: '#e0e0e0',
-                  color: '#666',
-                  fontSize: '14px'
+                  transition: 'all 0.2s',
+                  fontWeight: activeRankTab === tab.id ? 'bold' : 'normal'
                 }}
               >
-                {showAllTags ? '收起' : `更多 (${tags.length - 10})`}
-              </span>
-            )}
+                {tab.name}
+              </button>
+            ))}
           </div>
           {rankList.map((song, index) => (
             <div 
