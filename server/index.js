@@ -165,6 +165,28 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
         rank.length = 100;
       }
       result.url = filePath;
+
+      // re-calc overall_score
+      let totalItem = 0;
+      let totalScore = 0;
+      if (result.arrangement?.score) {
+          totalItem += 1;
+          totalScore += result.arrangement.score;
+      }
+      if (result.vocal?.score) {
+          totalItem += 1;
+          totalScore += result.vocal.score;
+      }
+      if (result.structure?.score) {
+          totalItem += 1;
+          totalScore += result.structure.score;
+      }
+      if (result.lyrics?.score) {
+          totalItem += 1;
+          totalScore += result.lyrics.score;
+      }
+      result.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
+
       await insertSong(result);
 
       stats.rank = rank;

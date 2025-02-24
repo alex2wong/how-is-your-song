@@ -36,27 +36,6 @@ async function insertSong(songJson) {
     await insertTags(songJson.tags ? songJson.tags : (songJson.arrangement?.tags ? songJson.arrangement.tags : []));
     const db = await connectToDb();
     songJson.createAt = Date.now();
-    // re-calc overall_score
-    let totalItem = 0;
-    let totalScore = 0;
-    if (songJson.arrangement?.score) {
-        totalItem += 1;
-        totalScore += songJson.arrangement.score;
-    }
-    if (songJson.vocal?.score) {
-        totalItem += 1;
-        totalScore += songJson.vocal.score;
-    }
-    if (songJson.structure?.score) {
-        totalItem += 1;
-        totalScore += songJson.structure.score;
-    }
-    if (songJson.lyrics?.score) {
-        totalItem += 1;
-        totalScore += songJson.lyrics.score;
-    }
-    songJson.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
-
     return db.collection('songs').insertOne(songJson);
 }
 
