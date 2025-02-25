@@ -209,4 +209,14 @@ const server =app.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);
 });
 
-server.timeout = 600000;
+// 1. 修改服务器整体超时
+server.timeout = 600000;  // 10分钟
+
+// 2. 修改请求头超时
+server.headersTimeout = 600000;  // 10分钟
+
+// 3. 修改保持连接超时
+server.keepAliveTimeout = 600000;  // 10分钟
+
+// 4. 重要！设置 Node.js 的 http 模块超时时间
+server.setTimeout(600000);  // 10分钟
