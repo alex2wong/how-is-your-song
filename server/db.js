@@ -16,6 +16,7 @@ async function connectToDb() {
 }
 
 async function insertTags(tags) {
+    if (!tags) return;
     const db = await connectToDb();
     const operations = tags.map(tag => ({
         updateOne: {
