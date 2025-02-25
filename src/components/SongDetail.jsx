@@ -1,3 +1,4 @@
+import { FaShare } from "react-icons/fa";
 import { apiBase, scoreClassStyles } from "../utils";
 import MediaPlayer from "./MediaPlayer";
 
@@ -94,22 +95,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexDirection: 'row', width:'80vw' }}>
               <h2 style={{ margin: 0 }}>{selectedSong.song_name}</h2><MediaPlayer audioUrl={audioUrl} />
             </div>
-            <button
-              style={{
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                fontSize: '24px',
-                color: '#666'
-              }}
-              tooltip="分享链接"
-              onClick={() => {
-                navigator.clipboard.writeText(`${location.host}/song/${selectedSong._id}`);
-                alert('链接已复制到剪贴板');
-              }}
-              >
-              {'🚀'}
-            </button>
+            <FaShare width={10} height={10} color='#555' onClick={() =>copyShareLinkforSong(selectedSong._id)}  />
             <button 
               onClick={handleClose}
               style={{
