@@ -136,12 +136,7 @@ app.get('/api/song/:id', async (req, res) => {
 });
 
 // 处理音频文件上传
-app.post('/api/analyze', (req, res, next) => {
-  // Set timeout to 10 minutes
-  req.setTimeout(600000);
-  res.setTimeout(600000);
-  next();
-}, upload.single('audio'), async (req, res) => {
+app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   if (!req.file) {
     return res.status(400).send('未上传文件');
   }
@@ -210,6 +205,8 @@ app.post('/api/analyze', (req, res, next) => {
   }
 });
 
-app.listen(port, () => {
+const server =app.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);
 });
+
+server.timeout = 600000;
