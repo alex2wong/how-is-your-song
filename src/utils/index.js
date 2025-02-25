@@ -33,3 +33,12 @@ export const scoreClassStyles = (score) => {
         bgColor
     }
 }
+
+// export const getShareLinkforSong = (songId) => {
+//   return `https://${location.host}/song/${songId}`
+// }
+
+export const copyShareLinkforSong = (songId) => {
+  navigator.clipboard.writeText(`https://${location.host}/song/${songId}`);
+  alert('链接已复制到剪贴板');
+}

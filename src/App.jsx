@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { FaGithub } from 'react-icons/fa'
+import { FaGithub, FaShare } from 'react-icons/fa'
 import './App.css'
 import Settings from './components/Settings'
 import { analyzeMusic } from './api/analyze'
 import { ProjectIntro } from './components/ProjectIntro'
 import { SongDetail } from './components/SongDetail'
-import { scoreClassStyles } from './utils'
+import { copyShareLinkforSong, scoreClassStyles } from './utils'
 import { debounce } from 'lodash';
 
 const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
@@ -205,23 +205,25 @@ function App() {
   }
 
   const renderScoreClass = (rating) => {
-    if (!rating) {
+    if (!rating || !rating.overall_score) {
       return ''
     }
-    let classTxt = '优秀';
-    let className = 'exellent';
 
-    if (rating.overall_score >= 8) {
+    const score = rating.overall_score;
+    let classTxt = '优秀';
+    let className = 'score ';
+
+    if (score >= 8) {
       classTxt = '很优秀'
-      className = 'exellent'
-    } else if (rating.overall_score >= 6) {
+      className += 'exellent'
+    } else if (score >= 6) {
       classTxt = '还不错'
-      className = 'good'
+      className += 'good'
     } else {
       classTxt = '较一般'
-      className = 'normal'
+      className += 'normal'
     }
-    return (<p className={className}> 《{rating.song_name}》 得分：{rating.overall_score} {classTxt}</p>)
+    return (<p><span>《{rating.song_name}》 得分：</span> <span className={className} style={{ backgroundColor: scoreClassStyles(score).bgColor }}>{score} {classTxt}</span></p>)
   }
 
   /**
@@ -244,7 +246,7 @@ function App() {
           {Object.entries(dimensions).map(([dimension, value]) => value && (
             <tr className='dimension-row' key={dimension}>
               <td>{dimension}</td>
-              <td>{value.score}</td>
+              <td><span className='score' style={{ backgroundColor: scoreClassStyles(value.score).bgColor }}>{value.score}</span></td>
               <td>{value.comments}</td>
             </tr>
           ))}
@@ -372,9 +374,13 @@ function App() {
 
       {rating && (
         <div className="result-section">
-          <h2>分析结果</h2>
-          <div className='score'>{
-            renderScoreClass(rating)}</div>
+          <div className='result-title'>
+            <div/>
+            <h2>分析结果</h2> <FaShare width={10} height={10} color='#555' onClick={() => copyShareLinkforSong(selectedSong._id)} />
+          </div>
+          <div className='score-row'>{
+            renderScoreClass(rating)}
+          </div>
           <p className='summary-quote'>{rating.comments}</p>
           <div>
             {renderTags(rating.tags || rating.labels)}

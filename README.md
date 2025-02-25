@@ -4,6 +4,7 @@
 
 ![页面截图](https://github.com/alex2wong/how-is-your-song/blob/main/screenshot-Music-Analyze.png?raw=true)
 ![页面截图2](https://github.com/alex2wong/how-is-your-song/blob/main/screenshot2-Music-Analyze.png?raw=true)
+![页面截图3](https://github.com/alex2wong/how-is-your-song/blob/main/screenshot-Music-Analyze-charts?raw=true)
 
 基于 Gemini AI 的音乐作品智能评分系统，可以从编曲、人声、旋律、歌词等多个维度对音乐作品进行专业分析和评价。
 
@@ -13,10 +14,11 @@
 - 智能生成音乐标签
 - 支持自定义 Gemini API Key
 - 系统 Prompt Engineer 确保用户作品的评价标准统一
-- 全站历史评分排行、分标签排行
+- 全站历史评分排行、分类榜单
+- 音乐评分后的结果一键分享，给朋友炫一下
 
 - [Todo] 音乐作品风格、乐器 Suno、Udio 提示词一键复制
-- [Todo] 音乐评分后的结果一键分享，给朋友炫一下
+
 
 ## 技术栈
 

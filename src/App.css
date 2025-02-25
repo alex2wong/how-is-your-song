@@ -36,11 +36,21 @@
   border: 1px solid #eee;
   border-radius: 8px;
 }
+.result-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.score-row {
+  font-size: 22px;
+  font-weight: bold;
+}
 
 .score {
-  font-size: 24px;
-  font-weight: bold;
-  /* color: #4CAF50; */
+  padding: 2px 8px;
+  border-radius: 12px;
 
   .exellent {
     color: #4CAF50;
