@@ -12,6 +12,7 @@ export const analyzeMusic = async (file, onProgress) => {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
+    timeout: 600000, // 10 minutes in milliseconds
     onUploadProgress: (progressEvent) => {
       if (onProgress) {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
