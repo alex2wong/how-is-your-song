@@ -1,7 +1,7 @@
 import { FaShare } from "react-icons/fa";
 import { apiBase, scoreClassStyles } from "../utils";
 import MediaPlayer from "./MediaPlayer";
-
+import { copyShareLinkforSong } from "../utils";
 /**
  * 
  * .exellent {
@@ -95,14 +95,14 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexDirection: 'row', width:'80vw' }}>
               <h2 style={{ margin: 0 }}>{selectedSong.song_name}</h2><MediaPlayer audioUrl={audioUrl} />
             </div>
-            <FaShare width={10} height={10} color='#555' onClick={() =>copyShareLinkforSong(selectedSong._id)}  />
+            <FaShare style={{ width: '24px', height: '24px', flexShrink: 0, cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() =>copyShareLinkforSong(selectedSong._id)}  />
             <button 
               onClick={handleClose}
               style={{
                 border: 'none',
                 background: 'none',
                 cursor: 'pointer',
-                fontSize: '24px',
+                fontSize: '36px',
                 color: '#666'
               }}
             >
