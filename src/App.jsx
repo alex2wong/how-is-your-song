@@ -122,6 +122,9 @@ function App() {
       case 'blues':
         tag = '布鲁斯';
         break;
+      case 'classical':
+        tag = '古典';
+        break;
       case 'metal':
         tag = '金属';
         break;
@@ -492,6 +495,7 @@ function App() {
               // { id: 'blues', name: '布鲁斯榜' },
               { id: 'metal', name: '金属榜' },
               { id: 'edm', name: 'EDM榜' },
+              { id: 'classical', name: '古典榜' },
               { id: 'worst', name: '低分榜', style: { backgroundColor: '#ff4444', color: 'white' } }
             ].map(tab => (
               <button
