@@ -25,7 +25,8 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
         return ''
       }
   
-    return (<div style={{ 
+    return (<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+      <div style={{ 
       display: 'flex', 
       justifyContent: 'center',
       gap: '20px', 
@@ -43,6 +44,24 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
         {rating.overall_score}分
       </span>
       <span style={{ color: bgColor }}><strong >{classTxt}</strong></span>
+    </div>
+    {rating.authorName && (
+        <p>
+        <span style={{
+          backgroundColor: '#e8f5ff',
+          color: '#1890ff',
+          padding: '2px 8px',
+          borderRadius: '12px',
+          fontSize: '0.85em',
+          marginLeft: '8px',
+          display: 'inline-block',
+          verticalAlign: 'middle',
+          border: '1px solid #91d5ff'
+        }}>
+          {rating.authorName}
+        </span>
+        </p>
+      )}
     </div>)
     }
 

@@ -583,7 +583,6 @@ function App() {
               <span style={{ fontWeight: 'bold', color: '#4CAF50', marginRight: '12px' }}>#{index + 1}</span>
               <span style={{ flex: 1, textAlign: 'left' }}>
                 {song.song_name}
-                {console.log(song)}
                 {song.authorName && (
                   <span style={{
                     backgroundColor: '#e8f5ff',
