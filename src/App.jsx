@@ -398,7 +398,7 @@ function App() {
           <div className='result-title'>
             <div/>
             <h2>分析结果</h2> 
-            <FaShare style={{ width: '24px!important', height: '24px!important', cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() => copyShareLinkforSong(selectedSong._id)} />
+            <FaShare style={{ width: '24px!important', height: '24px!important', cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() => copyShareLinkforSong(rating._id)} />
           </div>
           <div className='score-row'>{
             renderScoreClass(rating)}
