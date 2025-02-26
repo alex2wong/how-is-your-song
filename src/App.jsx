@@ -28,6 +28,7 @@ function App() {
   const [authorName, setAuthorName] = useState(() => {
     return localStorage.getItem('authorName') || '';
   });
+  const [privacyMode, setPrivacyMode] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('authorName', authorName);
@@ -172,7 +173,7 @@ function App() {
     try {
       const response = await analyzeMusic(file, authorName, (progress) => {
         setUploadProgress(progress)
-      })
+      }, privacyMode)
       if (response) {
         setRating(response.data)
         setStats(prev => ({
@@ -364,6 +365,24 @@ function App() {
             border: '1px solid #ddd'
           }}
         />
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: '0.5rem' }}>
+          <input
+            type="checkbox"
+            id="privacyMode"
+            onChange={(e) => setPrivacyMode(e.target.checked)}
+            style={{ marginRight: '0.5rem' }}
+          />
+          <label htmlFor="privacyMode">隐私模式</label>
+          <span style={{ 
+            marginLeft: '8px', 
+            color: '#999', 
+            fontSize: '12px'
+          }}>
+            不参与排行，不可搜索，不可分享，服务器不保存任何数据，建议使用自定义APIKEY
+          </span>
+        </div>
+
+        
         
         {loading && (
           <div style={{ marginTop: '1rem', width: '100%' }}>

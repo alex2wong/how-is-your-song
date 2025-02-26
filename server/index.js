@@ -147,13 +147,15 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
 
   let authorName = req.query.author_name;
 
+  let privacyMode = Number(req.query.privacy_mode);
+  let filePath;
   try {
     // 使用上传后的文件名（已经是时间戳格式）作为安全的文件名
-    const filePath = req.file.path;
+    filePath = req.file.path;
     const fileName = path.basename(filePath); // 使用上传后的安全文件名
 
     console.log('# upload as localfile done, path ', filePath, fileName);
-    let result = await analyzeMusic(filePath, apiKey);
+    let result = await analyzeMusic(filePath, apiKey, privacyMode);
     
     // 在返回结果中使用原始文件名
     result = {
@@ -165,7 +167,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     stats.analyses += 1;
 
     // 根据result中的"song_name"和"overall_score": 8.3, 字段，制作一个仅显示前30名的排行榜，保存到本地，并在stats api中返回
-    if (result.song_name && result.overall_score) {
+    if (result.song_name && result.overall_score && privacyMode !== 1) {
       const rank = stats.rank || [];
       rank.push({ song_name: result.song_name, overall_score: result.overall_score });
       rank.sort((a, b) => b.overall_score - a.overall_score);
@@ -205,6 +207,16 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     console.error('分析失败:', error);
     res.status(500).json({ error: '分析失败: ' + error.message });
   } finally {
+    if (privacyMode === 1) {
+      // 删除上传的文件
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error('删除文件失败:', err);
+        } else {
+          console.log('文件删除成功', filePath);
+        }
+      });
+    }
   }
 });
 
