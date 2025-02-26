@@ -145,6 +145,8 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     apiKey = process.env.APIKEY.split(',')[Date.now() % process.env.APIKEY.split(',').length];
   }
 
+  let authorName = req.query.author_name;
+
   try {
     // 使用上传后的文件名（已经是时间戳格式）作为安全的文件名
     const filePath = req.file.path;
@@ -156,6 +158,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     // 在返回结果中使用原始文件名
     result = {
       ...result,
+      authorName: authorName,
       song_name: req.query.file_name || '未知歌曲'
     };
     // 增加分析次数

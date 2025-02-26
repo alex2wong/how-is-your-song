@@ -101,6 +101,7 @@ async function getSongRank(tagName, timestamp) {
         projection: {
             song_name: 1,
             overall_score: 1,
+            authorName: 1,
             _id: 1
         }
     }).sort({ "overall_score": -1 }).limit(300).toArray();
@@ -114,6 +115,7 @@ async function getSongRankReverse() {
         projection: {
             song_name: 1,
             overall_score: 1,
+            authorName: 1,
             _id: 1
         }
     }).sort({ "overall_score": 1 }).limit(300).toArray();

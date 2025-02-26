@@ -25,6 +25,13 @@ function App() {
   const [showAllTags, setShowAllTags] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [authorName, setAuthorName] = useState(() => {
+    return localStorage.getItem('authorName') || '';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('authorName', authorName);
+  }, [authorName]);
 
   // 获取指定时间范围内的排行榜数据
   const fetchRankList = async (tag, timestamp) => {
@@ -163,7 +170,7 @@ function App() {
     setLoading(true)
     setUploadProgress(0)
     try {
-      const response = await analyzeMusic(file, (progress) => {
+      const response = await analyzeMusic(file, authorName, (progress) => {
         setUploadProgress(progress)
       })
       if (response) {
@@ -344,6 +351,20 @@ function App() {
         >
           {loading ? '分析中...' : '开始分析'}
         </button>
+        <input
+          type="text"
+          placeholder="请填写音乐署名或作者名，如果不填默认匿名 (例如：周杰伦、方文山)"
+          value={authorName}
+          onChange={(e) => setAuthorName(e.target.value)}
+          style={{
+            marginTop: '1rem',
+            padding: '0.5rem',
+            width: '100%',
+            borderRadius: '4px',
+            border: '1px solid #ddd'
+          }}
+        />
+        
         {loading && (
           <div style={{ marginTop: '1rem', width: '100%' }}>
             <div style={{ 
@@ -464,7 +485,24 @@ function App() {
                     }}
                   >
                     <span style={{ fontWeight: 'bold', color: '#4CAF50', marginRight: '12px' }}>#{index + 1}</span>
-                    <span style={{ flex: 1, textAlign: 'left' }}>{song.song_name}</span>
+                    <span style={{ flex: 1, textAlign: 'left' }}>
+                      {song.song_name}
+                      {song.authorName && (
+                        <span style={{
+                          backgroundColor: '#e8f5ff',
+                          color: '#1890ff',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '0.85em',
+                          marginLeft: '8px',
+                          display: 'inline-block',
+                          verticalAlign: 'middle',
+                          border: '1px solid #91d5ff'
+                        }}>
+                          {song.authorName}
+                        </span>
+                      )}
+                    </span>
                     <span style={{ fontWeight: 'bold', color: scoreClassStyles(song.overall_score).bgColor }}>{song.overall_score.toFixed(1)}分</span>
                   </div>
                 ))}
@@ -543,7 +581,25 @@ function App() {
               }}
             >
               <span style={{ fontWeight: 'bold', color: '#4CAF50', marginRight: '12px' }}>#{index + 1}</span>
-              <span style={{ flex: 1, textAlign: 'left' }}>{song.song_name}</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                {song.song_name}
+                {console.log(song)}
+                {song.authorName && (
+                  <span style={{
+                    backgroundColor: '#e8f5ff',
+                    color: '#1890ff',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    fontSize: '0.85em',
+                    marginLeft: '8px',
+                    display: 'inline-block',
+                    verticalAlign: 'middle',
+                    border: '1px solid #91d5ff'
+                  }}>
+                    {song.authorName}
+                  </span>
+                )}
+              </span>
               <span style={{ fontWeight: 'bold', color: scoreClassStyles(song.overall_score).bgColor }}>{song.overall_score.toFixed(1)}分</span>
             </div>
           ))}
