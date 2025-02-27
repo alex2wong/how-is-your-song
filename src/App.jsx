@@ -5,7 +5,7 @@ import Settings from './components/Settings'
 import { analyzeMusic } from './api/analyze'
 import { ProjectIntro } from './components/ProjectIntro'
 import { SongDetail } from './components/SongDetail'
-import { copyShareLinkforSong, scoreClassStyles } from './utils'
+import { copyShareLinkforSong, scoreClassStyles, getAuthorNameColor } from './utils'
 import { debounce } from 'lodash';
 
 const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
@@ -508,15 +508,15 @@ function App() {
                       {song.song_name}
                       {song.authorName && (
                         <span style={{
-                          backgroundColor: '#e8f5ff',
-                          color: '#1890ff',
+                          backgroundColor: getAuthorNameColor(song.authorName).bgColor,
+                          color: getAuthorNameColor(song.authorName).textColor,
                           padding: '2px 8px',
                           borderRadius: '12px',
                           fontSize: '0.85em',
                           marginLeft: '8px',
                           display: 'inline-block',
                           verticalAlign: 'middle',
-                          border: '1px solid #91d5ff'
+                          border: `1px solid ${getAuthorNameColor(song.authorName).borderColor}`
                         }}>
                           {song.authorName}
                         </span>
@@ -604,15 +604,15 @@ function App() {
                 {song.song_name}
                 {song.authorName && (
                   <span style={{
-                    backgroundColor: '#e8f5ff',
-                    color: '#1890ff',
+                    backgroundColor: getAuthorNameColor(song.authorName).bgColor,
+                    color: getAuthorNameColor(song.authorName).textColor,
                     padding: '2px 8px',
                     borderRadius: '12px',
                     fontSize: '0.85em',
                     marginLeft: '8px',
                     display: 'inline-block',
                     verticalAlign: 'middle',
-                    border: '1px solid #91d5ff'
+                    border: `1px solid ${getAuthorNameColor(song.authorName).borderColor}`
                   }}>
                     {song.authorName}
                   </span>
