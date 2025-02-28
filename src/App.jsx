@@ -418,7 +418,7 @@ function App() {
             onChange={(e) => setPrivacyMode(e.target.checked)}
             style={{ marginRight: '0.5rem' }}
           />
-          <label htmlFor="privacyMode">隐私模式</label>
+          <label htmlFor="privacyMode" style={{ flexShrink: 0 }}>隐私模式</label>
           <span style={{ 
             marginLeft: '8px', 
             color: '#999', 
