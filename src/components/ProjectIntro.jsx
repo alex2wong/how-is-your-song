@@ -1,6 +1,28 @@
+import { useState, useEffect } from 'react';
+
 export const ProjectIntro = () => {
-return(
-    <details className="readme-section" open>
+  // Initialize state from localStorage or default to true (expanded)
+  const [isExpanded, setIsExpanded] = useState(() => {
+    const savedState = localStorage.getItem('instructionsExpanded');
+    return savedState !== null ? JSON.parse(savedState) : true;
+  });
+
+  // Update localStorage when isExpanded changes
+  useEffect(() => {
+    localStorage.setItem('instructionsExpanded', JSON.stringify(isExpanded));
+  }, [isExpanded]);
+
+  // Handle toggle event
+  const handleToggle = (e) => {
+    setIsExpanded(e.target.open);
+  };
+
+  return(
+    <details 
+      className="readme-section" 
+      open={isExpanded}
+      onToggle={handleToggle}
+    >
         <summary>使用说明</summary>
         <div className="readme-content">
           <h3>🎵 音乐智能分析系统</h3>
@@ -34,5 +56,4 @@ return(
           </ol>
         </div>
       </details>)
-
 }
