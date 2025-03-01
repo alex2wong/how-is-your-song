@@ -1,4 +1,4 @@
-import { FaShare, FaThumbsUp, FaRegThumbsUp } from "react-icons/fa";
+import { FaShare, FaThumbsUp, FaRegThumbsUp, FaSpinner } from "react-icons/fa";
 import { apiBase, scoreClassStyles, getAuthorNameColor } from "../utils";
 import MediaPlayer from "./MediaPlayer";
 import { copyShareLinkforSong } from "../utils";
@@ -23,18 +23,23 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
 
   const { bgColor,classTxt } = scoreClassStyles(selectedSong.overall_score);
   const [isLiked, setIsLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [songData, setSongData] = useState(selectedSong);
 
   // Check if the song is already liked on component mount
   useEffect(() => {
     const likedSongs = JSON.parse(localStorage.getItem('likedSongs') || '[]');
     setIsLiked(likedSongs.includes(selectedSong._id));
-  }, [selectedSong._id]);
+    setSongData(selectedSong);
+  }, [selectedSong._id, selectedSong.likes]);
 
   // Toggle like status and update localStorage
   const handleLike = async () => {
     const likedSongs = JSON.parse(localStorage.getItem('likedSongs') || '[]');
     
     try {
+      setIsLoading(true);
+      
       if (isLiked) {
         // Remove from liked songs
         const updatedLikedSongs = likedSongs.filter(id => id !== selectedSong._id);
@@ -42,6 +47,10 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
         
         // Call the API to remove like using axios
         await axios.post(`${apiBase}/like/remove/${selectedSong._id}`);
+        setSongData(prev => ({
+          ...prev,
+          likes: Math.max(0, (prev.likes || 0) - 1)
+        }));
       } else {
         // Add to liked songs
         likedSongs.push(selectedSong._id);
@@ -49,11 +58,17 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
         
         // Call the API to add like using axios
         await axios.post(`${apiBase}/like/add/${selectedSong._id}`);
+        setSongData(prev => ({
+          ...prev,
+          likes: (prev.likes || 0) + 1
+        }));
       }
       
       setIsLiked(!isLiked);
     } catch (error) {
       console.error('Error updating like status:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -149,46 +164,60 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           <div style={{ position: 'sticky', top: 0, padding: '24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', backgroundColor: '#fff', }}>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexDirection: 'row', width:'80vw' }}>
-              <h2 style={{ margin: 0 }}>{selectedSong.song_name}</h2><MediaPlayer audioUrl={audioUrl} />
+              <h2 style={{ margin: 0 }}>{songData.song_name}</h2><MediaPlayer audioUrl={audioUrl} />
             </div>
-            {isLiked ? (
-              <FaThumbsUp 
-                style={{ 
-                  width: '24px', 
-                  height: '24px', 
-                  flexShrink: 0, 
-                  cursor: 'pointer', 
-                  color: '#FF0000', 
-                  marginRight: '16px' 
-                }} 
-                onClick={handleLike} 
-              />
-            ) : (
-              <FaRegThumbsUp 
-                style={{ 
-                  width: '24px', 
-                  height: '24px', 
-                  flexShrink: 0, 
-                  cursor: 'pointer', 
-                  color: '#777', 
-                  marginRight: '16px' 
-                }} 
-                onClick={handleLike} 
-              />
-            )}
-            <FaShare style={{ width: '24px', height: '24px', flexShrink: 0, cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() =>copyShareLinkforSong(selectedSong._id)}  />
-            <button 
-              onClick={handleClose}
-              style={{
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                fontSize: '36px',
-                color: '#666'
-              }}
-            >
-              ×
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {isLoading ? (
+                <FaSpinner 
+                  style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    flexShrink: 0, 
+                    color: '#777', 
+                    marginRight: '4px',
+                    animation: 'spin 1s linear infinite'
+                  }} 
+                />
+              ) : isLiked ? (
+                <FaThumbsUp 
+                  style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    flexShrink: 0, 
+                    cursor: 'pointer', 
+                    color: '#FF0000', 
+                    marginRight: '4px' 
+                  }} 
+                  onClick={handleLike} 
+                />
+              ) : (
+                <FaRegThumbsUp 
+                  style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    flexShrink: 0, 
+                    cursor: 'pointer', 
+                    color: '#777', 
+                    marginRight: '4px' 
+                  }} 
+                  onClick={handleLike} 
+                />
+              )}
+              <span style={{ fontSize: '14px', color: '#666', marginRight: '16px' }}>{songData.likes || 0}</span>
+              <FaShare style={{ width: '24px', height: '24px', flexShrink: 0, cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() =>copyShareLinkforSong(selectedSong._id)}  />
+              <button 
+                onClick={handleClose}
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  fontSize: '36px',
+                  color: '#666'
+                }}
+              >
+                ×
+              </button>
+            </div>
           </div>
           <div style={{ marginTop: 50, marginBottom: '24px' }}>
             {scoreRender(selectedSong)}
