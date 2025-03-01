@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { FaGithub, FaShare } from 'react-icons/fa'
+import { FaThumbsUp } from "react-icons/fa";
 import './App.css'
 import Settings from './components/Settings'
 import { analyzeMusic } from './api/analyze'
@@ -7,8 +8,8 @@ import { ProjectIntro } from './components/ProjectIntro'
 import { SongDetail } from './components/SongDetail'
 import { copyShareLinkforSong, scoreClassStyles, getAuthorNameColor } from './utils'
 import { debounce } from 'lodash';
+import { apiBase } from './utils';
 
-const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
 
 function App() {
   const [file, setFile] = useState(null)
@@ -37,8 +38,22 @@ function App() {
   // 获取指定时间范围内的排行榜数据
   const fetchRankList = async (tag, timestamp) => {
     try {
+      console.log('# Fetching rank list: ', tag, timestamp);
       if (tag === 'worst') {
         const response = await fetch(`${apiBase}/rank-reverse`);
+        const data = await response.json();
+        return data;
+      }
+
+      if (tag === 'like') {
+        const response = await fetch(`${apiBase}/rank-by-likes`);
+        const data = await response.json();
+        return data;
+      }
+
+      if (tag === 'mylike') {
+        const likedSongs = JSON.parse(localStorage.getItem('likedSongs') || '[]');
+        const response = await fetch(`${apiBase}/rank-by-ids?ids=${likedSongs.join(',')}`);
         const data = await response.json();
         return data;
       }
@@ -93,6 +108,12 @@ function App() {
         break;
       case 'worst':
         tag = 'worst';
+        break;
+      case 'mylike':
+        tag = 'mylike';
+        break;
+      case 'like':
+        tag = 'like';
         break;
       case 'pop':
         tag = '流行';
@@ -568,6 +589,21 @@ function App() {
                         </span>
                       )}
                     </span>
+                    {song.likes > 0 && (
+                      <span style={{ marginRight: '24px', color: '#666', fontSize: '0.9em' }}>
+                        <FaThumbsUp 
+                          style={{ 
+                            width: '16px', 
+                            height: '16px', 
+                            flexShrink: 0, 
+                            cursor: 'pointer', 
+                            color: '#FF0000', 
+                            marginRight: '8px',
+                            marginBottom: '-2px'
+                          }} 
+                        /> {song.likes}
+                      </span>
+                    )}
                     <span style={{ fontWeight: 'bold', color: scoreClassStyles(song.overall_score).bgColor }}>{song.overall_score.toFixed(1)}分</span>
                   </div>
                 ))}
@@ -610,7 +646,9 @@ function App() {
               { id: 'edm', name: 'EDM榜' },
               { id: 'classical', name: '古典榜' },
               { id: 'opera', name: '歌剧榜' },
-              { id: 'worst', name: '低分榜', style: { backgroundColor: '#ff4444', color: 'white' } }
+              { id: 'worst', name: '低分榜', style: { backgroundColor: '#ff4444', color: 'white' } },
+              { id: 'like', name: '点赞榜' },
+              { id: 'mylike', name: '我点赞的歌'},
             ].map(tab => (
               <button
                 key={tab.id}
@@ -664,6 +702,21 @@ function App() {
                   </span>
                 )}
               </span>
+              {song.likes > 0 && (
+                <span style={{ marginRight: '24px', color: '#666', fontSize: '0.9em' }}>
+                  <FaThumbsUp 
+                    style={{ 
+                      width: '16px', 
+                      height: '16px', 
+                      flexShrink: 0, 
+                      cursor: 'pointer', 
+                      color: '#FF0000', 
+                      marginRight: '8px',
+                      marginBottom: '-2px'
+                    }} 
+                  /> {song.likes}
+                </span>
+              )}
               <span style={{ fontWeight: 'bold', color: scoreClassStyles(song.overall_score).bgColor }}>{song.overall_score.toFixed(1)}分</span>
             </div>
           ))}

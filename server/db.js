@@ -102,6 +102,7 @@ async function getSongRank(tagName, timestamp) {
             song_name: 1,
             overall_score: 1,
             authorName: 1,
+            likes: 1,
             _id: 1
         }
     }).sort({ "overall_score": -1 }).limit(300).toArray();
@@ -116,10 +117,70 @@ async function getSongRankReverse() {
             song_name: 1,
             overall_score: 1,
             authorName: 1,
+            likes: 1,
             _id: 1
         }
     }).sort({ "overall_score": 1 }).limit(300).toArray();
     return songs;
 }
 
-module.exports = { connectToDb, insertTags, getTags, insertSong, getSongRank, getSongRankReverse, getSongById, getSongsByName };
+async function addLike(songId) {
+    const id = new ObjectId(songId);
+    const db = await connectToDb();
+    // If likes field doesn't exist, it will be created with value 1
+    // If it exists, it will be incremented by 1
+    await db.collection('songs').updateOne(
+        { _id: id }, 
+        { $inc: { likes: 1 } },
+        { upsert: false } // Don't create new document if song doesn't exist
+    );
+}
+
+async function removeLike(songId) {
+    const id = new ObjectId(songId);
+    const db = await connectToDb();
+    
+    // First get the current likes count
+    const song = await db.collection('songs').findOne({ _id: id });
+    
+    // Only decrement if likes is greater than 0
+    if (song && song.likes > 0) {
+        await db.collection('songs').updateOne({ _id: id }, { $inc: { likes: -1 } });
+    }
+}
+
+async function getRankByLike() {
+    const db = await connectToDb();
+    const songs = await db.collection('songs').find(
+        { likes: { $gt: 0 } },
+        {
+            projection: {
+                song_name: 1,
+                overall_score: 1,
+                authorName: 1,
+                likes: 1,
+                _id: 1
+            }
+        }
+    ).sort({ "likes": -1 }).limit(300).toArray();
+    return songs;
+}
+
+async function getSongRankByIds(songIds) {
+    const db = await connectToDb();
+    // 将字符串ID转换为ObjectId对象
+    const objectIds = songIds.map(id => new ObjectId(id));
+    
+    const songs = await db.collection('songs').find({ _id: { $in: objectIds } },{
+        projection: {
+            song_name: 1,
+            overall_score: 1,
+            authorName: 1,
+            likes: 1,
+            _id: 1
+        }
+    }).sort({ "timestamp": -1 }).toArray();
+    return songs;
+}
+
+module.exports = { connectToDb, insertTags, getTags, insertSong, getSongRank, getSongRankReverse, getSongById, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds };

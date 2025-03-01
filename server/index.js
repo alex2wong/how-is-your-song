@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { analyzeMusic } = require('./genai-analyze');
-const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName } = require('./db');
+const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds } = require('./db');
 require('dotenv').config()
 
 const app = express();
@@ -40,8 +40,8 @@ app.use(express.json());
 
 // 确保uploads目录存在
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)){
-    fs.mkdirSync(uploadsDir);
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
 }
 
 // 配置文件上传
@@ -69,7 +69,7 @@ app.get('/api/stats', (req, res) => {
 });
 
 app.get('/api/rank', async (req, res) => {
-  const songs = await getSongRank(req.query.tag ? '#'+req.query.tag : undefined, req.query.timestamp);
+  const songs = await getSongRank(req.query.tag ? '#' + req.query.tag : undefined, req.query.timestamp);
   res.json(songs);
 });
 
@@ -156,7 +156,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
 
     console.log('# upload as localfile done, path ', filePath, fileName);
     let result = await analyzeMusic(filePath, apiKey, privacyMode);
-    
+
     // 在返回结果中使用原始文件名
     result = {
       ...result,
@@ -180,20 +180,20 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
       let totalItem = 0;
       let totalScore = 0;
       if (result.arrangement?.score) {
-          totalItem += 1;
-          totalScore += result.arrangement.score;
+        totalItem += 1;
+        totalScore += result.arrangement.score;
       }
       if (result.vocal?.score) {
-          totalItem += 1;
-          totalScore += result.vocal.score;
+        totalItem += 1;
+        totalScore += result.vocal.score;
       }
       if (result.structure?.score) {
-          totalItem += 1;
-          totalScore += result.structure.score;
+        totalItem += 1;
+        totalScore += result.structure.score;
       }
       if (result.lyrics?.score) {
-          totalItem += 1;
-          totalScore += result.lyrics.score;
+        totalItem += 1;
+        totalScore += result.lyrics.score;
       }
       result.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
 
@@ -201,7 +201,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
 
       stats.rank = rank;
     }
-    
+
     res.json(result);
   } catch (error) {
     console.error('分析失败:', error);
@@ -220,7 +220,43 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   }
 });
 
-const server =app.listen(port, () => {
+// 2. 添加点赞功能
+app.post('/api/like/add/:songId', async (req, res) => {
+  console.log('# Adding like: ', req.params.songId);
+  try {
+    const { songId } = req.params;
+    await addLike(songId);
+    res.status(200).json({ success: true, message: 'Like added successfully' });
+  } catch (error) {
+    console.error('Error adding like:', error);
+    res.status(500).json({ success: false, message: 'Failed to add like' });
+  }
+});
+
+app.post('/api/like/remove/:songId', async (req, res) => {
+  console.log('# Removing like: ', req.params.songId);
+  try {
+    const { songId } = req.params;
+    await removeLike(songId);
+    res.status(200).json({ success: true, message: 'Like removed successfully' });
+  } catch (error) {
+    console.error('Error removing like:', error);
+    res.status(500).json({ success: false, message: 'Failed to remove like' });
+  }
+});
+
+app.get('/api/rank-by-ids', async (req, res) => {
+  const songIds = req.query.ids.split(',').map(id => id.trim());
+  const songs = await getSongRankByIds(songIds);
+  res.json(songs);
+});
+
+app.get('/api/rank-by-likes', async (req, res) => {
+  const songs = await getRankByLike();
+  res.json(songs);
+});
+
+const server = app.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);
 });
 

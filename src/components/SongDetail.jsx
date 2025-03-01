@@ -1,7 +1,9 @@
-import { FaShare } from "react-icons/fa";
+import { FaShare, FaThumbsUp, FaRegThumbsUp } from "react-icons/fa";
 import { apiBase, scoreClassStyles, getAuthorNameColor } from "../utils";
 import MediaPlayer from "./MediaPlayer";
 import { copyShareLinkforSong } from "../utils";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 /**
  * 
@@ -20,6 +22,40 @@ import { copyShareLinkforSong } from "../utils";
 export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
 
   const { bgColor,classTxt } = scoreClassStyles(selectedSong.overall_score);
+  const [isLiked, setIsLiked] = useState(false);
+
+  // Check if the song is already liked on component mount
+  useEffect(() => {
+    const likedSongs = JSON.parse(localStorage.getItem('likedSongs') || '[]');
+    setIsLiked(likedSongs.includes(selectedSong._id));
+  }, [selectedSong._id]);
+
+  // Toggle like status and update localStorage
+  const handleLike = async () => {
+    const likedSongs = JSON.parse(localStorage.getItem('likedSongs') || '[]');
+    
+    try {
+      if (isLiked) {
+        // Remove from liked songs
+        const updatedLikedSongs = likedSongs.filter(id => id !== selectedSong._id);
+        localStorage.setItem('likedSongs', JSON.stringify(updatedLikedSongs));
+        
+        // Call the API to remove like using axios
+        await axios.post(`${apiBase}/like/remove/${selectedSong._id}`);
+      } else {
+        // Add to liked songs
+        likedSongs.push(selectedSong._id);
+        localStorage.setItem('likedSongs', JSON.stringify(likedSongs));
+        
+        // Call the API to add like using axios
+        await axios.post(`${apiBase}/like/add/${selectedSong._id}`);
+      }
+      
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error('Error updating like status:', error);
+    }
+  };
 
   const scoreRender = (rating) => {
     if (!rating) {
@@ -115,6 +151,31 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexDirection: 'row', width:'80vw' }}>
               <h2 style={{ margin: 0 }}>{selectedSong.song_name}</h2><MediaPlayer audioUrl={audioUrl} />
             </div>
+            {isLiked ? (
+              <FaThumbsUp 
+                style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  flexShrink: 0, 
+                  cursor: 'pointer', 
+                  color: '#FF0000', 
+                  marginRight: '16px' 
+                }} 
+                onClick={handleLike} 
+              />
+            ) : (
+              <FaRegThumbsUp 
+                style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  flexShrink: 0, 
+                  cursor: 'pointer', 
+                  color: '#777', 
+                  marginRight: '16px' 
+                }} 
+                onClick={handleLike} 
+              />
+            )}
             <FaShare style={{ width: '24px', height: '24px', flexShrink: 0, cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() =>copyShareLinkforSong(selectedSong._id)}  />
             <button 
               onClick={handleClose}
