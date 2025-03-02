@@ -389,7 +389,7 @@ function App() {
       >
         <FaGithub />
       </a>
-      <h1>音乐智能分析系统</h1>
+      <img src='/logo.png' className="app-logo" alt="logo" style={{ width: '188px' }} />
       <Settings />
 
       <div 
