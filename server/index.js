@@ -147,6 +147,10 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
 
   let authorName = req.query.author_name;
 
+  const promptVersion = req.query.prompt_version;
+
+  const modelName = req.query.model_name;
+
   let privacyMode = Number(req.query.privacy_mode);
   let filePath;
   try {
@@ -155,7 +159,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     const fileName = path.basename(filePath); // 使用上传后的安全文件名
 
     console.log('# upload as localfile done, path ', filePath, fileName);
-    let result = await analyzeMusic(filePath, apiKey, privacyMode);
+    let result = await analyzeMusic(filePath, apiKey, promptVersion, modelName);
 
     // 在返回结果中使用原始文件名
     result = {
