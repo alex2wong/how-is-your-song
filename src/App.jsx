@@ -30,6 +30,8 @@ function App() {
     return localStorage.getItem('authorName') || '';
   });
   const [privacyMode, setPrivacyMode] = useState(false);
+  const [rankLoading, setRankLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('authorName', authorName);
@@ -165,7 +167,18 @@ function App() {
         break;
     }
     
-    fetchRankList(tag, timestamp).then(setRankList);
+    setRankLoading(true);
+    setRankList([]);
+    
+    fetchRankList(tag, timestamp)
+      .then(data => {
+        setRankList(data);
+        setRankLoading(false);
+      })
+      .catch(error => {
+        console.error('获取排行榜失败:', error);
+        setRankLoading(false);
+      });
   }, [activeRankTab]);
 
   const handleFileChange = (e) => {
@@ -253,12 +266,17 @@ function App() {
 
   const handleTagClick = async (tag) => {
     setSelectedTag(tag)
+    setRankLoading(true);
+    setRankList([]);
+    
     try {
       const response = await fetch(`${apiBase}/rank${tag ? `?tag=${tag}` : ''}`)
       const data = await response.json()
       setRankList(data)
     } catch (error) {
       console.error('获取排行榜失败:', error)
+    } finally {
+      setRankLoading(false);
     }
   }
 
@@ -349,6 +367,10 @@ function App() {
       setSearchResults([]);
       return;
     }
+    
+    setSearchLoading(true);
+    setSearchResults([]);
+    
     try {
       const response = await fetch(`${apiBase}/songs?name=${encodeURIComponent(query)}`);
       const data = await response.json();
@@ -356,6 +378,8 @@ function App() {
     } catch (error) {
       console.error('搜索歌曲失败:', error);
       setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -546,7 +570,25 @@ function App() {
           </div>
 
           {/* 搜索结果 */}
-          {searchResults.length > 0 && (
+          {searchLoading && (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              padding: '20px' 
+            }}>
+              <div style={{ 
+                width: '30px', 
+                height: '30px', 
+                border: '3px solid #f3f3f3', 
+                borderTop: '3px solid #4CAF50', 
+                borderRadius: '50%', 
+                animation: 'spin 1s linear infinite' 
+              }}></div>
+            </div>
+          )}
+          
+          {!searchLoading && searchResults.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
               <h4 style={{ margin: '18px 0 8px', color: '#666' }}>搜索结果</h4>
               <div style={{ 
@@ -668,7 +710,26 @@ function App() {
               </button>
             ))}
           </div>
-          {rankList.map((song, index) => (
+          
+          {rankLoading && (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              padding: '20px' 
+            }}>
+              <div style={{ 
+                width: '30px', 
+                height: '30px', 
+                border: '3px solid #f3f3f3', 
+                borderTop: '3px solid #4CAF50', 
+                borderRadius: '50%', 
+                animation: 'spin 1s linear infinite' 
+              }}></div>
+            </div>
+          )}
+          
+          {!rankLoading && rankList.map((song, index) => (
             <div 
               key={index} 
               onClick={() => fetchSongDetail(song._id)}
