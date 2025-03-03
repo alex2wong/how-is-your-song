@@ -82,6 +82,7 @@ export default function Settings() {
               }}
             >
               <option value="v1.0.0">v1.0.0</option>
+              <option value="v1.0.0-english">v1.0.0-english</option>
               <option value="v1.1.0-beta">v1.1.0-beta</option>
             </select>
           </div>
