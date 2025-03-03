@@ -21,3 +21,8 @@ else
     echo "备份失败！"
     exit 1
 fi
+
+# 删除超过一周的备份文件
+echo "正在清理超过一周的旧备份文件..."
+find "$BACKUP_DIR" -name "db_backup_*.tar.gz" -type f -mtime +7 -exec rm {} \;
+echo "清理完成"
