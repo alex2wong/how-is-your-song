@@ -161,7 +161,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           overflow: 'auto',
           zIndex: 1000
         }} onScroll={handleScroll}>
-          <div style={{ position: 'sticky', top: 0, padding: '24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', backgroundColor: '#fff', }}>
+          <div style={{ position: 'sticky', zIndex: 10, top: 0, padding: '24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', backgroundColor: '#fff', }}>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexDirection: 'row', width:'80vw' }}>
               <h2 style={{ margin: 0 }}>{songData.song_name}</h2><MediaPlayer audioUrl={audioUrl} />
