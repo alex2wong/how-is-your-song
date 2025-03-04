@@ -310,7 +310,7 @@ function App() {
       classTxt = '较一般'
       className += 'normal'
     }
-    return (<p><span>《{rating.song_name}》 得分：</span> <span className={className} style={{ backgroundColor: scoreClassStyles(score).bgColor }}>{score} {classTxt}</span></p>)
+    return (<p><span>《{rating.song_name}》 得分：</span> <span className={className} style={{ backgroundColor: scoreClassStyles(score).bgColor, color: '#ffffff' }}>{score} {classTxt}</span></p>)
   }
 
   /**
@@ -333,7 +333,7 @@ function App() {
           {Object.entries(dimensions).map(([dimension, value]) => value && (
             <tr className='dimension-row' key={dimension}>
               <td>{dimension}</td>
-              <td><span className='score' style={{ backgroundColor: scoreClassStyles(value.score).bgColor }}>{value.score}</span></td>
+              <td><span className='score' style={{ backgroundColor: scoreClassStyles(value.score).bgColor, color: '#ffffff' }}>{value.score}</span></td>
               <td>{value.comments}</td>
             </tr>
           ))}
