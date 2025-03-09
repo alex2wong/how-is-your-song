@@ -1,4 +1,4 @@
-import { FaShare, FaThumbsUp, FaRegThumbsUp, FaSpinner } from "react-icons/fa";
+import { FaShare, FaThumbsUp, FaRegThumbsUp, FaSpinner, FaCopy } from "react-icons/fa";
 import { apiBase, scoreClassStyles, getAuthorNameColor } from "../utils";
 import MediaPlayer from "./MediaPlayer";
 import { copyShareLinkforSong } from "../utils";
@@ -282,21 +282,47 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
             <p className='summary-quote' style={{ fontSize: '16px', lineHeight: '1.6' }}>{selectedSong.comments}</p>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
-            {selectedSong.tags.map((tag, index) => (
-              <span
-                key={index}
-                style={{
-                  padding: '4px 12px',
-                  borderRadius: '16px',
-                  backgroundColor: 'var(--bg-secondary, #f0f0f0)',
-                  color: 'var(--text-secondary, #4A5568)',
-                  fontSize: '14px'
-                }}
-              >
-                {tag}
-              </span>
-            ))}
+          <div 
+            className="tags-container" 
+            style={{ 
+              position: 'relative',
+              paddingRight: '40px', // 为复制按钮预留空间
+            }}
+          >
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+              {selectedSong.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  style={{
+                    padding: '4px 12px',
+                    borderRadius: '16px',
+                    backgroundColor: 'var(--bg-secondary, #f0f0f0)',
+                    color: 'var(--text-secondary, #4A5568)',
+                    fontSize: '14px'
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <FaCopy 
+              className="copy-icon"
+              onClick={() => {
+                const tagsString = selectedSong.tags.map(t=> t.replace('#', '')).join(', ');
+                navigator.clipboard.writeText(tagsString);
+                alert('音乐标签已复制到剪贴板')
+              }}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease',
+                color: '#555',
+                fontSize: '16px',
+              }}
+            />
           </div>
 
           <div className="comments" style={{ marginBottom: '24px' }}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaShare } from 'react-icons/fa';
+import { FaShare, FaCopy } from 'react-icons/fa';
 import { copyShareLinkforSong, scoreClassStyles } from '../utils';
 
 const AnalysisResult = ({ rating }) => {
@@ -88,7 +88,27 @@ const AnalysisResult = ({ rating }) => {
     return (
       <div>
         <h3>音乐标签</h3>
-        <div className="tags">{tagList}</div>
+        <div style={{ position: 'relative', paddingRight: '60px' }}>
+           <div  className='tags'>{tagList}</div>
+           <FaCopy 
+               className="copy-icon"
+               onClick={() => {
+                 const tagsString = tags.map(t=> t.replace('#', '')).join(', ');
+                 navigator.clipboard.writeText(tagsString);
+                 alert('音乐标签已复制到剪贴板')
+               }}
+               style={{
+                 position: 'absolute',
+                 right: '20px',
+                 top: '50%',
+                 transform: 'translateY(-50%)',
+                 cursor: 'pointer',
+                 transition: 'opacity 0.2s ease',
+                 color: '#555',
+                 fontSize: '16px',
+               }}
+             />
+        </div>
       </div>
     );
   };
