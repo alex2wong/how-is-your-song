@@ -5,15 +5,16 @@ import App from './App.jsx'
 import SongDetailPage from './pages/SongDetail/index.jsx';
 // import './index.css'
 import './styles/theme.css'
+import { ToastProvider } from './components/ToastMessage/ToastContext.jsx';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <ToastProvider><App /></ToastProvider>,
   },
   {
     path: "/song/:id",
-    element: <SongDetailPage />,
+    element: <ToastProvider><SongDetailPage /></ToastProvider>,
   }
 ]);
 

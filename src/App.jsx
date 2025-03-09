@@ -9,6 +9,7 @@ import { SongDetail } from './components/SongDetail'
 import { copyShareLinkforSong, scoreClassStyles, getAuthorNameColor } from './utils'
 import { debounce } from 'lodash';
 import { apiBase } from './utils';
+import { useToast } from './components/ToastMessage/ToastContext';
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
   const [privacyMode, setPrivacyMode] = useState(false);
   const [rankLoading, setRankLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     localStorage.setItem('authorName', authorName);
@@ -238,7 +240,7 @@ function App() {
 
   const handleUpload = async () => {
     if (!file) {
-      alert('请选择音频文件')
+      showToast('请选择音频文件')
       return
     }
 
@@ -258,7 +260,7 @@ function App() {
     } catch (error) {
       console.error('分析失败:', error)
       const errorMessage = error.response?.data?.message || error.response?.data || error.message || '分析失败'
-      alert(errorMessage.error);
+      showToast(errorMessage.error, 'error');
     }
     setLoading(false)
     setUploadProgress(0)
@@ -360,7 +362,7 @@ function App() {
               onClick={() => {
                 const tagsString = tags.map(t=> t.replace('#', '')).join(', ');
                 navigator.clipboard.writeText(tagsString);
-                alert('音乐标签已复制到剪贴板')
+                showToast('音乐标签已复制到剪贴板')
               }}
               style={{
                 position: 'absolute',
@@ -526,7 +528,10 @@ function App() {
           <div className='result-title'>
             <div/>
             <h2>分析结果</h2> 
-            <FaShare style={{ width: '24px!important', height: '24px!important', cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() => copyShareLinkforSong(rating._id)} />
+            <FaShare style={{ width: '24px!important', height: '24px!important', cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() => {
+              copyShareLinkforSong(rating._id)
+              showToast('链接已复制到剪贴板')
+             }} />
           </div>
           <div className='score-row'>{
             renderScoreClass(rating)}
