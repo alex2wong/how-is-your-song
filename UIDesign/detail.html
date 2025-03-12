@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>爱乐评 - Awakening Blossoms.wav 音乐分析</title>
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #FF6B6B, #6B66FF);
+      --secondary-gradient: linear-gradient(135deg, #36D1DC, #5B86E5);
+      --accent-gradient: linear-gradient(135deg, #FC466B, #3F5EFB);
+      --green-gradient: linear-gradient(135deg, #43e97b, #38f9d7);
+      --success-color: #00f2c3;
+      --warning-color: #ff8d72;
+      --text-primary: #2D3748;
+      --text-secondary: #4A5568;
+      --bg-primary: #f8f9fa;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --border-radius: 16px;
+      --score-green: #43e97b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(107, 102, 255, 0.1), transparent 40%),
+        radial-gradient(circle at 90% 20%, rgba(255, 107, 107, 0.1), transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 141, 114, 0.05), transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(0, 242, 195, 0.1), transparent 40%);
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* 导航栏 */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-text {
+      font-size: 2rem;
+      font-weight: 700;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-icon {
+      font-size: 1.8rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-button {
+      padding: 8px 14px;
+      background: var(--secondary-gradient);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+    }
+
+    /* 音乐分析主体 */
+    .music-analysis {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      margin-bottom: 30px;
+    }
+
+    .analysis-header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .music-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .music-subtitle {
+      font-size: 1.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+    }
+
+    .music-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .music-action-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+    }
+
+    .music-action-btn:hover {
+      transform: scale(1.1);
+      color: #6B66FF;
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .music-score-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .music-score {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--score-green);
+    }
+
+    .score-text {
+      display: inline-block;
+      padding: 5px 12px;
+      background: rgba(67, 233, 123, 0.15);
+      color: var(--score-green);
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .music-author {
+      background: rgba(107, 102, 255, 0.15);
+      color: #6B66FF;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* 音乐描述 */
+    .music-description {
+      position: relative;
+      padding: 25px;
+      margin: 30px 0;
+      border-radius: var(--border-radius);
+      background-color: rgba(107, 102, 255, 0.05);
+    }
+
+    .music-description::before {
+      content: '"';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      font-size: 4rem;
+      font-family: serif;
+      color: rgba(107, 102, 255, 0.3);
+    }
+
+    .music-description p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      text-align: justify;
+    }
+
+    /* 标签 */
+    .music-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 30px 0;
+    }
+
+    .music-tag {
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      background: var(--secondary-gradient);
+      color: white;
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .music-tag:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    /* 详细分析 */
+    .analysis-section-title {
+      position: relative;
+      font-size: 1.8rem;
+      margin: 40px 0 30px;
+      text-align: center;
+    }
+
+    .analysis-section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: var(--secondary-gradient);
+      border-radius: 3px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .analysis-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 25px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .analysis-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .analysis-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .analysis-card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .analysis-card-score {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background: var(--green-gradient);
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(67, 233, 123, 0.3);
+    }
+
+    .analysis-card-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    /* 时间轴 */
+    .timeline-section {
+      margin: 50px 0;
+    }
+
+    .timeline-container {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 30px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .timeline-item {
+      display: flex;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px dashed #edf2f7;
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .timeline-time {
+      flex: 0 0 100px;
+      color: var(--score-green);
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .timeline-label {
+      background: rgba(67, 233, 123, 0.1);
+      padding: 8px 15px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .logo-text {
+        font-size: 1.5rem;
+      }
+
+      .music-title {
+        font-size: 1.8rem;
+      }
+
+      .music-subtitle {
+        font-size: 1.3rem;
+      }
+
+      .music-description::before {
+        font-size: 3rem;
+      }
+
+      .analysis-card-title {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- 导航栏 -->
+    <nav>
+      <div class="logo">
+        <i class="ri-music-2-fill logo-icon"></i>
+        <div class="logo-text">爱乐评</div>
+      </div>
+      <div class="nav-links">
+        <button class="nav-button">
+          <i class="ri-arrow-left-line"></i>
+          返回
+        </button>
+        <button class="nav-button">
+          <i class="ri-settings-4-line"></i>
+          设置
+        </button>
+      </div>
+    </nav>
+
+    <!-- 音乐分析主体 -->
+    <div class="music-analysis">
+      <button class="close-btn">
+        <i class="ri-close-line"></i>
+      </button>
+
+      <div class="analysis-header">
+        <h1 class="music-title">Awakening</h1>
+        <h2 class="music-subtitle">Blossoms.wav</h2>
+
+        <div class="music-score-container">
+          <div class="music-score">
+            <span class="score-number">8.8分</span>
+            <span class="score-text">很优秀</span>
+          </div>
+          <span class="music-author">如鸣</span>
+        </div>
+
+        <div class="music-actions">
+          <button class="music-action-btn" title="播放">
+            <i class="ri-play-circle-line"></i>
+          </button>
+          <button class="music-action-btn" title="喜欢">
+            <i class="ri-heart-line"></i>
+            <span>0</span>
+          </button>
+          <button class="music-action-btn" title="分享">
+            <i class="ri-share-forward-line"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="music-description">
+        <p>
+          这首作品展现出浓郁的中国传统音乐风格，同时巧妙地融入了现代音乐元素。乐曲以悠扬的笛声为主导，结合空灵飘渺的女声吟唱，营造出一种超凡脱俗、宁静致远的意境。编曲精良，配器丰富，人声和乐器之间相互交织、相得益彰，旋律优美动听，具有很强的感染力。
+        </p>
+      </div>
+
+      <div class="music-tags">
+        <span class="music-tag">#New Age</span>
+        <span class="music-tag">#国风</span>
+        <span class="music-tag">#民乐</span>
+        <span class="music-tag">#纯音乐</span>
+        <span class="music-tag">#笛子</span>
+        <span class="music-tag">#女声吟唱</span>
+        <span class="music-tag">#弦乐</span>
+        <span class="music-tag">#合成器</span>
+        <span class="music-tag">#美乐</span>
+        <span class="music-tag">#禅意</span>
+      </div>
+
+      <h2 class="analysis-section-title">详细解析</h2>
+
+      <div class="analysis-grid">
+        <!-- 编曲分析 -->
+        <div class="analysis-card">
+          <div class="analysis-card-header">
+            <h3 class="analysis-card-title">编曲</h3>
+            <div class="analysis-card-score">9</div>
+          </div>
+          <div class="analysis-card-content">
+            <p>
+              编曲以中国传统乐器笛子为主，奠定了乐曲的基调。同时，加入了弦乐、合成器等现代音乐元素，使得音乐在传统的基础上更具现代感和层次感。各种乐器之间的配合默契，过渡自然，营造出丰富的音响效果。特别是间奏部分，不同乐器的交替演奏，将乐曲推向了一个小高潮。
+            </p>
+          </div>
+        </div>
+
+        <!-- 人声分析 -->
+        <div class="analysis-card">
+          <div class="analysis-card-header">
+            <h3 class="analysis-card-title">人声</h3>
+            <div class="analysis-card-score">8.6</div>
+          </div>
+          <div class="analysis-card-content">
+            <p>女声的吟唱空灵飘渺，没有具体的歌词，但通过音色、音调的变化，传递出一种超脱世俗、回归自然的情感。这种处理方式非常符合乐曲的整体氛围。人声与乐器之间的融合度很高，成为了乐曲中不可或缺的一部分。</p>
+          </div>
+        </div>
+
+        <!-- 结构分析 -->
+        <div class="analysis-card">
+          <div class="analysis-card-header">
+            <h3 class="analysis-card-title">结构</h3>
+            <div class="analysis-card-score">8.5</div>
+          </div>
+          <div class="analysis-card-content">
+            <p>
+              乐曲的结构可以看作是A-B-A'-C-A"的变奏形式。A段以笛子独奏为主，B段加入女声吟唱和弦乐，A'段是A段的变奏发展，C段是乐曲的高潮部分，各种乐器交织在一起，A"段是A段的再次变奏，最后以笛子独奏结束。整体结构完整、流畅，具有较强的艺术性。
+            </p>
+          </div>
+        </div>
+
+        <!-- 歌词分析 -->
+        <div class="analysis-card">
+          <div class="analysis-card-header">
+            <h3 class="analysis-card-title">歌词</h3>
+            <div class="analysis-card-score">9.2</div>
+          </div>
+          <div class="analysis-card-content">
+            <p>乐曲没有人声演唱具体歌词，只有女声吟唱，因此在歌词寓意方面，主要通过音乐本身来传递。乐曲的标题和音乐氛围都指向了一种超脱世俗、回归自然、追求内心平静的主题。这种主题在中国传统文化中非常常见，具有一定的哲学意味。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 歌词时间轴 -->
+      <h2 class="analysis-section-title">歌词时间轴</h2>
+
+      <div class="timeline-section">
+        <div class="timeline-container">
+          <div class="timeline-item">
+            <div class="timeline-time">00:00.93</div>
+            <div class="timeline-label">笛子独奏</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">00:21.21</div>
+            <div class="timeline-label">女声吟唱</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">00:33.84</div>
+            <div class="timeline-label">笛子与弦乐</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">00:50.41</div>
+            <div class="timeline-label">多种乐器交织</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">01:31.12</div>
+            <div class="timeline-label">笛子独奏</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>爱乐评 - 音乐智能分析系统</title>
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #FF6B6B, #6B66FF);
+      --secondary-gradient: linear-gradient(135deg, #36D1DC, #5B86E5);
+      --accent-gradient: linear-gradient(135deg, #FC466B, #3F5EFB);
+      --success-color: #00f2c3;
+      --warning-color: #ff8d72;
+      --text-primary: #2D3748;
+      --text-secondary: #4A5568;
+      --bg-primary: #f8f9fa;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --border-radius: 16px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(107, 102, 255, 0.1), transparent 40%),
+        radial-gradient(circle at 90% 20%, rgba(255, 107, 107, 0.1), transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 141, 114, 0.05), transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(0, 242, 195, 0.1), transparent 40%);
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* 导航栏 */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-text {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .logo-domain {
+      font-size: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-button {
+      padding: 10px 16px;
+      background: var(--secondary-gradient);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .nav-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+    }
+
+    /* 主要内容区域 */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .upload-section {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .upload-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--primary-gradient);
+    }
+
+    .upload-header {
+      margin-bottom: 24px;
+    }
+
+    .upload-header h2 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .upload-header h2::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--secondary-gradient);
+      border-radius: 3px;
+    }
+
+    .file-upload {
+      border: 2px dashed #d1d5db;
+      border-radius: var(--border-radius);
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-upload:hover {
+      border-color: #6B66FF;
+      background-color: rgba(107, 102, 255, 0.05);
+    }
+
+    .file-upload i {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      color: #6B66FF;
+    }
+
+    .file-upload h3 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .file-upload p {
+      color: var(--text-secondary);
+    }
+
+    .privacy-mode {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 24px 0;
+      padding: 16px;
+      background-color: rgba(107, 102, 255, 0.08);
+      border-radius: var(--border-radius);
+    }
+
+    .privacy-mode-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .analyze-button {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: var(--border-radius);
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      width: 100%;
+      box-shadow: 0 10px 20px rgba(255, 107, 107, 0.2);
+    }
+
+    .analyze-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 25px rgba(255, 107, 107, 0.3);
+    }
+
+    /* 使用说明部分 */
+    .instructions-section {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .section-title i {
+      font-size: 1.6rem;
+      background: var(--secondary-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .section-title h2 {
+      font-size: 1.5rem;
+    }
+
+    .feature-list {
+      margin: 20px 0;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .feature-item i {
+      color: #6B66FF;
+      margin-top: 4px;
+    }
+
+    .steps-list {
+      margin: 20px 0;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .step-number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 30px;
+      height: 30px;
+      background: var(--secondary-gradient);
+      border-radius: 50%;
+      color: white;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* 排行榜部分 */
+    .ranking-section {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .ranking-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .ranking-header h2 {
+      font-size: 2rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .ranking-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+      justify-content: center;
+    }
+
+    .ranking-tab {
+      padding: 8px 16px;
+      background-color: #f1f5f9;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .ranking-tab.active {
+      background: var(--secondary-gradient);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .ranking-tab:hover:not(.active) {
+      background-color: #e2e8f0;
+    }
+
+    .song-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .song-card {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-radius: var(--border-radius);
+      background-color: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .song-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .song-rank {
+      font-size: 1.4rem;
+      font-weight: 700;
+      width: 40px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .song-info {
+      flex: 1;
+      margin-left: 15px;
+    }
+
+    .song-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .song-format {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-right: 8px;
+      background-color: rgba(107, 102, 255, 0.1);
+      color: #6B66FF;
+    }
+
+    .song-category {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      background-color: rgba(0, 242, 195, 0.1);
+      color: #00A989;
+    }
+
+    .song-score {
+      font-size: 1.1rem;
+      font-weight: 700;
+      width: 60px;
+      text-align: center;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .logo-text {
+        font-size: 1.8rem;
+      }
+    }
+
+    /* 动画 */
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    .animated-icon {
+      animation: float 3s ease-in-out infinite;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- 导航栏 -->
+    <nav>
+      <div class="logo">
+        <i class="ri-music-2-fill logo-icon"></i>
+        <div>
+          <div class="logo-text">爱乐评</div>
+          <div class="logo-domain">aiyueping.com</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <button class="nav-button">
+          <i class="ri-settings-4-line"></i>
+          设置
+        </button>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="main-content">
+      <!-- 上传部分 -->
+      <section class="upload-section">
+        <div class="upload-header">
+          <h2>音乐智能分析系统</h2>
+        </div>
+
+        <div class="file-upload animated-icon">
+          <i class="ri-upload-cloud-2-line"></i>
+          <h3>选择音频文件</h3>
+          <p>支持 MP3、WAV 和 MP4 等格式</p>
+        </div>
+
+        <div class="privacy-mode">
+          <input type="checkbox" id="privacy-mode">
+          <label for="privacy-mode">隐私模式</label>
+          <span class="privacy-mode-text">不参与排行，不可检索，不可分享，服务器不保存任何数据，建议使用自定义 API KEY</span>
+        </div>
+
+        <button class="analyze-button">
+          <i class="ri-music-2-line"></i>
+          开始分析
+        </button>
+      </section>
+
+      <!-- 使用说明部分 -->
+      <section class="instructions-section">
+        <div class="section-title">
+          <i class="ri-information-line"></i>
+          <h2>使用说明</h2>
+        </div>
+
+        <p>基于 Google Gemini 2.0 Pro 多模态大模型的音乐作品智能评分系统，可以从编曲、人声、旋律、歌词等多个维度对音乐作品进行信息识别、分析评价</p>
+
+        <h3 style="margin-top: 20px;">主要功能：</h3>
+        <div class="feature-list">
+          <div class="feature-item">
+            <i class="ri-checkbox-circle-line"></i>
+            <span>支持上传音频文件进行分析</span>
+          </div>
+          <div class="feature-item">
+            <i class="ri-checkbox-circle-line"></i>
+            <span>提供整体评分和详细维度分析</span>
+          </div>
+          <div class="feature-item">
+            <i class="ri-checkbox-circle-line"></i>
+            <span>包含编曲、人声、旋律、歌词等多个维度</span>
+          </div>
+          <div class="feature-item">
+            <i class="ri-checkbox-circle-line"></i>
+            <span>生成音乐标签和风格分类</span>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 20px;">使用方法：</h3>
+        <div class="steps-list">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div>请访问 Google AI 申请独立 Gemini API Key，填入系统右上角的设置中</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div>点击选择文件上传音频，建议是音频格式 mp3、wav 等，也支持 MP4</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div>等待系统分析完成，通常 20-30s</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">4</div>
+            <div>查看详细的分析结果</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 排行榜部分 -->
+      <section class="ranking-section">
+        <div class="ranking-header">
+          <h2>最受 AI 喜爱的歌曲</h2>
+        </div>
+
+        <div class="ranking-tabs">
+          <div class="ranking-tab active">24小时榜</div>
+          <div class="ranking-tab">48小时榜</div>
+          <div class="ranking-tab">月榜</div>
+          <div class="ranking-tab">流行榜</div>
+          <div class="ranking-tab">电子榜</div>
+          <div class="ranking-tab">交响乐榜</div>
+          <div class="ranking-tab">爵士乐榜</div>
+          <div class="ranking-tab">民谣榜</div>
+          <div class="ranking-tab">说唱榜</div>
+          <div class="ranking-tab">R&B榜</div>
+          <div class="ranking-tab">纯音乐榜</div>
+          <div class="ranking-tab">国风榜</div>
+          <div class="ranking-tab">EDM榜</div>
+          <div class="ranking-tab">古典榜</div>
+          <div class="ranking-tab">低分榜</div>
+        </div>
+
+        <div class="song-list">
+          <div class="song-card">
+            <div class="song-rank">#1</div>
+            <div class="song-info">
+              <div class="song-title">Awakening Blossoms.wav</div>
+              <span class="song-format">WAV</span>
+            </div>
+            <div class="song-score">8.8分</div>
+          </div>
+
+          <div class="song-card">
+            <div class="song-rank">#2</div>
+            <div class="song-info">
+              <div class="song-title">Beneath the Echoes v2.mp3</div>
+              <span class="song-category">空行之喵</span>
+            </div>
+            <div class="song-score">8.4分</div>
+          </div>
+
+          <div class="song-card">
+            <div class="song-rank">#3</div>
+            <div class="song-info">
+              <div class="song-title">Awakening Blossoms.wav</div>
+              <span class="song-format">WAV</span>
+            </div>
+            <div class="song-score">8.4分</div>
+          </div>
+
+          <div class="song-card">
+            <div class="song-rank">#4</div>
+            <div class="song-info">
+              <div class="song-title">大雪倾城 (对唱版).mp3</div>
+              <span class="song-category">Emma Hau</span>
+            </div>
+            <div class="song-score">8.3分</div>
+          </div>
+
+          <div class="song-card">
+            <div class="song-rank">#5</div>
+            <div class="song-info">
+              <div class="song-title">(Dopamine Like?) 阿列克-EMO-电子.mp4</div>
+              <span class="song-category">阿列克</span>
+            </div>
+            <div class="song-score">8.2分</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer style="text-align: center; margin-top: 50px; color: var(--text-secondary); padding: 20px 0;">
+      <p>访问人次: 2462 | 分析次数: 2531</p>
+      <p style="margin-top: 10px;">© 2025 爱乐评 - 音乐智能分析系统</p>
+    </footer>
+  </div>
+</body>
+
+</html>
