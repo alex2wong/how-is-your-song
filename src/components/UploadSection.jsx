@@ -109,8 +109,26 @@ const UploadSection = ({
         className="analyze-button"
         onClick={handleUpload}
         disabled={!file || loading}
+        style={{
+          background: 'var(--secondary-gradient)',
+          color: 'white',
+          border: 'none',
+          padding: '14px 32px',
+          borderRadius: 'var(--border-radius)',
+          fontSize: '1rem',
+          fontWeight: '600',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          width: '100%',
+          boxShadow: '0 6px 16px rgba(59, 130, 246, 0.2)',
+          transition: 'all 0.3s ease',
+          marginTop: '20px'
+        }}
       >
-        <RiMusic2Line />
+        <RiMusic2Line style={{ fontSize: '1.2rem' }} />
         {loading ? '分析中...' : '开始分析'}
       </button>
 

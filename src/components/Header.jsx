@@ -15,7 +15,7 @@ const Header = () => {
       
       <div className="nav-links">
         <Settings>
-          <RiSettings4Line />
+          <RiSettings4Line className="nav-icon" />
           设置
         </Settings>
       </div>

@@ -93,8 +93,6 @@ function App() {
       
       <InstructionsSection />
       
-      <ProjectIntro />
-      
       <Stats stats={stats} />
 
       <SearchSection 

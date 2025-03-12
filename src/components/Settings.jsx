@@ -1,10 +1,24 @@
 import { useState, useEffect } from 'react';
 
-export default function Settings() {
+export default function Settings({ children }) {
   const [apiKey, setApiKey] = useState('');
   const [promptVersion, setPromptVersion] = useState('v1.0.0');
   const [modelName, setModelName] = useState('gemini-2.0-pro-exp-02-05');
   const [isOpen, setIsOpen] = useState(false);
+  
+  // 点击外部关闭弹窗
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !event.target.closest('.settings-container')) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const savedKey = localStorage.getItem('gemini_key');
@@ -32,19 +46,29 @@ export default function Settings() {
   };
 
   return (
-    <div className="settings-container" style={{ position: 'absolute', top: '1rem', right: '1rem', fontSize: 14 }}>
-      <button style={{ outline: 'none' }} onClick={() => setIsOpen(!isOpen)}> 设置... </button>
+    <div className="settings-container" style={{ position: 'relative' }}>
+      <button 
+        className="nav-button" 
+        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+      >
+        {children}
+      </button>
       
       {isOpen && (
         <div className="settings-modal" style={{ 
           position: 'absolute', 
           right: 0,
-          backgroundColor: 'white',
+          top: '100%',
+          marginTop: '10px',
+          backgroundColor: 'var(--card-bg)',
           padding: '1.5rem',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          borderRadius: '8px',
-          width: '300px',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+          borderRadius: 'var(--border-radius)',
+          width: '320px',
           zIndex: 1000,
+          backdropFilter: 'blur(10px)',
+          display: 'block',
         }}>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
@@ -111,13 +135,16 @@ export default function Settings() {
           <button 
             onClick={handleSave}
             style={{
-              backgroundColor: '#4a90e2',
+              background: 'var(--secondary-gradient)',
               color: 'white',
               border: 'none',
-              borderRadius: '4px',
-              padding: '0.5rem 1rem',
+              borderRadius: 'var(--border-radius)',
+              padding: '10px 16px',
               cursor: 'pointer',
-              float: 'right'
+              float: 'right',
+              fontWeight: '600',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+              transition: 'all 0.3s ease'
             }}
           >
             保存

@@ -78,10 +78,10 @@ const RankingSection = ({
             onClick={() => fetchSongDetail(song._id)}
           >
             <div className="song-rank">#{index + 1}</div>
-            <div className="song-info">
-              <div className="song-title">{song.song_name}</div>
+            <div className="song-info" style={{ textAlign: 'left' }}>
+              <div className="song-title" style={{ textAlign: 'left' }}>{song.song_name}</div>
               {song.authorName && (
-                <span className="song-category">{song.authorName}</span>
+                <span className="song-category" style={{ textAlign: 'left' }}>{song.authorName}</span>
               )}
             </div>
             {song.likes > 0 && (
