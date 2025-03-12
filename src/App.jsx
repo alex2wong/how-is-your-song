@@ -10,6 +10,7 @@ import RankingSection from './components/RankingSection';
 import Stats from './components/Stats';
 import { ProjectIntro } from './components/ProjectIntro';
 import { SongDetail } from './components/SongDetail';
+import InstructionsSection from './components/InstructionsSection';
 
 // Import custom hooks
 import { useAppState } from './components/AppState';
@@ -89,6 +90,8 @@ function App() {
       />
 
       {rating && <AnalysisResult rating={rating} />}
+      
+      <InstructionsSection />
       
       <ProjectIntro />
       

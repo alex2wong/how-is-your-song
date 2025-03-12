@@ -1,4 +1,5 @@
 import React from 'react';
+import { RiUploadCloud2Line, RiMusicLine, RiMusic2Line } from 'react-icons/ri';
 
 const UploadSection = ({ 
   file, 
@@ -17,76 +18,115 @@ const UploadSection = ({
   setPrivacyMode
 }) => {
   return (
-    <div 
-      className="upload-section"
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-    >
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".mp3,audio/*"
-        onChange={handleFileChange}
-      />
+    <section className="upload-section">
+      <div className="upload-header">
+        <h2>音乐智能分析系统</h2>
+      </div>
+      
+      <div 
+        className="file-upload animated-icon"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onClick={() => fileInputRef.current.click()}
+      >
+        <RiUploadCloud2Line style={{ fontSize: '3rem', marginBottom: '16px', color: '#6B66FF' }} />
+        <h3>选择音频文件</h3>
+        <p>支持 MP3、WAV 和 MP4 等格式</p>
+        
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".mp3,audio/*"
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
+      </div>
+      
+      {file && (
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          padding: '12px', 
+          backgroundColor: 'rgba(107, 102, 255, 0.05)', 
+          borderRadius: '8px',
+          marginBottom: '16px'
+        }}>
+          <RiMusicLine style={{ fontSize: '1.5rem', color: '#6B66FF', marginRight: '12px' }} />
+          <div style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontWeight: 'bold' }}>{file.name}</div>
+            <div style={{ fontSize: '0.8rem', color: '#666' }}>{(file.size / (1024 * 1024)).toFixed(2)} MB</div>
+          </div>
+        </div>
+      )}
+      
       {audioUrl && (
-        <audio src={audioUrl} controls className="audio-player">
+        <audio 
+          src={audioUrl} 
+          controls 
+          className="audio-player"
+          style={{ 
+            width: '100%', 
+            marginBottom: '16px',
+            borderRadius: '8px' 
+          }}
+        >
         </audio>
       )}
-      <button
-        onClick={handleUpload}
-        disabled={!file || loading}
-        style={{
-          marginLeft: 'auto',
-          display: 'block'
-        }}
-      >
-        {loading ? '分析中...' : '开始分析'}
-      </button>
-      <input
-        type="text"
-        placeholder="请填写音乐署名或作者名，如果不填默认匿名 (例如：周杰伦、方文山)"
-        value={authorName}
-        onChange={(e) => setAuthorName(e.target.value)}
-        style={{
-          marginTop: '1rem',
-          padding: '0.5rem',
-          width: '100%',
-          borderRadius: '4px',
-          border: '1px solid #ddd'
-        }}
-      />
-      <div style={{ display: 'flex', alignItems: 'center', marginTop: '0.5rem' }}>
+      
+      <div style={{ marginBottom: '16px' }}>
+        <input
+          type="text"
+          placeholder="请填写音乐署名或作者名，如果不填默认匿名 (例如：周杰伦、方文山)"
+          value={authorName}
+          onChange={(e) => setAuthorName(e.target.value)}
+          style={{
+            padding: '12px 16px',
+            width: '100%',
+            borderRadius: 'var(--border-radius)',
+            border: '1px solid #d1d5db',
+            fontSize: '0.9rem',
+            outline: 'none',
+            transition: 'all 0.3s ease'
+          }}
+        />
+      </div>
+      
+      <div className="privacy-mode">
         <input
           type="checkbox"
-          id="privacyMode"
+          id="privacy-mode"
           checked={privacyMode}
           onChange={(e) => setPrivacyMode(e.target.checked)}
-          style={{ marginRight: '0.5rem' }}
         />
-        <label htmlFor="privacyMode" style={{ flexShrink: 0 }}>隐私模式</label>
-        <span style={{ 
-          marginLeft: '8px', 
-          color: '#999', 
-          fontSize: '12px'
-        }}>
-          不参与排行，不可搜索，不可分享，服务器不保存任何数据，建议使用自定义APIKEY
+        <label htmlFor="privacy-mode">隐私模式</label>
+        <span className="privacy-mode-text">
+          不参与排行，不可检索，不可分享，服务器不保存任何数据，建议使用自定义 API KEY
         </span>
       </div>
+
+      <button 
+        className="analyze-button"
+        onClick={handleUpload}
+        disabled={!file || loading}
+      >
+        <RiMusic2Line />
+        {loading ? '分析中...' : '开始分析'}
+      </button>
 
       {loading && (
         <div style={{ marginTop: '1rem', width: '100%' }}>
           <div style={{ 
             width: '100%', 
-            height: '4px', 
-            backgroundColor: '#eee',
-            borderRadius: '2px',
+            height: '6px', 
+            backgroundColor: 'rgba(107, 102, 255, 0.1)',
+            borderRadius: '3px',
             overflow: 'hidden'
           }}>
             <div style={{
               width: `${uploadProgress}%`,
               height: '100%',
-              backgroundColor: '#4CAF50',
+              background: 'var(--primary-gradient)',
               transition: 'width 0.3s ease-in-out'
             }} />
           </div>
@@ -94,13 +134,13 @@ const UploadSection = ({
             textAlign: 'center', 
             marginTop: '0.5rem',
             fontSize: '0.9rem',
-            color: '#666'
+            color: '#4A5568'
           }}>
             上传进度：{uploadProgress}%
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
