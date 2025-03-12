@@ -93,7 +93,7 @@ export const useRankTabLogic = (activeRankTab, setRankLoading, setRankList, fetc
         console.error('获取排行榜失败:', error);
         setRankLoading(false);
       });
-  }, [activeRankTab, fetchRankList, setRankList, setRankLoading]);
+  }, [activeRankTab]);
 };
 
 export default useRankTabLogic;

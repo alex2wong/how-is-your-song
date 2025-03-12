@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { apiBase } from '../utils';
 
 export const useRankingUtils = () => {
   // 获取指定时间范围内的排行榜数据
-  const fetchRankList = async (tag, timestamp) => {
+  const fetchRankList = useCallback(async (tag, timestamp) => {
     try {
       console.log('# Fetching rank list: ', tag, timestamp);
       if (tag === 'worst') {
@@ -36,9 +36,9 @@ export const useRankingUtils = () => {
       console.error('获取排行榜失败:', error);
       return [];
     }
-  };
+  }, []);
 
-  const handleTagClick = async (tag, setSelectedTag, setRankLoading, setRankList) => {
+  const handleTagClick = useCallback(async (tag, setSelectedTag, setRankLoading, setRankList) => {
     setSelectedTag(tag);
     setRankLoading(true);
     setRankList([]);
@@ -52,9 +52,9 @@ export const useRankingUtils = () => {
     } finally {
       setRankLoading(false);
     }
-  };
+  }, []);
 
-  const fetchSongDetail = async (id, setSelectedSong) => {
+  const fetchSongDetail = useCallback(async (id, setSelectedSong) => {
     try {
       console.log('# Fetching song detail: ', id);
       const response = await fetch(`${apiBase}/song/${id}`);
@@ -63,7 +63,7 @@ export const useRankingUtils = () => {
     } catch (error) {
       console.error('获取歌曲详情失败:', error);
     }
-  };
+  }, []);
 
   return {
     fetchRankList,
