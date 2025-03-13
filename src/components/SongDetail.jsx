@@ -85,22 +85,33 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
       alignItems: 'center',
       marginBottom: '8px'
     }}>
-      <h3 style={{ margin: 0 }}>{rating.song_name}</h3>
+      <h3 style={{ 
+        margin: 0,
+        background: 'var(--accent-gradient, linear-gradient(135deg, #FC466B, #3F5EFB))',
+        WebkitBackgroundClip: 'text',
+        backgroundClip: 'text',
+        color: 'transparent',
+        textShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)'
+      }}>{rating.song_name}</h3>
       <span style={{ 
-        backgroundColor: bgColor,
+        background: bgColor,
         color: 'white',
         padding: '2px 8px',
         borderRadius: '12px',
         fontSize: '14px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
       }}>
         {rating.overall_score}分
       </span>
-      <span style={{ color: bgColor }}><strong >{classTxt}</strong></span>
+      <span style={{ 
+        color: bgColor,
+        fontWeight: 'bold'
+      }}>{classTxt}</span>
     </div>
     {rating.authorName && (
         <p>
         <span style={{
-          backgroundColor: getAuthorNameColor(rating.authorName).bgColor,
+          background: getAuthorNameColor(rating.authorName).bgColor,
           color: getAuthorNameColor(rating.authorName).textColor,
           padding: '2px 8px',
           borderRadius: '12px',
@@ -108,7 +119,8 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           marginLeft: '8px',
           display: 'inline-block',
           verticalAlign: 'middle',
-          border: `1px solid ${getAuthorNameColor(rating.authorName).borderColor}`
+          border: `1px solid ${getAuthorNameColor(rating.authorName).borderColor}`,
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
           {rating.authorName}
         </span>
@@ -151,20 +163,41 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          backgroundColor: 'white',
+          backgroundColor: 'var(--card-bg, rgba(255, 255, 255, 0.92))',
           padding: '0 24px 24px 24px',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          borderRadius: 'var(--radius-lg, 16px)',
+          boxShadow: 'var(--shadow-lg, 0 8px 16px rgba(0, 0, 0, 0.1))',
           maxWidth: '90%',
           width: '800px',
           maxHeight: '90vh',
           overflow: 'auto',
-          zIndex: 1000
+          zIndex: 1000,
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
         }} onScroll={handleScroll}>
-          <div style={{ position: 'sticky', zIndex: 10, top: 0, padding: '24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', backgroundColor: '#fff', }}>
+          <div style={{ 
+            position: 'sticky', 
+            zIndex: 10, 
+            top: 0, 
+            padding: '24px 0', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: '16px', 
+            backgroundColor: 'var(--card-bg, rgba(255, 255, 255, 0.92))',
+            borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
+          }}>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexDirection: 'row', width:'80vw' }}>
-              <h2 style={{ margin: 0 }}>{songData.song_name}</h2><MediaPlayer audioUrl={audioUrl} />
+              {/* <h2 style={{ 
+                margin: 0,
+                background: 'var(--accent-gradient, linear-gradient(135deg, #FC466B, #3F5EFB))',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent',
+                textShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)'
+              }}>{songData.song_name}</h2> */}
+              <MediaPlayer audioUrl={audioUrl} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {isLoading ? (
@@ -173,7 +206,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                     width: '24px', 
                     height: '24px', 
                     flexShrink: 0, 
-                    color: '#777', 
+                    color: 'var(--text-secondary, #4A5568)', 
                     marginRight: '4px',
                     animation: 'spin 1s linear infinite'
                   }} 
@@ -185,8 +218,9 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                     height: '24px', 
                     flexShrink: 0, 
                     cursor: 'pointer', 
-                    color: '#FF0000', 
-                    marginRight: '4px' 
+                    color: 'var(--error, #f44336)', 
+                    marginRight: '4px',
+                    filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))'
                   }} 
                   onClick={handleLike} 
                 />
@@ -197,22 +231,46 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                     height: '24px', 
                     flexShrink: 0, 
                     cursor: 'pointer', 
-                    color: '#777', 
-                    marginRight: '4px' 
+                    color: 'var(--text-secondary, #4A5568)', 
+                    marginRight: '4px',
+                    transition: 'all 0.2s ease'
                   }} 
                   onClick={handleLike} 
                 />
               )}
-              <span style={{ fontSize: '14px', color: '#666', marginRight: '16px' }}>{songData.likes || 0}</span>
-              <FaShare style={{ width: '24px', height: '24px', flexShrink: 0, cursor: 'pointer', color:'#555', marginRight: '24px' }} onClick={() =>copyShareLinkforSong(selectedSong._id)}  />
+              <span style={{ color: 'var(--text-secondary, #4A5568)', fontSize: '14px' }}>
+                {songData.likes || 0}
+              </span>
+              <FaShare 
+                style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  flexShrink: 0, 
+                  cursor: 'pointer', 
+                  color: 'var(--text-secondary, #4A5568)', 
+                  marginLeft: '8px',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    color: 'var(--primary, #4CAF50)'
+                  }
+                }} 
+                onClick={() => copyShareLinkforSong(songData._id)} 
+              />
               <button 
                 onClick={handleClose}
                 style={{
+                  width: '30px',
+                  height: '30px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'var(--bg-primary, #f8f9fa)',
                   border: 'none',
-                  background: 'none',
+                  borderRadius: '50%',
                   cursor: 'pointer',
-                  fontSize: '36px',
-                  color: '#666'
+                  marginLeft: '8px',
+                  transition: 'all 0.2s ease',
+                  boxShadow: 'var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.05))'
                 }}
               >
                 ×
@@ -231,8 +289,8 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                 style={{
                   padding: '4px 12px',
                   borderRadius: '16px',
-                  backgroundColor: '#f0f0f0',
-                  color: '#333',
+                  backgroundColor: 'var(--bg-secondary, #f0f0f0)',
+                  color: 'var(--text-secondary, #4A5568)',
                   fontSize: '14px'
                 }}
               >
@@ -242,7 +300,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           </div>
 
           <div className="comments" style={{ marginBottom: '24px' }}>
-            <h3 style={{ borderBottom: '2px solid #4CAF50', paddingBottom: '8px', marginBottom: '16px' }}>详细解析</h3>
+            <h3 style={{ borderBottom: '2px solid var(--primary, #4CAF50)', paddingBottom: '8px', marginBottom: '16px' }}>详细解析</h3>
             <div style={{ display: 'grid', gap: '20px' }}>
               {[
                 { title: '编曲', data: selectedSong.arrangement },
@@ -252,9 +310,9 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
               ].map(section => (
                 <div key={section.title} style={{ 
                   padding: '16px', 
-                  backgroundColor: '#f8f8f8', 
-                  borderRadius: '8px',
-                  border: '1px solid #eee'
+                  backgroundColor: 'var(--card-bg, rgba(255, 255, 255, 0.92))',
+                  borderRadius: 'var(--radius-md, 12px)',
+                  border: '1px solid rgba(0, 0, 0, 0.05)'
                 }}>
                   <div style={{ 
                     display: 'flex', 
@@ -282,14 +340,14 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           {/* 歌词时间轴 */}
           {selectedSong.structure && selectedSong.structure.comments && (
             <div style={{ marginTop: '24px' }}>
-              <h3 style={{ borderBottom: '2px solid #4CAF50', paddingBottom: '8px', marginBottom: '16px' }}>歌词时间轴</h3>
+              <h3 style={{ borderBottom: '2px solid var(--primary, #4CAF50)', paddingBottom: '8px', marginBottom: '16px' }}>歌词时间轴</h3>
               <div style={{ 
                 maxHeight: '300px', 
                 overflowY: 'auto',
                 padding: '16px',
-                backgroundColor: '#f8f8f8',
-                borderRadius: '8px',
-                border: '1px solid #eee'
+                backgroundColor: 'var(--card-bg, rgba(255, 255, 255, 0.92))',
+                borderRadius: 'var(--radius-md, 12px)',
+                border: '1px solid rgba(0, 0, 0, 0.05)'
               }}>
                 {parseLyrics(selectedSong.structure.comments).map((lyric, index) => (
                   <div key={index} style={{ 
@@ -299,7 +357,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                     lineHeight: '1.6'
                   }}>
                     <span style={{ 
-                      color: '#4CAF50',
+                      color: 'var(--primary, #4CAF50)',
                       marginRight: '16px',
                       fontFamily: 'monospace'
                     }}>

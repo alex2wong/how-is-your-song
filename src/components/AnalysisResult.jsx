@@ -45,7 +45,7 @@ const AnalysisResult = ({ rating }) => {
       <table className="dimensions-table">
         <thead>
           <tr>
-            <th style={{ width: 50 }}>维度</th>
+            <th style={{ width: 80 }}>维度</th>
             <th style={{ width: 50 }}>得分</th>
             <th>评论</th>
           </tr>
