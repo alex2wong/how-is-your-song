@@ -237,9 +237,10 @@ body::before {
 }
 
 .analyze-button:disabled {
-  opacity: 0.7;
   cursor: not-allowed;
   transform: none;
+  color: white;
+  background: var(--primary-gradient);
 }
 
 .result-section {

@@ -10,7 +10,7 @@
   --secondary: #5C6BC0;
   --secondary-light: #7986CB;
   --secondary-dark: #3949AB;
-  --secondary-gradient: linear-gradient(135deg, #5C6BC0, #3949AB);
+  --secondary-gradient: linear-gradient(135deg, #36D1DC, #5B86E5);
   
   --accent: #FF9800;
   --accent-light: #FFB74D;
@@ -91,17 +91,17 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   font-size: 2.5rem;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
 }
 
 h2 {
   font-size: 2rem;
-  margin-bottom: var(--spacing-md);
+  /* margin-bottom: var(--spacing-sm); */
 }
 
 h3 {
   font-size: 1.75rem;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 h4 {
