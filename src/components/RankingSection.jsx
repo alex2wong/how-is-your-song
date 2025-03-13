@@ -19,9 +19,13 @@ const RankingSection = ({
         {[
           { id: '24hours', name: '24小时榜' },
           { id: '48hours', name: '48小时榜' },
+          { id: 'weekly', name: '周榜' },
           { id: 'monthly', name: '月榜' },
+          { id: 'total', name: '总榜' },
+          { id: 'like', name: '点赞榜' },
           { id: 'pop', name: '流行榜' },
           { id: 'electronic', name: '电子榜' },
+          { id: 'rock', name: '摇滚榜' },
           { id: 'symphony', name: '交响乐榜' },
           { id: 'jazz', name: '爵士乐榜' },
           { id: 'folk', name: '民谣榜' },
@@ -31,16 +35,11 @@ const RankingSection = ({
           { id: 'chinese', name: '国风榜' },
           { id: 'edm', name: 'EDM榜' },
           { id: 'classical', name: '古典榜' },
-          { id: 'worst', name: '低分榜' },
-          // Keeping these tabs but they're not in the new design
-          { id: 'weekly', name: '周榜' },
-          { id: 'total', name: '总榜' },
-          { id: 'rock', name: '摇滚榜' },
-          { id: 'reggae', name: '雷鸿榜' },
+          { id: 'reggae', name: '雷鬼榜' },
           { id: 'metal', name: '金属榜' },
           { id: 'opera', name: '歌剧榜' },
-          { id: 'like', name: '点赞榜' },
           { id: 'mylike', name: '我点赞的歌'},
+          { id: 'worst', name: '低分榜' },
         ].map(tab => (
           <div
             key={tab.id}
