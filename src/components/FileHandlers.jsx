@@ -1,5 +1,6 @@
 import React from 'react';
 import { analyzeMusic } from '../api/analyze';
+import { useToast } from "./ToastMessage/ToastContext";
 
 export const useFileHandlers = (
   file, 
@@ -14,6 +15,7 @@ export const useFileHandlers = (
   setRating, 
   setStats
 ) => {
+  const { showToast } = useToast();
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
@@ -69,7 +71,7 @@ export const useFileHandlers = (
 
   const handleUpload = async () => {
     if (!file) {
-      alert('请选择音频文件');
+      showToast('请选择音频文件', 'error');
       return;
     }
 
@@ -89,7 +91,7 @@ export const useFileHandlers = (
     } catch (error) {
       console.error('分析失败:', error);
       const errorMessage = error.response?.data?.message || error.response?.data || error.message || '分析失败';
-      alert(errorMessage.error);
+      showToast(errorMessage, 'error');
     }
     setLoading(false);
     setUploadProgress(0);

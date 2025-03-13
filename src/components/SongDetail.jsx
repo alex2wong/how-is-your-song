@@ -4,7 +4,7 @@ import MediaPlayer from "./MediaPlayer";
 import { copyShareLinkforSong } from "../utils";
 import { useState, useEffect } from "react";
 import axios from "axios";
-
+import { useToast } from "./ToastMessage/ToastContext";
 /**
  * 
  * .exellent {
@@ -25,6 +25,8 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [songData, setSongData] = useState(selectedSong);
+
+  const { showToast } = useToast();
 
   // Check if the song is already liked on component mount
   useEffect(() => {
@@ -310,7 +312,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
               onClick={() => {
                 const tagsString = selectedSong.tags.map(t=> t.replace('#', '')).join(', ');
                 navigator.clipboard.writeText(tagsString);
-                alert('音乐标签已复制到剪贴板')
+                showToast('音乐标签已复制到剪贴板')
               }}
               style={{
                 position: 'absolute',

@@ -1,9 +1,12 @@
 import React from 'react';
 import { FaShare, FaCopy } from 'react-icons/fa';
 import { copyShareLinkforSong, scoreClassStyles } from '../utils';
+import { useToast } from "./ToastMessage/ToastContext";
 
 const AnalysisResult = ({ rating }) => {
   if (!rating) return null;
+
+  const { showToast } = useToast();
 
   const renderScoreClass = (rating) => {
     if (!rating || !rating.overall_score) {
@@ -95,7 +98,7 @@ const AnalysisResult = ({ rating }) => {
                onClick={() => {
                  const tagsString = tags.map(t=> t.replace('#', '')).join(', ');
                  navigator.clipboard.writeText(tagsString);
-                 alert('音乐标签已复制到剪贴板')
+                 showToast('音乐标签已复制到剪贴板')
                }}
                style={{
                  position: 'absolute',
