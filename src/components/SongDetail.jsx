@@ -256,7 +256,10 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                     color: 'var(--primary, #4CAF50)'
                   }
                 }} 
-                onClick={() => copyShareLinkforSong(songData._id)} 
+                onClick={() => {
+                  copyShareLinkforSong(songData._id);
+                  showToast('链接已复制到剪贴板');
+                }} 
               />
               <button 
                 onClick={handleClose}

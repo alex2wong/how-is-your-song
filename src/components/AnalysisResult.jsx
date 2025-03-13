@@ -129,7 +129,10 @@ const AnalysisResult = ({ rating }) => {
             color: '#555',
             marginRight: '24px',
           }}
-          onClick={() => copyShareLinkforSong(rating._id)}
+          onClick={() => {
+            copyShareLinkforSong(rating._id);
+            showToast('链接已复制到剪贴板');
+          }}
         />
       </div>
       <div className="score-row">{renderScoreClass(rating)}</div>

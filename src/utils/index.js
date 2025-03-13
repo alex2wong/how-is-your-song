@@ -68,5 +68,4 @@ export const getAuthorNameColor = (authorName) => {
 
 export const copyShareLinkforSong = (songId) => {
   navigator.clipboard.writeText(`https://${location.host}/song/${songId}`);
-  alert('链接已复制到剪贴板');
 }
