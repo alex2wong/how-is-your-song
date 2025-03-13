@@ -1,5 +1,5 @@
 import React from 'react';
-import { RiUploadCloud2Line, RiMusicLine, RiMusic2Line } from 'react-icons/ri';
+import { RiUploadCloud2Line, RiMusicLine, RiMusic2Line, RiCloseLine } from 'react-icons/ri';
 
 const UploadSection = ({ 
   file, 
@@ -15,33 +15,49 @@ const UploadSection = ({
   handleFileChange,
   handleUpload,
   setAuthorName,
-  setPrivacyMode
+  setPrivacyMode,
+  setFile,
+  setAudioUrl
 }) => {
+  // 添加清除文件的函数
+  const handleClearFile = () => {
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+    setFile(null);
+    setAudioUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <section className="upload-section">
       <div className="upload-header">
         <h2>音乐智能分析系统</h2>
       </div>
       
-      <div 
-        className="file-upload animated-icon"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onClick={() => fileInputRef.current.click()}
-      >
-        <RiUploadCloud2Line style={{ fontSize: '3rem', marginBottom: '16px', color: '#6B66FF' }} />
-        <h3>选择音频文件</h3>
-        <p>支持 MP3、WAV 和 MP4 等格式</p>
-        
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".mp3,audio/*"
-          onChange={handleFileChange}
-          style={{ display: 'none' }}
-        />
-      </div>
+      {!file && (
+        <div 
+          className="file-upload animated-icon"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onClick={() => fileInputRef.current.click()}
+        >
+          <RiUploadCloud2Line style={{ fontSize: '3rem', marginBottom: '16px', color: '#6B66FF' }} />
+          <h3>选择音频文件</h3>
+          <p>支持 MP3、WAV 和 MP4 等格式</p>
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".mp3,audio/*"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
+        </div>
+      )}
       
       {file && (
         <div style={{ 
@@ -57,6 +73,24 @@ const UploadSection = ({
             <div style={{ fontWeight: 'bold' }}>{file.name}</div>
             <div style={{ fontSize: '0.8rem', color: '#666' }}>{(file.size / (1024 * 1024)).toFixed(2)} MB</div>
           </div>
+          <button 
+            onClick={handleClearFile}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '8px',
+              borderRadius: '50%',
+              color: '#6B66FF',
+              transition: 'all 0.2s ease'
+            }}
+            title="清除文件"
+          >
+            <RiCloseLine style={{ fontSize: '1.5rem' }} />
+          </button>
         </div>
       )}
       
@@ -109,24 +143,6 @@ const UploadSection = ({
         className="analyze-button"
         onClick={handleUpload}
         disabled={!file || loading}
-        style={{
-          background: 'var(--secondary-gradient)',
-          color: 'white',
-          border: 'none',
-          padding: '14px 32px',
-          borderRadius: 'var(--border-radius)',
-          fontSize: '1rem',
-          fontWeight: '600',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          width: '100%',
-          boxShadow: '0 6px 16px rgba(59, 130, 246, 0.2)',
-          transition: 'all 0.3s ease',
-          marginTop: '20px'
-        }}
       >
         <RiMusic2Line style={{ fontSize: '1.2rem' }} />
         {loading ? '分析中...' : '开始分析'}

@@ -87,6 +87,8 @@ function App() {
         handleUpload={handleUpload}
         setAuthorName={setAuthorName}
         setPrivacyMode={setPrivacyMode}
+        setFile={setFile}
+        setAudioUrl={setAudioUrl}
       />
 
       {rating && <AnalysisResult rating={rating} />}
