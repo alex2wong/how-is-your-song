@@ -2,21 +2,15 @@ import React from 'react';
 
 const Stats = ({ stats }) => {
   return (
-    <div 
-      style={{
-        position: 'fixed',
-        left: '1rem',
-        bottom: '1rem',
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        padding: '0.5rem',
-        borderRadius: '4px',
-        fontSize: '0.9rem',
-        color: '#666'
-      }}
-    >
-      <div>访问人次：{stats.visitors}</div>
-      <div>分析次数：{stats.analyses}</div>
-    </div>
+    <footer style={{
+      textAlign: 'center', 
+      marginTop: '50px', 
+      color: 'var(--text-secondary)', 
+      padding: '20px 0'
+    }}>
+      <p>访问人次: {stats.visitors} | 分析次数: {stats.analyses}</p>
+      <p style={{ marginTop: '10px' }}>© {new Date().getFullYear()} 爱乐评 - 音乐智能分析系统</p>
+    </footer>
   );
 };
 

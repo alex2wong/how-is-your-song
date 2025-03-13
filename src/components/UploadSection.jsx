@@ -133,8 +133,8 @@ const UploadSection = ({
           checked={privacyMode}
           onChange={(e) => setPrivacyMode(e.target.checked)}
         />
-        <label htmlFor="privacy-mode">隐私模式</label>
-        <span className="privacy-mode-text">
+        <label htmlFor="privacy-mode" style={{ flexShrink: 0}}>隐私模式</label>
+        <span className="privacy-mode-text" style={{ textAlign: 'left'}}>
           不参与排行，不可检索，不可分享，服务器不保存任何数据，建议使用自定义 API KEY
         </span>
       </div>

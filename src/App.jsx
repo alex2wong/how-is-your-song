@@ -95,7 +95,6 @@ function App() {
       
       <InstructionsSection />
       
-      <Stats stats={stats} />
 
       <SearchSection 
         searchQuery={searchQuery}
@@ -114,6 +113,8 @@ function App() {
       />
 
       {selectedSong && <SongDetail selectedSong={selectedSong} onClose={() => setSelectedSong(null)} />}
+
+      <Stats stats={stats} />
     </div>
   );
 }

@@ -81,7 +81,17 @@ const RankingSection = ({
             <div className="song-info" style={{ textAlign: 'left' }}>
               <div className="song-title" style={{ textAlign: 'left' }}>{song.song_name}</div>
               {song.authorName && (
-                <span className="song-category" style={{ textAlign: 'left' }}>{song.authorName}</span>
+                <span 
+                  className="song-category" 
+                  style={{ 
+                    textAlign: 'left',
+                    backgroundColor: getAuthorNameColor(song.authorName).bgColor,
+                    color: getAuthorNameColor(song.authorName).textColor,
+                    border: `1px solid ${getAuthorNameColor(song.authorName).borderColor}`
+                  }}
+                >
+                  {song.authorName}
+                </span>
               )}
             </div>
             {song.likes > 0 && (
