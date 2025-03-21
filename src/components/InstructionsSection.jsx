@@ -35,7 +35,7 @@ const InstructionsSection = () => {
       <div className="steps-list">
         <div className="step-item">
           <div className="step-number" style={{ backgroundColor: 'var(--secondary-gradient)', color: '#fff' }}>1</div>
-          <div style={{ color: 'var(--text-secondary)', textAlign: 'left' }}>请访问 Google AI 申请独立 Gemini API Key，填入系统右上角的设置中（也可以不申请，但可能使用次数会受限）</div>
+          <div style={{ color: 'var(--text-secondary)', textAlign: 'left' }}>请访问 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI</a> 申请独立 Gemini API Key，填入系统右上角的设置中（也可以不申请，但可能使用次数会受限）</div>
         </div>
         <div className="step-item">
           <div className="step-number" style={{ backgroundColor: 'var(--secondary-gradient)', color: '#fff' }}>2</div>
