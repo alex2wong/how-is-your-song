@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { analyzeMusic } = require('./genai-analyze');
-const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds } = require('./db');
+const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, calculateSongPercentiles } = require('./db');
 require('dotenv').config()
 
 const app = express();
@@ -131,6 +131,7 @@ app.get('/api/audio/:uri', async (req, res) => {
 
 app.get('/api/song/:id', async (req, res) => {
   console.log('# Request song detail: ', req.params.id);
+  await calculateSongPercentiles(req.params.id);
   const song = await getSongById(req.params.id);
   res.json(song);
 });
@@ -201,8 +202,8 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
       }
       result.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
 
-      await insertSong(result);
-
+      const res = await insertSong(result);
+      res.insertedId && await calculateSongPercentiles(res.insertedId)
       stats.rank = rank;
     }
 
