@@ -203,7 +203,10 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
       result.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
 
       const res = await insertSong(result);
-      res.insertedId && await calculateSongPercentiles(res.insertedId)
+      if (res.insertedId) {
+        const percentiles = await calculateSongPercentiles(res.insertedId);
+        result = { ...result, percentiles };
+      }
       stats.rank = rank;
     }
 

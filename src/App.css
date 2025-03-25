@@ -283,6 +283,7 @@ body::before {
   font-weight: bold;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-sm);
 }
 

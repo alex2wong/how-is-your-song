@@ -37,7 +37,6 @@ const RadarChart = ({ data }) => {
           const axisIndex = params.axisIndex || params.dataIndex;
           const label = labels[axisIndex];
           const score = scores[axisIndex];
-          console.log('params', params)
           return params.name;
         //   return `${label}：${score.toFixed(1)}分 | 超过${percentile.toFixed(1)}%的歌曲`
         }

@@ -2,6 +2,7 @@ import React from 'react';
 import { FaShare, FaCopy } from 'react-icons/fa';
 import { copyShareLinkforSong, scoreClassStyles } from '../utils';
 import { useToast } from "./ToastMessage/ToastContext";
+import RadarChart from './chart';
 
 const AnalysisResult = ({ rating }) => {
   if (!rating) return null;
@@ -137,6 +138,9 @@ const AnalysisResult = ({ rating }) => {
       </div>
       <div className="score-row">{renderScoreClass(rating)}</div>
       <p className="summary-quote">{rating.comments}</p>
+      <div className='score-row'>
+        <RadarChart data={rating} />
+      </div>
       <div>{renderTags(rating.tags || rating.labels)}</div>
       <div className="comments">
         <h3>详细解析</h3>
