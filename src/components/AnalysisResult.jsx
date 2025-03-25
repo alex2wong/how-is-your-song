@@ -28,9 +28,11 @@ const AnalysisResult = ({ rating }) => {
       classTxt = '较一般';
       className += 'normal';
     }
+    const songName = rating.song_name.replace(/\.[^/.]+$/, "");
+    
     return (
       <p>
-        <span>《{rating.song_name}》 得分：</span>{' '}
+        <span>《{songName}》 得分：</span>{' '}
         <span
           className={className}
           style={{ backgroundColor: scoreClassStyles(score).bgColor, color: '#ffffff' }}

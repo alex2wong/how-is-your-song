@@ -79,6 +79,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
     if (!rating) {
         return ''
       }
+      const songName = rating.song_name.replace(/\.[^/.]+$/, "");
   
     return (<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
       <div style={{ 
@@ -95,7 +96,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
         backgroundClip: 'text',
         color: 'transparent',
         textShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)'
-      }}>{rating.song_name}</h3>
+      }}>{songName}</h3>
       <span style={{ 
         background: bgColor,
         color: 'white',
