@@ -5,6 +5,7 @@ import { copyShareLinkforSong } from "../utils";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useToast } from "./ToastMessage/ToastContext";
+import RadarChart from "./chart";
 /**
  * 
  * .exellent {
@@ -78,6 +79,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
     if (!rating) {
         return ''
       }
+      const songName = rating.song_name.replace(/\.[^/.]+$/, "");
   
     return (<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
       <div style={{ 
@@ -94,7 +96,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
         backgroundClip: 'text',
         color: 'transparent',
         textShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)'
-      }}>{rating.song_name}</h3>
+      }}>{songName}</h3>
       <span style={{ 
         background: bgColor,
         color: 'white',
@@ -282,11 +284,11 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
               </button>
             </div>
           </div>
-          <div style={{ marginTop: 50, marginBottom: '24px' }}>
+          <div style={{ marginTop: 50, marginBottom: '24px', display:'flex', flexDirection: 'column', alignItems: 'center' }}>
             {scoreRender(selectedSong)}
             <p className='summary-quote' style={{ fontSize: '16px', lineHeight: '1.6' }}>{selectedSong.comments}</p>
+            <RadarChart data={selectedSong}></RadarChart>
           </div>
-
           <div 
             className="tags-container" 
             style={{ 

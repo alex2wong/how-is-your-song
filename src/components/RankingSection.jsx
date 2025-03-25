@@ -78,7 +78,7 @@ const RankingSection = ({
           >
             <div className="song-rank">#{index + 1}</div>
             <div className="song-info" style={{ textAlign: 'left' }}>
-              <div className="song-title" style={{ textAlign: 'left' }}>{song.song_name}</div>
+              <div className="song-title" style={{ textAlign: 'left' }}>{song.song_name.replace(/\.[^/.]+$/, "")}</div>
               {song.authorName && (
                 <span 
                   className="song-category" 
