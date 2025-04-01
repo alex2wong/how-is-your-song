@@ -6,6 +6,8 @@ import SongDetailPage from './pages/SongDetail/index.jsx';
 // import './index.css'
 import './styles/theme.css'
 import { ToastProvider } from './components/ToastMessage/ToastContext.jsx';
+import { BottomPlayerProvider } from './components/BottomPlayer/BottomPlayerContext.jsx';
+import BottomPlayer from './components/BottomPlayer/index.jsx';
 
 const router = createBrowserRouter([
   {
@@ -14,7 +16,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/song/:id",
-    element: <ToastProvider><SongDetailPage /></ToastProvider>,
+    element: <BottomPlayerProvider><ToastProvider><SongDetailPage /><BottomPlayer /></ToastProvider></BottomPlayerProvider>,
   }
 ]);
 
