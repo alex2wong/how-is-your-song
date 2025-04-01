@@ -12,7 +12,7 @@ export const useAppState = () => {
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState('');
   const [rankList, setRankList] = useState([]);
-  const [activeRankTab, setActiveRankTab] = useState('24hours');
+  const [activeRankTab, setActiveRankTab] = useState('48hours');
   const [selectedSong, setSelectedSong] = useState(null);
   const [showAllTags, setShowAllTags] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

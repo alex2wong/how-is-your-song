@@ -17,7 +17,7 @@ const RankingSection = ({
       
       <div className="ranking-tabs">
         {[
-          { id: '24hours', name: '24小时榜' },
+          // { id: '24hours', name: '24小时榜' },
           { id: '48hours', name: '48小时榜' },
           { id: 'weekly', name: '周榜' },
           { id: 'monthly', name: '月榜' },
