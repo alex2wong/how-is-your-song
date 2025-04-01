@@ -3,6 +3,8 @@ import './App.css';
 
 // Import modular components
 import Header from './components/Header';
+import BottomPlayer from './components/BottomPlayer';
+import { BottomPlayerProvider } from './components/BottomPlayer/BottomPlayerContext';
 import UploadSection from './components/UploadSection';
 import AnalysisResult from './components/AnalysisResult';
 import SearchSection from './components/SearchSection';
@@ -19,6 +21,15 @@ import { useRankingUtils } from './components/RankingUtils';
 import { useRankTabLogic } from './components/RankTabLogic';
 
 function App() {
+  // Wrap the entire app with BottomPlayerProvider
+  return (
+    <BottomPlayerProvider>
+      <AppContent />
+    </BottomPlayerProvider>
+  );
+}
+
+function AppContent() {
   // Initialize app state
   const {
     file, setFile,
@@ -115,6 +126,7 @@ function App() {
       {selectedSong && <SongDetail selectedSong={selectedSong} onClose={() => setSelectedSong(null)} />}
 
       <Stats stats={stats} />
+      <BottomPlayer />
     </div>
   );
 }

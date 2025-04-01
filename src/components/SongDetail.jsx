@@ -1,11 +1,13 @@
 import { FaShare, FaThumbsUp, FaRegThumbsUp, FaSpinner, FaCopy } from "react-icons/fa";
+import { RiPlayFill, RiPauseFill } from "react-icons/ri";
 import { apiBase, scoreClassStyles, getAuthorNameColor } from "../utils";
-import MediaPlayer from "./MediaPlayer";
+import { useBottomPlayer } from "./BottomPlayer/BottomPlayerContext";
 import { copyShareLinkforSong } from "../utils";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useToast } from "./ToastMessage/ToastContext";
 import RadarChart from "./chart";
+
 /**
  * 
  * .exellent {
@@ -21,11 +23,12 @@ import RadarChart from "./chart";
  */
 
 export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
-
-  const { bgColor,classTxt } = scoreClassStyles(selectedSong.overall_score);
+  const { bgColor, classTxt } = scoreClassStyles(selectedSong.overall_score);
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [songData, setSongData] = useState(selectedSong);
+  const { play, pause, isPlaying, audioUrl } = useBottomPlayer();
+  const songAudioUrl = `${apiBase}/audio/${selectedSong.url.replace('uploads/', '')}`;
 
   const { showToast } = useToast();
 
@@ -159,7 +162,13 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
       onClose && onClose();
     }
 
-    const audioUrl = `${apiBase}/audio/${selectedSong.url.replace('uploads/', '')}`;
+    const handlePlayPause = () => {
+      if (isPlaying && audioUrl === songAudioUrl) {
+        pause();
+      } else {
+        play(songAudioUrl);
+      }
+    };
 
     return (
         <div style={{
@@ -193,15 +202,29 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           }}>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexDirection: 'row', width:'80vw' }}>
-              {/* <h2 style={{ 
-                margin: 0,
-                background: 'var(--accent-gradient, linear-gradient(135deg, #FC466B, #3F5EFB))',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                color: 'transparent',
-                textShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)'
-              }}>{songData.song_name}</h2> */}
-              <MediaPlayer audioUrl={audioUrl} />
+              <button
+                onClick={handlePlayPause}
+                style={{
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: 'none',
+                  borderRadius: '50%',
+                  backgroundColor: '#6B66FF',
+                  color: '#fff',
+                  transition: 'all 0.2s ease',
+                  minWidth: 36,
+                  minHeight: 36,
+                  padding: 0
+                }}
+              >
+                {isPlaying && audioUrl === songAudioUrl ? (
+                  <RiPauseFill style={{ width: 20, height: 20 }} color="#fff" />
+                ) : (
+                  <RiPlayFill style={{ width: 20, height: 20 }} color="#fff" />
+                )}
+              </button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {isLoading ? (
