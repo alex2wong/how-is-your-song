@@ -135,8 +135,10 @@ async function analyzeMusic(audioPath, apiKey, promptVersion, modelName) {
   });
 
   const result = await chatSession.sendMessage(promptConfigs[promptVersion].message);
-  const resultTxt = result.response.text();
+  let resultTxt = result.response.text();
+  console.log('return length:', resultTxt.length);
   console.log(resultTxt);
+  resultTxt = resultTxt.replace('```json', '').replace('```', '').replace('ny', '');
   // console.log(typeof resultTxt);
   // const resultObj = await result.response.json();
   return JSON5.parse(resultTxt);

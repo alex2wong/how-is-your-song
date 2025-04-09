@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 export default function Settings({ children }) {
   const [apiKey, setApiKey] = useState('');
   const [promptVersion, setPromptVersion] = useState('v1.0.0');
-  const [modelName, setModelName] = useState('gemini-2.0-pro-exp-02-05');
+  const [modelName, setModelName] = useState('gemini-2.0-flash');
   const [isOpen, setIsOpen] = useState(false);
   
   // 点击外部关闭弹窗
@@ -129,7 +129,8 @@ export default function Settings({ children }) {
             >
               <option value="gemini-2.0-pro-exp-02-05">gemini-2.0-pro-exp-02-05</option>
               <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-              <option value="gemini-2.5-pro-exp-03-25">gemini-2.5-pro-exp-03-25</option>
+              <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
+              <option value="gemini-2.5-pro-preview-03-25">gemini-2.5-pro-preview-03-25</option>
             </select>
           </div>
           
