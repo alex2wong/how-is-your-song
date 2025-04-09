@@ -203,6 +203,8 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
      // 去除文件名最后一个 .后缀
       result.song_name = result.song_name.replace(/\.[^/.]+$/, "");
       result.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
+      result.modelName = modelName;
+      result.promptVersion = promptVersion;
 
       const res = await insertSong(result);
       if (res.insertedId) {
