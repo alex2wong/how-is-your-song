@@ -17,14 +17,18 @@ export const BottomPlayerProvider = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [isError, setIsError] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [songInfo, setSongInfo] = useState(null);
 
-  const play = (url) => {
+  const play = (url, songData) => {
     if (url && url !== audioUrl) {
       setAudioUrl(url);
       if (audioRef.current) {
         audioRef.current.src = url;
         audioRef.current.load();
       }
+    }
+    if (songData) {
+      setSongInfo(songData);
     }
     audioRef.current?.play();
     setIsPlaying(true);
@@ -77,6 +81,7 @@ export const BottomPlayerProvider = ({ children }) => {
     progress,
     isError,
     volume,
+    songInfo,
     play,
     pause,
     togglePlay,

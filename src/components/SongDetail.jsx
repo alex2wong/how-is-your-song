@@ -166,7 +166,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
       if (isPlaying && audioUrl === songAudioUrl) {
         pause();
       } else {
-        play(songAudioUrl);
+        play(songAudioUrl, songData);
       }
     };
 
