@@ -1,5 +1,5 @@
-import React from 'react';
-import { RiUploadCloud2Line, RiMusicLine, RiMusic2Line, RiCloseLine } from 'react-icons/ri';
+import React, { useState } from 'react';
+import { RiUploadCloud2Line, RiMusicLine, RiMusic2Line, RiCloseLine, RiFileUploadLine } from 'react-icons/ri';
 
 const UploadSection = ({ 
   file, 
