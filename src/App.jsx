@@ -14,6 +14,7 @@ import Stats from './components/Stats';
 import { ProjectIntro } from './components/ProjectIntro';
 import { SongDetail } from './components/SongDetail';
 import InstructionsSection from './components/InstructionsSection';
+import MVGenerationSection from './components/MVGenerationSection';
 
 // Import custom hooks
 import { useAppState } from './components/AppState';
@@ -134,6 +135,23 @@ function AppContent() {
           >
             批量分析
           </button>
+          <button 
+            className={`main-tab-button ${activeMainTab === 'mv' ? 'active-main-tab' : ''}`}
+            onClick={() => setActiveMainTab('mv')}
+            style={{ 
+              padding: '10px 20px', 
+              background: activeMainTab === 'mv' ? '#6B66FF' : 'transparent', 
+              border: 'none', 
+              borderRadius: '6px',
+              color: activeMainTab === 'mv' ? 'white' : '#4A5568',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              minWidth: '120px'
+            }}
+          >
+            一键MV生成
+          </button>
         </div>
       </div>
       
@@ -183,14 +201,35 @@ function AppContent() {
       
       {/* 批量分析Tab内容 */}
       {activeMainTab === 'batch' && (
-        <BatchAnalysisSection
-          authorName={authorName}
-          privacyMode={privacyMode}
-          loading={loading}
-          uploadProgress={uploadProgress}
-          setAuthorName={setAuthorName}
-          setPrivacyMode={setPrivacyMode}
-        />
+        <div style={{ 
+          padding: '0', 
+          backgroundColor: 'white', 
+          borderRadius: '10px', 
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+          marginBottom: '24px',
+          overflow: 'hidden'
+        }}>
+          <div style={{ 
+            background: 'var(--primary-gradient)', 
+            height: '6px', 
+            width: '100%' 
+          }}></div>
+          <div style={{ padding: '0' }}>
+            <BatchAnalysisSection
+              authorName={authorName}
+              privacyMode={privacyMode}
+              loading={loading}
+              uploadProgress={uploadProgress}
+              setAuthorName={setAuthorName}
+              setPrivacyMode={setPrivacyMode}
+            />
+          </div>
+        </div>
+      )}
+      
+      {/* 一键MV生成Tab内容 */}
+      {activeMainTab === 'mv' && (
+        <MVGenerationSection />
       )}
 
       {selectedSong && <SongDetail selectedSong={selectedSong} onClose={() => setSelectedSong(null)} />}
