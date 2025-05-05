@@ -180,8 +180,6 @@ const MVGenerationSection = () => {
         }
       }
       
-      console.log('当前时间:', currentTime.toFixed(2), '秒, 当前歌词索引:', currentLyricIndex);
-      
       // 绘制当前歌词和前后几行
       const centerY = canvasHeight - 100;
       const lineHeight = 40;
@@ -239,20 +237,6 @@ const MVGenerationSection = () => {
       return;
     }
     console.log('音乐文件验证通过:', selectedMusic.name);
-    
-    if (!songTitle.trim()) {
-      console.log('验证失败: 歌曲标题为空');
-      alert('请输入歌曲标题');
-      return;
-    }
-    console.log('歌曲标题验证通过:', songTitle);
-    
-    if (!authorName.trim()) {
-      console.log('验证失败: 作者名称为空');
-      alert('请输入作者名称');
-      return;
-    }
-    console.log('作者名称验证通过:', authorName);
     
     if (!backgroundImage) {
       console.log('验证失败: 未选择背景图片');
@@ -426,11 +410,11 @@ const MVGenerationSection = () => {
           let mediaRecorder;
           
           try {
-            const options = { mimeType: 'video/webm;codecs=vp9,opus' };
+            const options = { mimeType: 'video/mp4' };
             mediaRecorder = new MediaRecorder(combinedStream, options);
-            console.log('MediaRecorder创建成功(vp9,opus)');
+            console.log('MediaRecorder创建成功(mp4)');
           } catch (e) {
-            console.warn('vp9,opus编码不支持，尝试默认编码:', e);
+            console.warn('mp4编码不支持，尝试默认编码:', e);
             try {
               // 尝试其他编码
               const options = { mimeType: 'video/webm' };
@@ -468,7 +452,7 @@ const MVGenerationSection = () => {
               }
               
               const videoBlob = new Blob(chunks, {
-                type: 'video/webm'
+                type: 'video/mp4'
               });
               console.log('视频Blob创建成功，大小:', videoBlob.size, '字节');
               
@@ -476,7 +460,7 @@ const MVGenerationSection = () => {
               
               setGeneratedMV({
                 url: videoUrl,
-                name: `${songTitle}_${authorName}_MV.webm`
+                name: `${songTitle}_${authorName}_MV.mp4`
               });
               
               setStatusText('视频生成完成！');
@@ -930,20 +914,6 @@ const MVGenerationSection = () => {
             
             {generating && (
               <div style={{ marginTop: '15px' }}>
-                <div style={{ 
-                  height: '8px', 
-                  backgroundColor: '#e2e8f0', 
-                  borderRadius: '4px', 
-                  overflow: 'hidden',
-                  marginBottom: '8px'
-                }}>
-                  <div style={{ 
-                    height: '100%', 
-                    width: `${progress}%`, 
-                    backgroundColor: 'var(--primary-gradient)', 
-                    transition: 'width 0.3s' 
-                  }}></div>
-                </div>
                 <div style={{ 
                   fontSize: '0.9rem', 
                   color: '#718096', 
