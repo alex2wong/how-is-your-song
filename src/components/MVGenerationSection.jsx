@@ -294,6 +294,14 @@ const MVGenerationSection = () => {
       canvas.width = 1280;
       canvas.height = 720;
       console.log('设置Canvas尺寸为横版:', canvas.width, 'x', canvas.height);
+    } else if (videoOrientation === 'landscape43') {
+      canvas.width = 1280;
+      canvas.height = 960;
+      console.log('设置Canvas尺寸为4:3横版:', canvas.width, 'x', canvas.height);
+    } else if (videoOrientation === 'square') {
+      canvas.width = 1080;
+      canvas.height = 1080;
+      console.log('设置Canvas尺寸为正方形:', canvas.width, 'x', canvas.height);
     } else {
       canvas.width = 720;
       canvas.height = 1280;
@@ -530,6 +538,12 @@ const MVGenerationSection = () => {
       if (videoOrientation === 'landscape') {
         canvasRef.current.width = 1280;
         canvasRef.current.height = 720;
+      } else if (videoOrientation === 'landscape43') {
+        canvasRef.current.width = 1280;
+        canvasRef.current.height = 960;
+      } else if (videoOrientation === 'square') {
+        canvasRef.current.width = 1080;
+        canvasRef.current.height = 1080;
       } else {
         canvasRef.current.width = 720;
         canvasRef.current.height = 1280;
@@ -681,7 +695,7 @@ const MVGenerationSection = () => {
                 />
               </div>
               <div style={{ flex: '1 1 200px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#4A5568' }}>作者名称</label>
+                <label style={{ display: 'block', marginBottom: '5px', color: '#4A5568' }}>作者名称（副标题）</label>
                 <input 
                   type="text" 
                   value={authorName}
@@ -702,12 +716,12 @@ const MVGenerationSection = () => {
           {/* 步骤3：选择视频方向 */}
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>3. 选择视频方向</h3>
-            <div style={{ display: 'flex', gap: '15px' }}>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
               <div 
                 onClick={() => setVideoOrientation('landscape')}
                 style={{
-                  flex: 1,
-                  padding: '15px',
+                  flex: '1',
+                  padding: '12px 8px',
                   border: `2px solid ${videoOrientation === 'landscape' ? '#6B66FF' : '#e2e8f0'}`,
                   borderRadius: '8px',
                   textAlign: 'center',
@@ -716,24 +730,25 @@ const MVGenerationSection = () => {
                 }}
               >
                 <div style={{ 
-                  width: '100%', 
-                  height: '60px', 
+                  width: '72px', 
+                  height: '40px', 
                   backgroundColor: '#e2e8f0',
                   borderRadius: '4px',
-                  marginBottom: '10px',
+                  marginBottom: '8px',
+                  margin: '0 auto',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#718096',
                   fontSize: '0.8rem'
                 }}>16:9</div>
-                <div style={{ fontWeight: videoOrientation === 'landscape' ? 'bold' : 'normal' }}>横版视频</div>
+                <div style={{ fontWeight: videoOrientation === 'landscape' ? 'bold' : 'normal', fontSize: '0.9rem' }}>横版视频</div>
               </div>
               <div 
                 onClick={() => setVideoOrientation('portrait')}
                 style={{
-                  flex: 1,
-                  padding: '15px',
+                  flex: '1',
+                  padding: '12px 8px',
                   border: `2px solid ${videoOrientation === 'portrait' ? '#6B66FF' : '#e2e8f0'}`,
                   borderRadius: '8px',
                   textAlign: 'center',
@@ -742,11 +757,11 @@ const MVGenerationSection = () => {
                 }}
               >
                 <div style={{ 
-                  width: '60px', 
-                  height: '100px', 
+                  width: '40px', 
+                  height: '60px', 
                   backgroundColor: '#e2e8f0',
                   borderRadius: '4px',
-                  marginBottom: '10px',
+                  marginBottom: '8px',
                   margin: '0 auto',
                   display: 'flex',
                   alignItems: 'center',
@@ -754,8 +769,63 @@ const MVGenerationSection = () => {
                   color: '#718096',
                   fontSize: '0.8rem'
                 }}>9:16</div>
-                <div style={{ fontWeight: videoOrientation === 'portrait' ? 'bold' : 'normal' }}>竖版视频</div>
+                <div style={{ fontWeight: videoOrientation === 'portrait' ? 'bold' : 'normal', fontSize: '0.9rem' }}>竖版</div>
               </div>
+              <div 
+                onClick={() => setVideoOrientation('landscape43')}
+                style={{
+                  flex: '1',
+                  padding: '12px 8px',
+                  border: `2px solid ${videoOrientation === 'landscape43' ? '#6B66FF' : '#e2e8f0'}`,
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: videoOrientation === 'landscape43' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                }}
+              >
+                <div style={{ 
+                  width: '54px', 
+                  height: '40px', 
+                  backgroundColor: '#e2e8f0',
+                  borderRadius: '4px',
+                  marginBottom: '8px',
+                  margin: '0 auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#718096',
+                  fontSize: '0.8rem'
+                }}>4:3</div>
+                <div style={{ fontWeight: videoOrientation === 'landscape43' ? 'bold' : 'normal', fontSize: '0.9rem' }}>4:3 横版</div>
+              </div>
+              <div 
+                onClick={() => setVideoOrientation('square')}
+                style={{
+                  flex: '1',
+                  padding: '12px 8px',
+                  border: `2px solid ${videoOrientation === 'square' ? '#6B66FF' : '#e2e8f0'}`,
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: videoOrientation === 'square' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                }}
+              >
+                <div style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  backgroundColor: '#e2e8f0',
+                  borderRadius: '4px',
+                  marginBottom: '8px',
+                  margin: '0 auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#718096',
+                  fontSize: '0.8rem'
+                }}>1:1</div>
+                <div style={{ fontWeight: videoOrientation === 'square' ? 'bold' : 'normal', fontSize: '0.9rem' }}>正方形</div>
+              </div>
+
             </div>
           </div>
           
@@ -871,7 +941,7 @@ const MVGenerationSection = () => {
             borderRadius: '8px',
             overflow: 'hidden',
             backgroundColor: '#000',
-            aspectRatio: videoOrientation === 'landscape' ? '16/9' : '9/16',
+            aspectRatio: videoOrientation === 'landscape' ? '16/9' : videoOrientation === 'landscape43' ? '4/3' : videoOrientation === 'square' ? '1/1' : '9/16',
             maxHeight: '300px',
             margin: '0 auto 20px auto',
             display: generating ? 'flex' : 'none',
@@ -937,7 +1007,7 @@ const MVGenerationSection = () => {
                   width: '100%', 
                   borderRadius: '8px', 
                   backgroundColor: '#000',
-                  aspectRatio: videoOrientation === 'landscape' ? '16/9' : '9/16',
+                  aspectRatio: videoOrientation === 'landscape' ? '16/9' : videoOrientation === 'landscape43' ? '4/3' : videoOrientation === 'square' ? '1/1' : '9/16',
                   maxHeight: '500px',
                   margin: '0 auto',
                   display: 'block'
@@ -958,7 +1028,7 @@ const MVGenerationSection = () => {
                 <div>
                   <div style={{ fontWeight: 'bold' }}>{generatedMV.name}</div>
                   <div style={{ fontSize: '0.8rem', color: '#718096' }}>
-                    {videoOrientation === 'landscape' ? '横版 16:9' : '竖版 9:16'} • {songTitle} • {authorName}
+                    {videoOrientation === 'landscape' ? '横版 16:9' : videoOrientation === 'landscape43' ? '4:3 横版' : videoOrientation === 'square' ? '正方形' : '竖版 9:16'} • {songTitle} • {authorName}
                   </div>
                 </div>
                 <a 
