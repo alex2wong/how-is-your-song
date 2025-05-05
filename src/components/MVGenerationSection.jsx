@@ -791,8 +791,9 @@ const MVGenerationSection = () => {
                   alt="背景图片预览" 
                   style={{ 
                     width: '100%', 
-                    height: '200px', 
-                    objectFit: 'cover', 
+                    maxWidth: '100%', 
+                    height: 'auto', 
+                    objectFit: 'contain', 
                     borderRadius: '8px',
                     border: '1px solid #e2e8f0'
                   }} 
