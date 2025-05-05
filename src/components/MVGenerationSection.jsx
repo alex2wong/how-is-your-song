@@ -183,6 +183,55 @@ const MVGenerationSection = () => {
       }
     }
     
+    // 在左上角绘制歌曲标题和作者名称
+    if (songTitle || authorName) {
+      const padding = 20; // 边距
+      
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      
+      // 绘制半透明背景 (只有在选择了蒙版样式时才显示)
+      if (lyricsMaskStyle === 'mask') {
+        if (songTitle && authorName) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.fillRect(0, 0, canvasWidth * 0.5, 100);
+        } else if (songTitle || authorName) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.fillRect(0, 0, canvasWidth * 0.5, 60);
+        }
+      }
+      
+      // 绘制歌曲标题（主标题）
+      if (songTitle) {
+        ctx.font = 'bold 32px "Microsoft YaHei", Arial, sans-serif';
+        ctx.fillStyle = '#ffffff';
+        
+        // 如果需要描边效果
+        if (lyricsStrokeStyle === 'stroke' || lyricsMaskStyle === 'noMask') {
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+          ctx.lineWidth = 3;
+          ctx.strokeText(songTitle, padding, padding);
+        }
+        
+        ctx.fillText(songTitle, padding, padding);
+      }
+      
+      // 绘制作者名称（副标题）
+      if (authorName) {
+        ctx.font = '22px "Microsoft YaHei", Arial, sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        
+        // 如果需要描边效果
+        if (lyricsStrokeStyle === 'stroke' || lyricsMaskStyle === 'noMask') {
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+          ctx.lineWidth = 2;
+          ctx.strokeText(authorName, padding, songTitle ? padding + 40 : padding);
+        }
+        
+        ctx.fillText(authorName, padding, songTitle ? padding + 40 : padding);
+      }
+    }
+    
     // 绘制歌词
     // 根据位置设置文本对齐方式
     if (lyricsPosition === 'left') {
