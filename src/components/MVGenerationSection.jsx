@@ -12,6 +12,11 @@ const MVGenerationSection = () => {
   const [generating, setGenerating] = useState(false);
   const [generatedMV, setGeneratedMV] = useState(null);
   
+  // 歌词显示风格
+  const [lyricsPosition, setLyricsPosition] = useState('bottom'); // 'left', 'right', 'center', 'bottom'
+  const [lyricsMaskStyle, setLyricsMaskStyle] = useState('mask'); // 'mask', 'noMask'
+  const [lyricsStrokeStyle, setLyricsStrokeStyle] = useState('noStroke'); // 'stroke', 'noStroke'
+  
   // 视频生成相关状态
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('');
@@ -159,13 +164,37 @@ const MVGenerationSection = () => {
     
     ctx.drawImage(backgroundImg, x, y, drawWidth, drawHeight);
     
-    // 绘制半透明黑色覆盖层（用于歌词区域）
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, canvasHeight - 200, canvasWidth, 200);
+    // 根据歌词样式决定是否绘制半透明黑色覆盖层
+    if (lyricsMaskStyle === 'mask') {
+      // 根据歌词位置绘制不同位置的遮罩
+      if (lyricsPosition === 'bottom') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, canvasHeight - 200, canvasWidth, 200);
+      } else if (lyricsPosition === 'left') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, 0, canvasWidth * 0.3, canvasHeight);
+      } else if (lyricsPosition === 'right') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(canvasWidth * 0.7, 0, canvasWidth * 0.3, canvasHeight);
+      } else if (lyricsPosition === 'center') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        const centerWidth = canvasWidth * 0.6;
+        ctx.fillRect((canvasWidth - centerWidth) / 2, canvasHeight / 2 - 100, centerWidth, 200);
+      }
+    }
     
     // 绘制歌词
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    // 根据位置设置文本对齐方式
+    if (lyricsPosition === 'left') {
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+    } else if (lyricsPosition === 'right') {
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+    } else {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+    }
     
     // 找到当前应该显示的歌词
     let currentLyricIndex = -1;
@@ -180,9 +209,23 @@ const MVGenerationSection = () => {
         }
       }
       
-      // 绘制当前歌词和前后几行
-      const centerY = canvasHeight - 100;
+      // 根据位置设置歌词绘制的中心点坐标
+      let centerX, centerY;
       const lineHeight = 40;
+      
+      if (lyricsPosition === 'left') {
+        centerX = canvasWidth * 0.15;
+        centerY = canvasHeight / 2;
+      } else if (lyricsPosition === 'right') {
+        centerX = canvasWidth * 0.85;
+        centerY = canvasHeight / 2;
+      } else if (lyricsPosition === 'center') {
+        centerX = canvasWidth / 2;
+        centerY = canvasHeight / 2;
+      } else { // bottom
+        centerX = canvasWidth / 2;
+        centerY = canvasHeight - 100;
+      }
       
       try {
         for (let i = Math.max(0, currentLyricIndex - 2); i < Math.min(lyrics.length, currentLyricIndex + 3); i++) {
@@ -199,12 +242,18 @@ const MVGenerationSection = () => {
           }
           
           if (lyrics[i].text) {
-            console.log('绘制歌词:', i, lyrics[i].text, '在位置:', centerY + offsetY);
-            ctx.fillText(lyrics[i].text, canvasWidth / 2, centerY + offsetY);
+            // 根据样式决定是否添加描边
+            if (lyricsStrokeStyle === 'stroke') {
+              ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+              ctx.lineWidth = 3;
+              ctx.strokeText(lyrics[i].text, centerX, centerY + offsetY);
+            }
+            
+            ctx.fillText(lyrics[i].text, centerX, centerY + offsetY);
           }
         }
       } catch (e) {
-        console.error('绘制歌词出错:', e);
+        console.error('歌词绘制错误:', e);
       }
     } else {
       console.warn('没有可用的歌词数据');
@@ -935,6 +984,243 @@ const MVGenerationSection = () => {
             </p>
           </div>
           
+          {/* 步骤6：歌词显示位置 */}
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>6. 歌词显示位置</h3>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
+              <div 
+                onClick={() => setLyricsPosition('left')}
+                style={{
+                  flex: '1',
+                  padding: '12px 8px',
+                  border: `2px solid ${lyricsPosition === 'left' ? '#6B66FF' : '#e2e8f0'}`,
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: lyricsPosition === 'left' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                }}
+              >
+                <div style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  backgroundColor: '#e2e8f0',
+                  borderRadius: '4px',
+                  marginBottom: '8px',
+                  margin: '0 auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#718096',
+                  fontSize: '0.8rem'
+                }}>左侧</div>
+                <div style={{ fontWeight: lyricsPosition === 'left' ? 'bold' : 'normal', fontSize: '0.9rem' }}>歌词显示在左侧</div>
+              </div>
+              <div 
+                onClick={() => setLyricsPosition('right')}
+                style={{
+                  flex: '1',
+                  padding: '12px 8px',
+                  border: `2px solid ${lyricsPosition === 'right' ? '#6B66FF' : '#e2e8f0'}`,
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: lyricsPosition === 'right' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                }}
+              >
+                <div style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  backgroundColor: '#e2e8f0',
+                  borderRadius: '4px',
+                  marginBottom: '8px',
+                  margin: '0 auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#718096',
+                  fontSize: '0.8rem'
+                }}>右侧</div>
+                <div style={{ fontWeight: lyricsPosition === 'right' ? 'bold' : 'normal', fontSize: '0.9rem' }}>歌词显示在右侧</div>
+              </div>
+              <div 
+                onClick={() => setLyricsPosition('center')}
+                style={{
+                  flex: '1',
+                  padding: '12px 8px',
+                  border: `2px solid ${lyricsPosition === 'center' ? '#6B66FF' : '#e2e8f0'}`,
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: lyricsPosition === 'center' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                }}
+              >
+                <div style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  backgroundColor: '#e2e8f0',
+                  borderRadius: '4px',
+                  marginBottom: '8px',
+                  margin: '0 auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#718096',
+                  fontSize: '0.8rem'
+                }}>居中</div>
+                <div style={{ fontWeight: lyricsPosition === 'center' ? 'bold' : 'normal', fontSize: '0.9rem' }}>歌词居中显示</div>
+              </div>
+              <div 
+                onClick={() => setLyricsPosition('bottom')}
+                style={{
+                  flex: '1',
+                  padding: '12px 8px',
+                  border: `2px solid ${lyricsPosition === 'bottom' ? '#6B66FF' : '#e2e8f0'}`,
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: lyricsPosition === 'bottom' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                }}
+              >
+                <div style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  backgroundColor: '#e2e8f0',
+                  borderRadius: '4px',
+                  marginBottom: '8px',
+                  margin: '0 auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#718096',
+                  fontSize: '0.8rem'
+                }}>底部</div>
+                <div style={{ fontWeight: lyricsPosition === 'bottom' ? 'bold' : 'normal', fontSize: '0.9rem' }}>歌词显示在底部</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* 步骤7：歌词显示风格 */}
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>7. 歌词显示风格</h3>
+            <div style={{ display: 'flex', gap: '20px' }}>
+              {/* 遮罩选项组 */}
+              <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
+                <div 
+                  onClick={() => setLyricsMaskStyle('mask')}
+                  style={{
+                    flex: '1',
+                    padding: '12px 8px',
+                    border: `2px solid ${lyricsMaskStyle === 'mask' ? '#6B66FF' : '#e2e8f0'}`,
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: lyricsMaskStyle === 'mask' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                  }}
+                >
+                  <div style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    backgroundColor: '#e2e8f0',
+                    borderRadius: '4px',
+                    marginBottom: '8px',
+                    margin: '0 auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#718096',
+                    fontSize: '0.8rem'
+                  }}>遮罩</div>
+                  <div style={{ fontWeight: lyricsMaskStyle === 'mask' ? 'bold' : 'normal', fontSize: '0.9rem' }}>有遮罩</div>
+                </div>
+                <div 
+                  onClick={() => setLyricsMaskStyle('noMask')}
+                  style={{
+                    flex: '1',
+                    padding: '12px 8px',
+                    border: `2px solid ${lyricsMaskStyle === 'noMask' ? '#6B66FF' : '#e2e8f0'}`,
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: lyricsMaskStyle === 'noMask' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                  }}
+                >
+                  <div style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    backgroundColor: '#e2e8f0',
+                    borderRadius: '4px',
+                    marginBottom: '8px',
+                    margin: '0 auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#718096',
+                    fontSize: '0.8rem'
+                  }}>无遮罩</div>
+                  <div style={{ fontWeight: lyricsMaskStyle === 'noMask' ? 'bold' : 'normal', fontSize: '0.9rem' }}>无遮罩</div>
+                </div>
+              </div>
+              
+              {/* 描边选项组 */}
+              <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
+                <div 
+                  onClick={() => setLyricsStrokeStyle('stroke')}
+                  style={{
+                    flex: '1',
+                    padding: '12px 8px',
+                    border: `2px solid ${lyricsStrokeStyle === 'stroke' ? '#6B66FF' : '#e2e8f0'}`,
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: lyricsStrokeStyle === 'stroke' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                  }}
+                >
+                  <div style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    backgroundColor: '#e2e8f0',
+                    borderRadius: '4px',
+                    marginBottom: '8px',
+                    margin: '0 auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#718096',
+                    fontSize: '0.8rem'
+                  }}>描边</div>
+                  <div style={{ fontWeight: lyricsStrokeStyle === 'stroke' ? 'bold' : 'normal', fontSize: '0.9rem' }}>有描边</div>
+                </div>
+                <div 
+                  onClick={() => setLyricsStrokeStyle('noStroke')}
+                  style={{
+                    flex: '1',
+                    padding: '12px 8px',
+                    border: `2px solid ${lyricsStrokeStyle === 'noStroke' ? '#6B66FF' : '#e2e8f0'}`,
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: lyricsStrokeStyle === 'noStroke' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+                  }}
+                >
+                  <div style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    backgroundColor: '#e2e8f0',
+                    borderRadius: '4px',
+                    marginBottom: '8px',
+                    margin: '0 auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#718096',
+                    fontSize: '0.8rem'
+                  }}>无描边</div>
+                  <div style={{ fontWeight: lyricsStrokeStyle === 'noStroke' ? 'bold' : 'normal', fontSize: '0.9rem' }}>无描边</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           {/* 预览区域 */}
           <div style={{
             border: '1px solid #e2e8f0',
@@ -958,7 +1244,7 @@ const MVGenerationSection = () => {
             />
           </div>
           
-          {/* 步骤6：开始生成 */}
+          {/* 步骤8：开始生成 */}
           <div style={{ marginBottom: '20px' }}>
             <button
               onClick={handleGenerateMV}
@@ -997,7 +1283,7 @@ const MVGenerationSection = () => {
             )}
           </div>
           
-          {/* 步骤7和8：视频预览和下载 */}
+          {/* 步骤9和10：视频预览和下载 */}
           {generatedMV && (
             <div style={{ marginTop: '20px' }}>
               <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: '#4A5568' }}>生成结果</h3>
