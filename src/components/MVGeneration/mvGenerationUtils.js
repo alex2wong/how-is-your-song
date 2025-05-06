@@ -304,7 +304,7 @@ export const generateMV = async ({
           const combinedStream = new MediaStream([...videoTracks, ...audioTracks]);
           
           // 设置媒体录制器
-          const options = { mimeType: 'video/mp4' };
+          const options = { mimeType: 'video/mp4', videoBitsPerSecond: 10000000, audioBitsPerSecond: 320000 };
           const mediaRecorder = new MediaRecorder(combinedStream, options);
           mediaRecorderRef.current = mediaRecorder;
           
