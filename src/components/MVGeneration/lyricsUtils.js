@@ -13,6 +13,7 @@ export const parseLyrics = (lyricsText) => {
     // 检测歌词格式
     const firstLine = lines[0].trim();
     const isBracketFormat = firstLine.startsWith('[') && firstLine.includes(']');
+    const isSubtitleFormat = /^\d+$/.test(firstLine) && lines.length > 2 && lines[1].includes(' --> ');
     
     if (isBracketFormat) {
       // 处理带方括号的格式: [00:08.601]用夏天的雨水
@@ -34,6 +35,36 @@ export const parseLyrics = (lyricsText) => {
         const lyricText = timeMatch[4].trim();
         
         const timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
+        
+        lyrics.push({
+          time: timeInSeconds,
+          text: lyricText
+        });
+      }
+    } else if (isSubtitleFormat) {
+      // 处理字幕格式: 1\n00:00:45,000 --> 00:00:50,100\n腐肉的味道 弥漫空气中
+      for (let i = 0; i < lines.length; i += 3) {
+        if (i + 2 >= lines.length) break;
+        
+        // 跳过序号行，直接处理时间行
+        const timeLine = lines[i + 1].trim();
+        const lyricText = lines[i + 2].trim();
+        
+        // 解析时间范围 (格式: 00:00:45,000 --> 00:00:50,100)
+        const timeMatch = timeLine.match(/^(\d+):(\d+):(\d+),(\d+)\s*-->\s*(\d+):(\d+):(\d+),(\d+)$/);
+        
+        if (!timeMatch) {
+          console.error(`时间格式错误: "${timeLine}"，应为 "时:分:秒,毫秒 --> 时:分:秒,毫秒" 格式`);
+          continue; // 跳过错误行，继续解析
+        }
+        
+        // 使用开始时间作为歌词时间点
+        const hours = parseInt(timeMatch[1]);
+        const minutes = parseInt(timeMatch[2]);
+        const seconds = parseInt(timeMatch[3]);
+        const milliseconds = parseInt(timeMatch[4]);
+        
+        const timeInSeconds = hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
         
         lyrics.push({
           time: timeInSeconds,
