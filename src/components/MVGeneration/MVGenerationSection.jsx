@@ -50,6 +50,44 @@ const MVGenerationSection = () => {
   
   // 生成MV的函数
   const handleGenerateMV = () => {
+    // 如果已经生成过MV，需要先清理资源
+    if (generatedMV) {
+      // 清理之前的资源
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+        animationFrameIdRef.current = null;
+      }
+      
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+        mediaRecorderRef.current = null;
+      }
+      
+      // 清理旧的音频元素
+      if (audioElement.src) {
+        audioElement.pause();
+        URL.revokeObjectURL(audioElement.src);
+      }
+      
+      // 清理旧的视频资源
+      if (generatedMV && generatedMV.url) {
+        URL.revokeObjectURL(generatedMV.url);
+      }
+      
+      // 重新创建音频元素
+      const newAudioElement = new Audio();
+      const audioUrl = URL.createObjectURL(selectedMusic);
+      newAudioElement.src = audioUrl;
+      newAudioElement.load();
+      
+      // 替换原来的音频元素
+      Object.assign(audioElement, newAudioElement);
+      
+      // 重置生成状态
+      setGeneratedMV(null);
+    }
+    
+    // 继续生成MV
     generateMV({
       selectedMusic,
       backgroundImage,
@@ -73,6 +111,55 @@ const MVGenerationSection = () => {
     }).catch(error => {
       console.error('MV生成失败:', error);
     });
+  };
+  
+  // 重置所有字段的函数
+  const resetAllFields = () => {
+    // 清理音频资源
+    if (audioElement.src) {
+      audioElement.pause();
+      URL.revokeObjectURL(audioElement.src);
+      audioElement.src = '';
+    }
+    
+    // 重置音频元素的连接状态
+    audioElement._isConnected = false;
+    
+    // 清理视频资源
+    if (generatedMV && generatedMV.url) {
+      URL.revokeObjectURL(generatedMV.url);
+    }
+    
+    // 清理背景图片资源
+    if (backgroundImage && backgroundImage.preview) {
+      URL.revokeObjectURL(backgroundImage.preview);
+    }
+    
+    // 重置所有状态
+    setSelectedMusic(null);
+    setSongTitle('');
+    setAuthorName('');
+    setVideoOrientation('landscape');
+    setBackgroundImage(null);
+    setLyrics('');
+    setGenerating(false);
+    setGeneratedMV(null);
+    setLyricsPosition('bottom');
+    setLyricsMaskStyle('mask');
+    setLyricsStrokeStyle('noStroke');
+    setProgress(0);
+    setStatusText('');
+    setLyricsData([]);
+    
+    // 重置文件输入框
+    if (musicInputRef.current) {
+      musicInputRef.current.value = '';
+    }
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
+    
+    console.log('已重置所有字段，准备生成新的歌曲MV');
   };
   
   // 生命周期管理
@@ -202,6 +289,8 @@ const MVGenerationSection = () => {
             handleGenerateMV={handleGenerateMV} 
             generating={generating} 
             statusText={statusText} 
+            generatedMV={generatedMV}
+            resetAllFields={resetAllFields}
           />
           
           {/* 步骤9和10：视频预览和下载 */}
