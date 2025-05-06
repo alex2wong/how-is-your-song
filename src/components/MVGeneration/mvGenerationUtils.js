@@ -100,11 +100,11 @@ export const generateMV = async ({
   console.log('音乐文件验证通过:', selectedMusic.name);
   
   if (!backgroundImage) {
-    console.log('验证失败: 未选择背景图片');
-    alert('请选择背景图片');
-    return Promise.reject(new Error('未选择背景图片'));
+    console.log('验证失败: 未选择背景');
+    alert('请选择背景图片或视频');
+    return Promise.reject(new Error('未选择背景'));
   }
-  console.log('背景图片验证通过:', backgroundImage.file.name);
+  console.log('背景验证通过:', backgroundImage.file.name);
   
   if (!lyrics.trim()) {
     console.log('验证失败: 歌词时间轴为空');
@@ -137,207 +137,139 @@ export const generateMV = async ({
   
   setGenerating(true);
   setStatusText('准备生成视频...');
-  setProgress(0);
-  
-  // 使用本地变量存储录制的数据块，而不是依赖状态
-  const chunks = [];
-  
-  console.log('状态已设置，开始解析歌词');
-  
-  // 解析歌词时间轴
-  const parsedLyrics = parseLyrics(lyrics);
-  
-  if (!parsedLyrics) {
-    console.log('歌词解析失败');
-    setGenerating(false);
-    return Promise.reject(new Error('歌词解析失败'));
-  }
-  
-  console.log('歌词解析成功，共', parsedLyrics.length, '行');
-  console.log('歌词数据:', JSON.stringify(parsedLyrics));
-  
-  // 立即设置歌词数据，确保在渲染前可用
-  setLyricsData(parsedLyrics);
-  
-  // 确保Canvas已经准备好
-  if (!canvasRef.current) {
-    console.error('Canvas元素未找到');
-    setStatusText('Canvas元素未找到，请刷新页面重试');
-    setGenerating(false);
-    return Promise.reject(new Error('Canvas元素未找到'));
-  }
-  
-  console.log('Canvas元素已找到，设置尺寸');
-  
-  // 设置Canvas尺寸
-  const canvas = canvasRef.current;
-  let canvasWidth, canvasHeight;
-  if (videoOrientation === 'landscape') {
-    canvasWidth = 1280;
-    canvasHeight = 720;
-  } else if (videoOrientation === 'landscape43') {
-    canvasWidth = 1280;
-    canvasHeight = 960;
-  } else if (videoOrientation === 'square') {
-    canvasWidth = 1080;
-    canvasHeight = 1080;
-  } else { // portrait
-    canvasWidth = 720;
-    canvasHeight = 1280;
-  }
-  
-  console.log(`设置Canvas尺寸: ${canvasWidth}x${canvasHeight}, 视频方向: ${videoOrientation}`);
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
-  
-  setStatusText('加载资源中...');
-  console.log('开始加载背景图片...');
-  
-  // 开始渲染视频
-  const ctx = canvas.getContext('2d');
-  console.log('获取Canvas上下文:', ctx ? '成功' : '失败');
-  
-  const backgroundImg = new Image();
-  console.log('创建Image对象');
   
   return new Promise((resolve, reject) => {
     try {
-      console.log('开始生成MV...');
-      setGenerating(true);
-      setStatusText('准备生成MV...');
-      setProgress(0);
+      // 解析歌词
+      console.log('开始解析歌词...');
+      const parsedLyrics = parseLyrics(lyrics);
+      console.log('歌词解析完成, 共', parsedLyrics.length, '行');
       
-      // 清理之前可能存在的音频上下文
-      let audioContextRef = null;
+      // 保存解析后的歌词数据
+      setLyricsData(parsedLyrics);
       
-      // 创建背景图片
-      backgroundImg.crossOrigin = 'anonymous';
-      // 使用backgroundImage.file或直接使用现有的preview URL
-      if (backgroundImage && backgroundImage.file) {
-        console.log('使用背景图片文件创建URL');
-        backgroundImg.src = URL.createObjectURL(backgroundImage.file);
-      } else if (backgroundImage && backgroundImage.preview) {
-        console.log('使用背景图片预览URL');
-        backgroundImg.src = backgroundImage.preview;
-      } else {
-        console.error('背景图片格式无效:', backgroundImage);
-        throw new Error('背景图片格式无效');
+      // 获取Canvas和上下文
+      console.log('获取Canvas上下文...');
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        console.error('Canvas元素不存在');
+        setStatusText('Canvas初始化失败');
+        setGenerating(false);
+        return reject(new Error('Canvas元素不存在'));
       }
       
-      backgroundImg.onload = () => {
+      // 设置Canvas尺寸
+      if (videoOrientation === 'portrait') {
+        // 竖屏视频 (9:16)
+        canvas.width = 720;
+        canvas.height = 1280;
+      } else {
+        // 横屏视频 (16:9)
+        canvas.width = 1280;
+        canvas.height = 720;
+      }
+      console.log('Canvas尺寸设置为:', canvas.width, 'x', canvas.height);
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        console.error('无法获取Canvas上下文');
+        setStatusText('Canvas上下文初始化失败');
+        setGenerating(false);
+        return reject(new Error('无法获取Canvas上下文'));
+      }
+      
+      // 加载背景
+      console.log('开始加载背景...');
+      setStatusText('加载背景中...');
+      
+      // 判断背景类型
+      const isVideo = backgroundImage.type === 'video';
+      
+      // 创建背景元素
+      let backgroundElement;
+      
+      if (isVideo) {
+        // 创建视频元素
+        backgroundElement = document.createElement('video');
+        backgroundElement.muted = true;
+        backgroundElement.playsInline = true;
+        
+        // 如果视频时长小于音频时长，设置循环播放
+        if (backgroundImage.duration && backgroundImage.duration < selectedMusic.duration) {
+          backgroundElement.loop = true;
+        }
+      } else {
+        // 创建图片元素
+        backgroundElement = new Image();
+      }
+      
+      // 设置加载事件
+      backgroundElement.onload = function() {
+        console.log('背景加载完成');
+        setStatusText('背景加载完成，准备生成视频...');
+        
         try {
-          console.log('背景图片加载成功');
-          
-          // 绘制初始帧
-          ctx.fillStyle = 'black';
-          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-          
-          // 绘制背景图（保持比例）
-          const imgRatio = backgroundImg.width / backgroundImg.height;
-          const canvasRatio = canvasWidth / canvasHeight;
-          
-          let drawWidth, drawHeight, x, y;
-          
-          if (imgRatio > canvasRatio) {
-            drawHeight = canvasHeight;
-            drawWidth = drawHeight * imgRatio;
-            x = (canvasWidth - drawWidth) / 2;
-            y = 0;
-          } else {
-            drawWidth = canvasWidth;
-            drawHeight = drawWidth / imgRatio;
-            x = 0;
-            y = (canvasHeight - drawHeight) / 2;
-          }
-          
-          ctx.drawImage(backgroundImg, x, y, drawWidth, drawHeight);
-          console.log('初始帧绘制成功');
-          
-          // 创建Canvas流
-          console.log('尝试创建Canvas流...');
-          const stream = canvas.captureStream(30);
-          console.log('Canvas流创建成功');
-          
-          // 创建音频上下文并加载音频
-          console.log('创建音频上下文...');
-          console.log('音频元素状态:', {
-            src: audioElement.src ? '已设置' : '未设置',
-            paused: audioElement.paused,
-            ended: audioElement.ended,
-            currentTime: audioElement.currentTime,
-            duration: audioElement.duration || '未知'
-          });
-          
-          // 创建新的音频元素，完全替代原来的
+          // 创建临时音频元素用于录制
+          console.log('创建临时音频元素...');
           const tempAudio = new Audio();
-          tempAudio.src = URL.createObjectURL(selectedMusic);
+          tempAudio.src = audioUrl;
           tempAudio.load();
           
-          console.log('创建了临时音频元素:', tempAudio.src);
+          // 创建MediaRecorder
+          console.log('创建MediaRecorder...');
+          const stream = canvas.captureStream(30);
+          const audioContextRef = new (window.AudioContext || window.webkitAudioContext)();
+          const audioSource = audioContextRef.createMediaElementSource(tempAudio);
+          const destination = audioContextRef.createMediaStreamDestination();
+          audioSource.connect(destination);
+          audioSource.connect(audioContextRef.destination);
           
-          // 创建音频上下文
-          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          audioContextRef = audioContext; // 保存引用以便后续清理
-          console.log('创建了新的音频上下文');
+          // 合并视频流和音频流
+          const tracks = [...stream.getVideoTracks(), ...destination.stream.getAudioTracks()];
+          const combinedStream = new MediaStream(tracks);
           
-          // 使用临时音频元素创建媒体源
-          const audioSource = audioContext.createMediaElementSource(tempAudio);
-          console.log('从临时音频元素创建了媒体源');
+          // 创建MediaRecorder
+          const mediaRecorder = new MediaRecorder(combinedStream, {
+            mimeType: 'video/mp4;codecs=vp9',
+            videoBitsPerSecond: 10000000 // 10Mbps
+          });
           
-          const audioDestination = audioContext.createMediaStreamDestination();
-          
-          // 连接音频节点
-          audioSource.connect(audioDestination);
-          audioSource.connect(audioContext.destination); // 也连接到扬声器，这样我们可以听到声音
-          
-          console.log('音频节点连接成功');
-          
-          // 合并视频和音频流
-          console.log('合并视频和音频流...');
-          const videoTracks = stream.getVideoTracks();
-          const audioTracks = audioDestination.stream.getAudioTracks();
-          
-          console.log('视频轨道数:', videoTracks.length);
-          console.log('音频轨道数:', audioTracks.length);
-          
-          // 创建媒体流
-          const combinedStream = new MediaStream([...videoTracks, ...audioTracks]);
-          
-          // 设置媒体录制器
-          const options = { mimeType: 'video/mp4', videoBitsPerSecond: 10000000, audioBitsPerSecond: 320000 };
-          const mediaRecorder = new MediaRecorder(combinedStream, options);
+          // 保存MediaRecorder引用
           mediaRecorderRef.current = mediaRecorder;
           
+          // 创建数据存储数组
           const chunks = [];
           
+          // 设置数据可用事件
           mediaRecorder.ondataavailable = (e) => {
             if (e.data.size > 0) {
               chunks.push(e.data);
             }
           };
           
+          // 设置录制结束事件
           mediaRecorder.onstop = () => {
-            try {
-              console.log('媒体录制停止，处理数据...');
-              const blob = new Blob(chunks, { type: 'video/mp4' });
-              const videoUrl = URL.createObjectURL(blob);
-              setGeneratedMV({
-                url: videoUrl,
-                name: `${songTitle || '未命名'}_${authorName || '未知'}_MV.mp4`
-              });
-              setStatusText('MV生成完成');
-              setProgress(100);
-              console.log('MV生成成功，URL:', videoUrl);
-              resolve(videoUrl);
-            } catch (error) {
-              console.error('处理录制数据时出错:', error);
-              setStatusText('处理视频数据时出错');
-              reject(error);
-            } finally {
-              setGenerating(false);
-              // 在这里清理所有资源，包括音频上下文
-              cleanupResources(mediaRecorderRef, animationFrameIdRef, tempAudio, audioContextRef);
-            }
+            console.log('录制结束，开始处理视频数据...');
+            setStatusText('录制结束，正在处理视频...');
+            
+            // 创建Blob对象
+            const blob = new Blob(chunks, { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            
+            // 设置生成的MV
+            setGeneratedMV({
+              url: url,
+              blob: blob,
+              orientation: videoOrientation
+            });
+            
+            setStatusText('视频生成完成！');
+            setGenerating(false);
+            
+            // 清理临时资源
+            cleanupResources(null, animationFrameIdRef, tempAudio, audioContextRef);
+            
+            resolve();
           };
           
           // 开始录制
@@ -354,12 +286,21 @@ export const generateMV = async ({
           if (playPromise !== undefined) {
             playPromise.then(() => {
               console.log('临时音频播放成功，开始渲染动画');
+              
+              // 如果是视频背景，开始播放
+              if (isVideo) {
+                backgroundElement.currentTime = 0;
+                backgroundElement.play().catch(err => {
+                  console.error('视频背景播放失败:', err);
+                });
+              }
+              
               // 开始渲染动画
               startTimeRef.current = Date.now();
               animationFrameIdRef.current = requestAnimationFrame(() => 
                 renderFrame(
                   ctx, 
-                  backgroundImg, 
+                  backgroundElement, 
                   canvas.width, 
                   canvas.height, 
                   30, 
@@ -393,11 +334,20 @@ export const generateMV = async ({
             });
           } else {
             console.log('临时音频播放返回undefined，直接开始渲染');
+            
+            // 如果是视频背景，开始播放
+            if (isVideo) {
+              backgroundElement.currentTime = 0;
+              backgroundElement.play().catch(err => {
+                console.error('视频背景播放失败:', err);
+              });
+            }
+            
             startTimeRef.current = Date.now();
             animationFrameIdRef.current = requestAnimationFrame(() => 
               renderFrame(
                 ctx, 
-                backgroundImg, 
+                backgroundElement, 
                 canvas.width, 
                 canvas.height, 
                 30, 
@@ -438,12 +388,33 @@ export const generateMV = async ({
         }
       };
       
-      backgroundImg.onerror = (error) => {
-        console.error('背景图片加载失败:', error);
-        setStatusText('背景图片加载失败');
-        setGenerating(false);
-        reject(new Error('背景图片加载失败'));
-      };
+      // 设置错误处理
+      if (isVideo) {
+        // 视频元素的错误事件
+        backgroundElement.onerror = (error) => {
+          console.error('背景视频加载失败:', error);
+          setStatusText('背景视频加载失败');
+          setGenerating(false);
+          reject(new Error('背景视频加载失败'));
+        };
+        
+        // 视频元素的加载事件
+        backgroundElement.onloadeddata = backgroundElement.onload;
+        
+        // 设置视频源
+        backgroundElement.src = backgroundImage.preview;
+      } else {
+        // 图片元素的错误事件
+        backgroundElement.onerror = (error) => {
+          console.error('背景图片加载失败:', error);
+          setStatusText('背景图片加载失败');
+          setGenerating(false);
+          reject(new Error('背景图片加载失败'));
+        };
+        
+        // 设置图片源
+        backgroundElement.src = backgroundImage.preview;
+      }
     } catch (error) {
       console.error('MV生成过程中出错:', error);
       setStatusText('MV生成失败: ' + error.message);

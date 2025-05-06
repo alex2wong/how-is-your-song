@@ -45,27 +45,50 @@ export const handleClearMusic = (audioElement, setSelectedMusic, musicInputRef) 
 };
 
 /**
- * 处理背景图片选择
+ * 处理背景选择（支持图片和视频）
  * @param {Event} e - 文件选择事件
- * @param {Function} setBackgroundImage - 设置背景图片的状态函数
+ * @param {Function} setBackgroundImage - 设置背景的状态函数
  */
-export const handleImageChange = (e, setBackgroundImage) => {
+export const handleBackgroundChange = (e, setBackgroundImage) => {
   if (e.target.files && e.target.files[0]) {
     const file = e.target.files[0];
-    setBackgroundImage({
-      file: file,
-      preview: URL.createObjectURL(file)
-    });
+    const fileType = file.type;
+    
+    // 判断文件类型是图片还是视频
+    const isImage = fileType.startsWith('image/');
+    const isVideo = fileType.startsWith('video/');
+    
+    if (isImage || isVideo) {
+      setBackgroundImage({
+        file: file,
+        preview: URL.createObjectURL(file),
+        type: isImage ? 'image' : 'video',
+        duration: null // 视频时长，后续会获取
+      });
+      
+      // 如果是视频，获取其时长
+      if (isVideo) {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = () => {
+          setBackgroundImage(prev => ({
+            ...prev,
+            duration: video.duration
+          }));
+        };
+        video.src = URL.createObjectURL(file);
+      }
+    }
   }
 };
 
 /**
- * 清除选择的背景图片
- * @param {Object} backgroundImage - 背景图片对象
- * @param {Function} setBackgroundImage - 设置背景图片的状态函数
- * @param {React.RefObject} imageInputRef - 图片输入框的引用
+ * 清除选择的背景
+ * @param {Object} backgroundImage - 背景对象
+ * @param {Function} setBackgroundImage - 设置背景的状态函数
+ * @param {React.RefObject} imageInputRef - 背景输入框的引用
  */
-export const handleClearImage = (backgroundImage, setBackgroundImage, imageInputRef) => {
+export const handleClearBackground = (backgroundImage, setBackgroundImage, imageInputRef) => {
   if (backgroundImage && backgroundImage.preview) {
     URL.revokeObjectURL(backgroundImage.preview);
   }

@@ -1,7 +1,7 @@
 /**
  * 渲染视频帧
  * @param {CanvasRenderingContext2D} ctx - Canvas上下文
- * @param {HTMLImageElement} backgroundImg - 背景图片
+ * @param {HTMLImageElement|HTMLVideoElement} background - 背景图片或视频
  * @param {number} canvasWidth - Canvas宽度
  * @param {number} canvasHeight - Canvas高度
  * @param {number} frameRate - 帧率
@@ -23,7 +23,7 @@
  */
 export const renderFrame = (
   ctx, 
-  backgroundImg, 
+  background, 
   canvasWidth, 
   canvasHeight, 
   frameRate, 
@@ -63,25 +63,36 @@ export const renderFrame = (
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     
-    // 绘制背景图片（保持比例）
-    const imgRatio = backgroundImg.width / backgroundImg.height;
+    // 判断是否是视频背景
+    const isVideo = background.tagName === 'VIDEO';
+    
+    // 如果是视频且需要循环播放，检查是否需要重新播放
+    if (isVideo && background.ended && background.duration < audioElement.duration) {
+      background.currentTime = 0;
+      background.play().catch(err => console.error('视频循环播放失败:', err));
+    }
+    
+    // 绘制背景（保持比例）
+    const bgWidth = isVideo ? background.videoWidth : background.width;
+    const bgHeight = isVideo ? background.videoHeight : background.height;
+    const bgRatio = bgWidth / bgHeight;
     const canvasRatio = canvasWidth / canvasHeight;
     
     let drawWidth, drawHeight, x, y;
     
-    if (imgRatio > canvasRatio) {
+    if (bgRatio > canvasRatio) {
       drawHeight = canvasHeight;
-      drawWidth = drawHeight * imgRatio;
+      drawWidth = drawHeight * bgRatio;
       x = (canvasWidth - drawWidth) / 2;
       y = 0;
     } else {
       drawWidth = canvasWidth;
-      drawHeight = drawWidth / imgRatio;
+      drawHeight = drawWidth / bgRatio;
       x = 0;
       y = (canvasHeight - drawHeight) / 2;
     }
     
-    ctx.drawImage(backgroundImg, x, y, drawWidth, drawHeight);
+    ctx.drawImage(background, x, y, drawWidth, drawHeight);
     
     // 根据歌词样式决定是否绘制半透明黑色覆盖层
     if (lyricsMaskStyle === 'mask') {
@@ -120,28 +131,28 @@ export const renderFrame = (
         }
       }
       
-      // 绘制歌曲标题（主标题）
+      // 绘制标题
       if (songTitle) {
-        ctx.font = 'bold 32px "Microsoft YaHei", Arial, sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.font = 'bold 28px "Microsoft YaHei", Arial, sans-serif';
+        ctx.fillStyle = '#ffffff';
         
-        // 如果需要描边效果
-        if (lyricsStrokeStyle === 'stroke' || lyricsMaskStyle === 'noMask') {
+        // 如果选择了描边样式，则添加描边
+        if (lyricsStrokeStyle === 'stroke') {
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 3;
           ctx.strokeText(songTitle, padding, padding);
         }
         
         ctx.fillText(songTitle, padding, padding);
       }
       
-      // 绘制作者名称（副标题）
+      // 绘制作者
       if (authorName) {
-        ctx.font = '22px "Microsoft YaHei", Arial, sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.font = '20px "Microsoft YaHei", Arial, sans-serif';
+        ctx.fillStyle = '#cccccc';
         
-        // 如果需要描边效果
-        if (lyricsStrokeStyle === 'stroke' || lyricsMaskStyle === 'noMask') {
+        // 如果选择了描边样式，则添加描边
+        if (lyricsStrokeStyle === 'stroke') {
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
           ctx.lineWidth = 2;
           ctx.strokeText(authorName, padding, songTitle ? padding + 40 : padding);
@@ -151,121 +162,119 @@ export const renderFrame = (
       }
     }
     
-    // 绘制歌词
-    // 根据位置设置文本对齐方式
-    if (lyricsPosition === 'left') {
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-    } else if (lyricsPosition === 'right') {
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-    } else {
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-    }
-    
-    // 找到当前应该显示的歌词
+    // 查找当前歌词
     let currentLyricIndex = -1;
     
-    // 确保lyrics存在
     if (lyrics && lyrics.length > 0) {
-      for (let i = 0; i < lyrics.length; i++) {
-        if (currentTime >= lyrics[i].time) {
-          currentLyricIndex = i;
-        } else {
-          break;
-        }
-      }
-      
-      // 根据位置设置歌词绘制的中心点坐标
-      let centerX, centerY;
-      
-      // 根据字号计算行间距
-      const lineHeight = Math.max(1.5 * lyricsFontSize, 40); // 行间距为字号的1.5倍，但不小于40像素
-      
-      if (lyricsPosition === 'left') {
-        centerX = canvasWidth * 0.15;
-        centerY = canvasHeight / 2;
-      } else if (lyricsPosition === 'right') {
-        centerX = canvasWidth * 0.85;
-        centerY = canvasHeight / 2;
-      } else if (lyricsPosition === 'center') {
-        centerX = canvasWidth / 2;
-        centerY = canvasHeight / 2;
-      } else { // bottom
-        centerX = canvasWidth / 2;
-        centerY = canvasHeight - 100;
-      }
-      
-      // 根据字号设置大小
-      const getFontSize = (isCurrentLyric) => {
-        if (isCurrentLyric) {
-          // 当前播放的歌词
-          return lyricsFontSize;
-        } else {
-          // 非当前播放的歌词，稍微小一些
-          return Math.max(16, Math.floor(lyricsFontSize * 0.8));
-        }
-      };
-      
-      // 根据颜色设置
-      const getLyricsColor = (isCurrentLyric) => {
-        if (isCurrentLyric) {
-          // 当前播放的歌词使用用户设置的主色
-          return lyricsColor;
-        } else {
-          // 非当前歌词使用用户设置的配色，添加透明度
-          // 从配色中提取RGB值
-          let r, g, b;
-          
-          // 处理十六进制颜色代码
-          if (lyricsSecondaryColor.startsWith('#')) {
-            const hex = lyricsSecondaryColor.substring(1);
-            if (hex.length === 3) {
-              r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
-              g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
-              b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
-            } else if (hex.length === 6) {
-              r = parseInt(hex.substring(0, 2), 16);
-              g = parseInt(hex.substring(2, 4), 16);
-              b = parseInt(hex.substring(4, 6), 16);
-            }
-          } else {
-            // 默认为白色
-            r = 255;
-            g = 255;
-            b = 255;
+      // 如果当前时间小于第一条歌词的时间，不显示任何歌词
+      if (currentTime < lyrics[0].time) {
+        currentLyricIndex = -1;
+      } else {
+        for (let i = 0; i < lyrics.length; i++) {
+          if (i === lyrics.length - 1 || (currentTime >= lyrics[i].time && currentTime < lyrics[i + 1].time)) {
+            currentLyricIndex = i;
+            break;
           }
-          
-          // 返回带透明度的颜色
-          return `rgba(${r}, ${g}, ${b}, 0.7)`;
         }
-      };
+      }
       
-      try {
-        for (let i = Math.max(0, currentLyricIndex - 2); i < Math.min(lyrics.length, currentLyricIndex + 3); i++) {
-          if (i < 0 || i >= lyrics.length || !lyrics[i]) continue;
-          
-          const offsetY = (i - currentLyricIndex) * lineHeight;
-          const isCurrentLyric = i === currentLyricIndex;
-          
-          const fontSize = getFontSize(isCurrentLyric);
-          ctx.font = `${isCurrentLyric ? 'bold' : 'normal'} ${fontSize}px "Microsoft YaHei", Arial, sans-serif`;
-          ctx.fillStyle = getLyricsColor(isCurrentLyric);
-          
-          if (lyrics[i].text) {
-            // 根据样式决定是否添加描边
-            if (lyricsStrokeStyle === 'stroke') {
-              ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-              ctx.lineWidth = 3;
-              ctx.strokeText(lyrics[i].text, centerX, centerY + offsetY);
+      // 只有在有当前歌词时才绘制歌词
+      if (currentLyricIndex >= 0) {
+        // 绘制歌词
+        const lineHeight = 1.5 * lyricsFontSize; // 行高是字体大小的1.5倍
+        
+        // 根据歌词位置设置文本对齐方式和位置
+        let centerX, centerY;
+        
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        if (lyricsPosition === 'left') {
+          ctx.textAlign = 'left';
+          centerX = canvasWidth * 0.15;
+          centerY = canvasHeight / 2;
+        } else if (lyricsPosition === 'right') {
+          ctx.textAlign = 'right';
+          centerX = canvasWidth * 0.85;
+          centerY = canvasHeight / 2;
+        } else if (lyricsPosition === 'center') {
+          centerX = canvasWidth / 2;
+          centerY = canvasHeight / 2;
+        } else { // bottom
+          centerX = canvasWidth / 2;
+          centerY = canvasHeight - 100;
+        }
+        
+        // 根据字号设置大小
+        const getFontSize = (isCurrentLyric) => {
+          if (isCurrentLyric) {
+            // 当前播放的歌词
+            return lyricsFontSize;
+          } else {
+            // 非当前播放的歌词，稍微小一些
+            return Math.max(16, Math.floor(lyricsFontSize * 0.8));
+          }
+        };
+        
+        // 根据颜色设置
+        const getLyricsColor = (isCurrentLyric) => {
+          if (isCurrentLyric) {
+            // 当前播放的歌词使用用户设置的主色
+            return lyricsColor;
+          } else {
+            // 非当前歌词使用用户设置的配色，添加透明度
+            // 从配色中提取RGB值
+            let r, g, b;
+            
+            // 处理十六进制颜色代码
+            if (lyricsSecondaryColor.startsWith('#')) {
+              const hex = lyricsSecondaryColor.substring(1);
+              if (hex.length === 3) {
+                r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
+                g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
+                b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
+              } else if (hex.length === 6) {
+                r = parseInt(hex.substring(0, 2), 16);
+                g = parseInt(hex.substring(2, 4), 16);
+                b = parseInt(hex.substring(4, 6), 16);
+              }
+            } else {
+              // 默认为白色
+              r = 255;
+              g = 255;
+              b = 255;
             }
             
-            ctx.fillText(lyrics[i].text, centerX, centerY + offsetY);
+            // 返回带透明度的颜色
+            return `rgba(${r}, ${g}, ${b}, 0.7)`;
           }
+        };
+        
+        try {
+          for (let i = Math.max(0, currentLyricIndex - 2); i < Math.min(lyrics.length, currentLyricIndex + 3); i++) {
+            if (i < 0 || i >= lyrics.length || !lyrics[i]) continue;
+            
+            const offsetY = (i - currentLyricIndex) * lineHeight;
+            const isCurrentLyric = i === currentLyricIndex;
+            
+            const fontSize = getFontSize(isCurrentLyric);
+            ctx.font = `${isCurrentLyric ? 'bold' : 'normal'} ${fontSize}px "Microsoft YaHei", Arial, sans-serif`;
+            ctx.fillStyle = getLyricsColor(isCurrentLyric);
+            
+            if (lyrics[i].text) {
+              // 根据样式决定是否添加描边
+              if (lyricsStrokeStyle === 'stroke') {
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.lineWidth = 3;
+                ctx.strokeText(lyrics[i].text, centerX, centerY + offsetY);
+              }
+              
+              ctx.fillText(lyrics[i].text, centerX, centerY + offsetY);
+            }
+          }
+        } catch (e) {
+          console.error('歌词绘制错误:', e);
         }
-      } catch (e) {
-        console.error('歌词绘制错误:', e);
       }
     } else {
       console.warn('没有可用的歌词数据');
@@ -285,7 +294,7 @@ export const renderFrame = (
     animationFrameIdRef.current = requestAnimationFrame(() => 
       renderFrame(
         ctx, 
-        backgroundImg, 
+        background, 
         canvasWidth, 
         canvasHeight, 
         frameRate, 

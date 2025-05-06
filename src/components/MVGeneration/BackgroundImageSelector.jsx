@@ -1,9 +1,9 @@
 import React from 'react';
 import { RiImageAddLine, RiFileUploadLine } from 'react-icons/ri';
-import { handleImageChange, handleClearImage } from './fileUtils';
+import { handleBackgroundChange, handleClearBackground } from './fileUtils';
 
 /**
- * 背景图片选择组件
+ * 背景选择组件（支持图片和视频）
  */
 const BackgroundImageSelector = ({ 
   backgroundImage, 
@@ -12,7 +12,7 @@ const BackgroundImageSelector = ({
 }) => {
   return (
     <div style={{ marginBottom: '20px' }}>
-      <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>4. 选择背景图片</h3>
+      <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>4. 选择背景</h3>
       {!backgroundImage ? (
         <div 
           style={{
@@ -26,31 +26,50 @@ const BackgroundImageSelector = ({
           onClick={() => imageInputRef.current.click()}
         >
           <RiImageAddLine style={{ fontSize: '2rem', color: '#6B66FF', marginBottom: '10px' }} />
-          <p style={{ color: '#718096' }}>点击选择背景图片（将根据视频方向自动裁剪）</p>
+          <p style={{ color: '#718096' }}>点击选择背景（图片或视频，将根据视频方向自动裁剪）</p>
           <input
             ref={imageInputRef}
             type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, setBackgroundImage)}
+            accept="image/*,video/mp4,video/gif"
+            onChange={(e) => handleBackgroundChange(e, setBackgroundImage)}
             style={{ display: 'none' }}
           />
         </div>
       ) : (
         <div style={{ position: 'relative' }}>
-          <img 
-            src={backgroundImage.preview} 
-            alt="背景图片预览" 
-            style={{ 
-              width: '100%', 
-              maxWidth: '100%', 
-              height: 'auto', 
-              objectFit: 'contain', 
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0'
-            }} 
-          />
+          {backgroundImage.type === 'image' ? (
+            <img 
+              src={backgroundImage.preview} 
+              alt="背景图片预览" 
+              style={{ 
+                width: '100%', 
+                maxWidth: '100%', 
+                height: 'auto', 
+                objectFit: 'contain', 
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0'
+              }} 
+            />
+          ) : (
+            <video 
+              src={backgroundImage.preview} 
+              alt="背景视频预览" 
+              style={{ 
+                width: '100%', 
+                maxWidth: '100%', 
+                height: 'auto', 
+                objectFit: 'contain', 
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0'
+              }} 
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          )}
           <button 
-            onClick={() => handleClearImage(backgroundImage, setBackgroundImage, imageInputRef)}
+            onClick={() => handleClearBackground(backgroundImage, setBackgroundImage, imageInputRef)}
             style={{
               position: 'absolute',
               top: '10px',
