@@ -171,23 +171,24 @@ export const generateMV = async ({
   
   // 设置Canvas尺寸
   const canvas = canvasRef.current;
+  let canvasWidth, canvasHeight;
   if (videoOrientation === 'landscape') {
-    canvas.width = 1280;
-    canvas.height = 720;
-    console.log('设置Canvas尺寸为横版:', canvas.width, 'x', canvas.height);
+    canvasWidth = 1280;
+    canvasHeight = 720;
   } else if (videoOrientation === 'landscape43') {
-    canvas.width = 1280;
-    canvas.height = 960;
-    console.log('设置Canvas尺寸为4:3横版:', canvas.width, 'x', canvas.height);
+    canvasWidth = 1280;
+    canvasHeight = 960;
   } else if (videoOrientation === 'square') {
-    canvas.width = 1080;
-    canvas.height = 1080;
-    console.log('设置Canvas尺寸为正方形:', canvas.width, 'x', canvas.height);
-  } else {
-    canvas.width = 720;
-    canvas.height = 1280;
-    console.log('设置Canvas尺寸为竖版:', canvas.width, 'x', canvas.height);
+    canvasWidth = 1080;
+    canvasHeight = 1080;
+  } else { // portrait
+    canvasWidth = 720;
+    canvasHeight = 1280;
   }
+  
+  console.log(`设置Canvas尺寸: ${canvasWidth}x${canvasHeight}, 视频方向: ${videoOrientation}`);
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
   
   setStatusText('加载资源中...');
   console.log('开始加载背景图片...');
@@ -226,23 +227,6 @@ export const generateMV = async ({
       backgroundImg.onload = () => {
         try {
           console.log('背景图片加载成功');
-          
-          // 设置canvas尺寸
-          let canvasWidth, canvasHeight;
-          if (videoOrientation === 'horizontal') {
-            canvasWidth = 1280;
-            canvasHeight = 720;
-          } else {
-            canvasWidth = 720;
-            canvasHeight = 1280;
-          }
-          
-          console.log(`设置Canvas尺寸: ${canvasWidth}x${canvasHeight}`);
-          canvas.width = canvasWidth;
-          canvas.height = canvasHeight;
-          
-          // 获取canvas上下文
-          const ctx = canvas.getContext('2d');
           
           // 绘制初始帧
           ctx.fillStyle = 'black';
