@@ -1,0 +1,103 @@
+/**
+ * 解析歌词时间轴
+ * @param {string} lyricsText - 歌词文本
+ * @returns {Array|null} 解析后的歌词数组或null（如果解析失败）
+ */
+export const parseLyrics = (lyricsText) => {
+  const lyrics = [];
+  const lines = lyricsText.split('\n').filter(line => line.trim() !== '');
+  
+  console.log('解析歌词，总行数:', lines.length);
+  
+  try {
+    // 检测歌词格式
+    const firstLine = lines[0].trim();
+    const isBracketFormat = firstLine.startsWith('[') && firstLine.includes(']');
+    
+    if (isBracketFormat) {
+      // 处理带方括号的格式: [00:08.601]用夏天的雨水
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        // 匹配 [00:08.601] 格式的时间戳
+        const timeMatch = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+        
+        if (!timeMatch) {
+          console.error(`时间格式错误: "${line}"，应为 "[分:秒.毫秒]歌词" 格式`);
+          continue; // 跳过错误行，继续解析
+        }
+        
+        const minutes = parseInt(timeMatch[1]);
+        const seconds = parseInt(timeMatch[2]);
+        const milliseconds = parseInt(timeMatch[3]);
+        const lyricText = timeMatch[4].trim();
+        
+        const timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
+        
+        lyrics.push({
+          time: timeInSeconds,
+          text: lyricText
+        });
+      }
+    } else {
+      // 处理原始格式: 00:00.00 换行 (Intro - Saxophone)
+      for (let i = 0; i < lines.length; i += 2) {
+        if (i + 1 >= lines.length) break;
+        
+        const timeStr = lines[i].trim();
+        const lyricText = lines[i + 1].trim();
+        
+        console.log(`解析歌词行 ${i}: 时间=${timeStr}, 文本=${lyricText}`);
+        
+        // 解析时间 (格式: 00:00.00)
+        const timeMatch = timeStr.match(/^(\d+):(\d+)\.(\d+)$/);
+        
+        if (!timeMatch) {
+          console.error(`时间格式错误: "${timeStr}"，应为 "分:秒.毫秒" 格式`);
+          alert(`时间格式错误: "${timeStr}"，应为 "分:秒.毫秒" 格式`);
+          return null;
+        }
+        
+        const minutes = parseInt(timeMatch[1]);
+        const seconds = parseInt(timeMatch[2]);
+        const milliseconds = parseInt(timeMatch[3]);
+        
+        const timeInSeconds = minutes * 60 + seconds + milliseconds / 100;
+        
+        lyrics.push({
+          time: timeInSeconds,
+          text: lyricText
+        });
+      }
+    }
+    
+    // 按时间排序
+    lyrics.sort((a, b) => a.time - b.time);
+    
+    console.log('歌词解析完成，共', lyrics.length, '条');
+    return lyrics;
+  } catch (e) {
+    console.error('歌词解析出错:', e);
+    alert('歌词解析出错: ' + e.message);
+    return null;
+  }
+};
+
+/**
+ * 示例歌词
+ */
+export const exampleLyrics = `00:00.00
+(Intro - Saxophone)
+00:15.06
+我很想要一个答案
+00:17.68
+来填补我生命的空缺
+00:22.04
+一场雷阵雨如何能浇灭
+00:26.62
+这些不安的火焰
+00:29.94
+不是每一个春天都是春天
+00:33.61
+不是每一段恋情都会圆满`;
