@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import useLocalStorageState from 'use-local-storage-state';
 
 // 导入子组件
 import MusicFileSelector from './MusicFileSelector';
@@ -21,18 +22,18 @@ import { generateMV } from './mvGenerationUtils';
 const MVGenerationSection = () => {
   // 基本状态
   const [selectedMusic, setSelectedMusic] = useState(null);
-  const [songTitle, setSongTitle] = useState('');
-  const [authorName, setAuthorName] = useState('');
-  const [videoOrientation, setVideoOrientation] = useState('landscape'); // 'landscape' 或 'portrait'
+  const [songTitle, setSongTitle] = useLocalStorageState('mvGenerator_songTitle', { defaultValue: '' });
+  const [authorName, setAuthorName] = useLocalStorageState('mvGenerator_authorName', { defaultValue: '' });
+  const [videoOrientation, setVideoOrientation] = useLocalStorageState('mvGenerator_videoOrientation', { defaultValue: 'landscape' }); // 'landscape' 或 'portrait'
   const [backgroundImage, setBackgroundImage] = useState(null);
-  const [lyrics, setLyrics] = useState('');
+  const [lyrics, setLyrics] = useLocalStorageState('mvGenerator_lyrics', { defaultValue: '' });
   const [generating, setGenerating] = useState(false);
   const [generatedMV, setGeneratedMV] = useState(null);
   
   // 歌词显示风格
-  const [lyricsPosition, setLyricsPosition] = useState('bottom'); // 'left', 'right', 'center', 'bottom'
-  const [lyricsMaskStyle, setLyricsMaskStyle] = useState('mask'); // 'mask', 'noMask'
-  const [lyricsStrokeStyle, setLyricsStrokeStyle] = useState('noStroke'); // 'stroke', 'noStroke'
+  const [lyricsPosition, setLyricsPosition] = useLocalStorageState('mvGenerator_lyricsPosition', { defaultValue: 'bottom' }); // 'left', 'right', 'center', 'bottom'
+  const [lyricsMaskStyle, setLyricsMaskStyle] = useLocalStorageState('mvGenerator_lyricsMaskStyle', { defaultValue: 'mask' }); // 'mask', 'noMask'
+  const [lyricsStrokeStyle, setLyricsStrokeStyle] = useLocalStorageState('mvGenerator_lyricsStrokeStyle', { defaultValue: 'noStroke' }); // 'stroke', 'noStroke'
   
   // 视频生成相关状态
   const [progress, setProgress] = useState(0);
