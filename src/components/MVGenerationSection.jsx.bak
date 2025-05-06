@@ -523,9 +523,9 @@ const MVGenerationSection = () => {
             console.warn('mp4编码不支持，尝试默认编码:', e);
             try {
               // 尝试其他编码
-              const options = { mimeType: 'video/webm' };
+              const options = { mimeType: 'video/mp4' };
               mediaRecorder = new MediaRecorder(combinedStream, options);
-              console.log('MediaRecorder创建成功(webm)');
+              console.log('MediaRecorder创建成功(mp4)');
             } catch (e2) {
               console.error('所有编码尝试失败，使用无选项创建:', e2);
               // 如果不支持编码，尝试使用默认选项

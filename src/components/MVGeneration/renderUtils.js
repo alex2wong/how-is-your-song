@@ -17,6 +17,9 @@
  * @param {string} lyricsPosition - 歌词位置
  * @param {string} lyricsMaskStyle - 歌词遮罩样式
  * @param {string} lyricsStrokeStyle - 歌词描边样式
+ * @param {number} lyricsFontSize - 歌词字号，像素值
+ * @param {string} lyricsColor - 主色，高亮歌词颜色
+ * @param {string} lyricsSecondaryColor - 配色，非高亮歌词颜色
  */
 export const renderFrame = (
   ctx, 
@@ -35,7 +38,10 @@ export const renderFrame = (
   authorName,
   lyricsPosition,
   lyricsMaskStyle,
-  lyricsStrokeStyle
+  lyricsStrokeStyle,
+  lyricsFontSize = 28,
+  lyricsColor = '#ffcc00',
+  lyricsSecondaryColor = '#ffffff'
 ) => {
   try {
     const currentTime = (Date.now() - startTimeRef.current) / 1000;
@@ -117,12 +123,12 @@ export const renderFrame = (
       // 绘制歌曲标题（主标题）
       if (songTitle) {
         ctx.font = 'bold 32px "Microsoft YaHei", Arial, sans-serif';
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         
         // 如果需要描边效果
         if (lyricsStrokeStyle === 'stroke' || lyricsMaskStyle === 'noMask') {
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2;
           ctx.strokeText(songTitle, padding, padding);
         }
         
@@ -173,7 +179,9 @@ export const renderFrame = (
       
       // 根据位置设置歌词绘制的中心点坐标
       let centerX, centerY;
-      const lineHeight = 40;
+      
+      // 根据字号计算行间距
+      const lineHeight = Math.max(1.5 * lyricsFontSize, 40); // 行间距为字号的1.5倍，但不小于40像素
       
       if (lyricsPosition === 'left') {
         centerX = canvasWidth * 0.15;
@@ -189,19 +197,61 @@ export const renderFrame = (
         centerY = canvasHeight - 100;
       }
       
+      // 根据字号设置大小
+      const getFontSize = (isCurrentLyric) => {
+        if (isCurrentLyric) {
+          // 当前播放的歌词
+          return lyricsFontSize;
+        } else {
+          // 非当前播放的歌词，稍微小一些
+          return Math.max(16, Math.floor(lyricsFontSize * 0.8));
+        }
+      };
+      
+      // 根据颜色设置
+      const getLyricsColor = (isCurrentLyric) => {
+        if (isCurrentLyric) {
+          // 当前播放的歌词使用用户设置的主色
+          return lyricsColor;
+        } else {
+          // 非当前歌词使用用户设置的配色，添加透明度
+          // 从配色中提取RGB值
+          let r, g, b;
+          
+          // 处理十六进制颜色代码
+          if (lyricsSecondaryColor.startsWith('#')) {
+            const hex = lyricsSecondaryColor.substring(1);
+            if (hex.length === 3) {
+              r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
+              g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
+              b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
+            } else if (hex.length === 6) {
+              r = parseInt(hex.substring(0, 2), 16);
+              g = parseInt(hex.substring(2, 4), 16);
+              b = parseInt(hex.substring(4, 6), 16);
+            }
+          } else {
+            // 默认为白色
+            r = 255;
+            g = 255;
+            b = 255;
+          }
+          
+          // 返回带透明度的颜色
+          return `rgba(${r}, ${g}, ${b}, 0.7)`;
+        }
+      };
+      
       try {
         for (let i = Math.max(0, currentLyricIndex - 2); i < Math.min(lyrics.length, currentLyricIndex + 3); i++) {
           if (i < 0 || i >= lyrics.length || !lyrics[i]) continue;
           
           const offsetY = (i - currentLyricIndex) * lineHeight;
+          const isCurrentLyric = i === currentLyricIndex;
           
-          if (i === currentLyricIndex) {
-            ctx.font = 'bold 28px "Microsoft YaHei", Arial, sans-serif';
-            ctx.fillStyle = '#ffcc00';
-          } else {
-            ctx.font = '20px "Microsoft YaHei", Arial, sans-serif';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-          }
+          const fontSize = getFontSize(isCurrentLyric);
+          ctx.font = `${isCurrentLyric ? 'bold' : 'normal'} ${fontSize}px "Microsoft YaHei", Arial, sans-serif`;
+          ctx.fillStyle = getLyricsColor(isCurrentLyric);
           
           if (lyrics[i].text) {
             // 根据样式决定是否添加描边
@@ -250,7 +300,10 @@ export const renderFrame = (
         authorName,
         lyricsPosition,
         lyricsMaskStyle,
-        lyricsStrokeStyle
+        lyricsStrokeStyle,
+        lyricsFontSize,
+        lyricsColor,
+        lyricsSecondaryColor
       )
     );
   } catch (error) {

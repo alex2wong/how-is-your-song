@@ -80,6 +80,9 @@ export const generateMV = async ({
   lyricsPosition,
   lyricsMaskStyle,
   lyricsStrokeStyle,
+  lyricsFontSize,
+  lyricsColor,
+  lyricsSecondaryColor,
   setGenerating,
   setStatusText,
   setProgress,
@@ -317,7 +320,7 @@ export const generateMV = async ({
           const combinedStream = new MediaStream([...videoTracks, ...audioTracks]);
           
           // 设置媒体录制器
-          const options = { mimeType: 'video/webm;codecs=vp9,opus' };
+          const options = { mimeType: 'video/mp4' };
           const mediaRecorder = new MediaRecorder(combinedStream, options);
           mediaRecorderRef.current = mediaRecorder;
           
@@ -332,11 +335,11 @@ export const generateMV = async ({
           mediaRecorder.onstop = () => {
             try {
               console.log('媒体录制停止，处理数据...');
-              const blob = new Blob(chunks, { type: 'video/webm' });
+              const blob = new Blob(chunks, { type: 'video/mp4' });
               const videoUrl = URL.createObjectURL(blob);
               setGeneratedMV({
                 url: videoUrl,
-                name: `${songTitle || '未命名'}_${authorName || '未知'}_MV.webm`
+                name: `${songTitle || '未命名'}_${authorName || '未知'}_MV.mp4`
               });
               setStatusText('MV生成完成');
               setProgress(100);
@@ -387,7 +390,10 @@ export const generateMV = async ({
                   authorName,
                   lyricsPosition,
                   lyricsMaskStyle,
-                  lyricsStrokeStyle
+                  lyricsStrokeStyle,
+                  lyricsFontSize,
+                  lyricsColor,
+                  lyricsSecondaryColor
                 )
               );
             }).catch(error => {
@@ -422,7 +428,10 @@ export const generateMV = async ({
                 authorName,
                 lyricsPosition,
                 lyricsMaskStyle,
-                lyricsStrokeStyle
+                lyricsStrokeStyle,
+                lyricsFontSize,
+                lyricsColor,
+                lyricsSecondaryColor
               )
             );
           }

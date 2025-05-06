@@ -34,6 +34,9 @@ const MVGenerationSection = () => {
   const [lyricsPosition, setLyricsPosition] = useLocalStorageState('mvGenerator_lyricsPosition', { defaultValue: 'bottom' }); // 'left', 'right', 'center', 'bottom'
   const [lyricsMaskStyle, setLyricsMaskStyle] = useLocalStorageState('mvGenerator_lyricsMaskStyle', { defaultValue: 'mask' }); // 'mask', 'noMask'
   const [lyricsStrokeStyle, setLyricsStrokeStyle] = useLocalStorageState('mvGenerator_lyricsStrokeStyle', { defaultValue: 'noStroke' }); // 'stroke', 'noStroke'
+  const [lyricsFontSize, setLyricsFontSize] = useLocalStorageState('mvGenerator_lyricsFontSize', { defaultValue: 28 }); // 数字类型，默认28像素
+  const [lyricsColor, setLyricsColor] = useLocalStorageState('mvGenerator_lyricsColor', { defaultValue: '#ffcc00' }); // 主色，高亮歌词颜色
+  const [lyricsSecondaryColor, setLyricsSecondaryColor] = useLocalStorageState('mvGenerator_lyricsSecondaryColor', { defaultValue: '#ffffff' }); // 配色，非高亮歌词颜色
   
   // 视频生成相关状态
   const [progress, setProgress] = useState(0);
@@ -104,6 +107,9 @@ const MVGenerationSection = () => {
       lyricsPosition,
       lyricsMaskStyle,
       lyricsStrokeStyle,
+      lyricsFontSize,
+      lyricsColor,
+      lyricsSecondaryColor,
       setGenerating,
       setStatusText,
       setProgress,
@@ -116,24 +122,13 @@ const MVGenerationSection = () => {
   
   // 重置所有字段的函数
   const resetAllFields = () => {
-    // 清理音频资源
-    if (audioElement.src) {
+    // 清理音频元素
+    if (audioElement) {
       audioElement.pause();
-      URL.revokeObjectURL(audioElement.src);
-      audioElement.src = '';
-    }
-    
-    // 重置音频元素的连接状态
-    audioElement._isConnected = false;
-    
-    // 清理视频资源
-    if (generatedMV && generatedMV.url) {
-      URL.revokeObjectURL(generatedMV.url);
-    }
-    
-    // 清理背景图片资源
-    if (backgroundImage && backgroundImage.preview) {
-      URL.revokeObjectURL(backgroundImage.preview);
+      if (audioElement.src) {
+        URL.revokeObjectURL(audioElement.src);
+        audioElement.src = '';
+      }
     }
     
     // 重置所有状态
@@ -148,16 +143,36 @@ const MVGenerationSection = () => {
     setLyricsPosition('bottom');
     setLyricsMaskStyle('mask');
     setLyricsStrokeStyle('noStroke');
+    setLyricsFontSize(28);
+    setLyricsColor('#ffcc00');
+    setLyricsSecondaryColor('#ffffff');
     setProgress(0);
     setStatusText('');
-    setLyricsData([]);
     
-    // 重置文件输入框
+    // 重置文件输入
     if (musicInputRef.current) {
       musicInputRef.current.value = '';
     }
+    
     if (imageInputRef.current) {
       imageInputRef.current.value = '';
+    }
+    
+    // 重置画布尺寸
+    if (canvasRef.current) {
+      if (videoOrientation === 'landscape') {
+        canvasRef.current.width = 1280;
+        canvasRef.current.height = 720;
+      } else if (videoOrientation === 'landscape43') {
+        canvasRef.current.width = 1280;
+        canvasRef.current.height = 960;
+      } else if (videoOrientation === 'square') {
+        canvasRef.current.width = 1080;
+        canvasRef.current.height = 1080;
+      } else {
+        canvasRef.current.width = 720;
+        canvasRef.current.height = 1280;
+      }
     }
     
     console.log('已重置所有字段，准备生成新的歌曲MV');
@@ -276,6 +291,12 @@ const MVGenerationSection = () => {
             setLyricsMaskStyle={setLyricsMaskStyle} 
             lyricsStrokeStyle={lyricsStrokeStyle} 
             setLyricsStrokeStyle={setLyricsStrokeStyle} 
+            lyricsFontSize={lyricsFontSize}
+            setLyricsFontSize={setLyricsFontSize}
+            lyricsColor={lyricsColor}
+            setLyricsColor={setLyricsColor}
+            lyricsSecondaryColor={lyricsSecondaryColor}
+            setLyricsSecondaryColor={setLyricsSecondaryColor}
           />
           
           {/* 预览区域 */}
