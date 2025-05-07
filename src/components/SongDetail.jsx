@@ -1,12 +1,14 @@
-import { FaShare, FaThumbsUp, FaRegThumbsUp, FaSpinner, FaCopy, FaVideo } from "react-icons/fa";
+import { FaShare, FaThumbsUp, FaRegThumbsUp, FaSpinner, FaCopy, FaVideo, FaDownload, FaFilePdf, FaFileImage } from "react-icons/fa";
 import { RiPlayFill, RiPauseFill } from "react-icons/ri";
 import { apiBase, scoreClassStyles, getAuthorNameColor } from "../utils";
 import { useBottomPlayer } from "./BottomPlayer/BottomPlayerContext";
 import { copyShareLinkforSong } from "../utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useToast } from "./ToastMessage/ToastContext";
 import RadarChart from "./chart";
+import domtoimage from "dom-to-image-more";
+import { jsPDF } from "jspdf";
 
 /**
  * 
@@ -29,6 +31,9 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
   const [songData, setSongData] = useState(selectedSong);
   const { play, pause, isPlaying, audioUrl } = useBottomPlayer();
   const songAudioUrl = `${apiBase}/audio/${selectedSong.url.replace('uploads/', '')}`;
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const contentRef = useRef(null);
 
   const { showToast } = useToast();
 
@@ -38,6 +43,20 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
     setIsLiked(likedSongs.includes(selectedSong._id));
     setSongData(selectedSong);
   }, [selectedSong._id, selectedSong.likes]);
+  
+  // 点击其他区域时关闭下拉菜单
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showDownloadOptions && !event.target.closest('.download-button')) {
+        setShowDownloadOptions(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDownloadOptions]);
 
   // Toggle like status and update localStorage
   const handleLike = async () => {
@@ -170,6 +189,111 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
       }
     };
 
+    const handleDownload = async (format) => {
+      try {
+        setIsDownloading(true);
+        setShowDownloadOptions(false);
+        
+        const songName = selectedSong.song_name.replace(/\.[^/.]+$/, "");
+        const element = contentRef.current;
+        
+        if (!element) {
+          showToast('无法获取内容元素');
+          setIsDownloading(false);
+          return;
+        }
+        
+        console.log('开始下载', format, element);
+        
+        // 暂时隐藏滚动条，以便截图完整
+        const originalStyle = window.getComputedStyle(element.parentElement).overflow;
+        const originalMaxHeight = element.parentElement.style.maxHeight;
+        element.parentElement.style.overflow = 'visible';
+        element.parentElement.style.maxHeight = 'none';
+        
+        // 添加一个小延时，确保样式已应用
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 使用dom-to-image库而不是html2canvas
+        const dataUrl = await domtoimage.toPng(element, {
+          quality: 1,
+          bgcolor: '#ffffff',
+          width: element.offsetWidth,
+          height: element.scrollHeight,
+          style: {
+            'transform': 'none',
+            'transform-origin': 'none'
+          }
+        });
+        
+        // 恢复原始样式
+        element.parentElement.style.overflow = originalStyle;
+        element.parentElement.style.maxHeight = originalMaxHeight;
+        
+        console.log('图片生成成功', dataUrl.substring(0, 100) + '...');
+        
+        if (format === 'png') {
+          // 下载为PNG
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = `${songName}-分析报告.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showToast('PNG文件已下载');
+        } else if (format === 'pdf') {
+          // 下载为PDF
+          const img = new Image();
+          img.onload = () => {
+            const pdf = new jsPDF({
+              orientation: 'portrait',
+              unit: 'mm',
+              format: 'a4'
+            });
+            
+            // 计算宽高比
+            const imgWidth = 210; // A4宽度(mm)
+            const imgHeight = (img.height * imgWidth) / img.width;
+            
+            // 处理分页
+            const a4Height = 297; // A4高度(mm)
+            
+            if (imgHeight <= a4Height) {
+              // 内容适合单页
+              pdf.addImage(dataUrl, 'PNG', 0, 0, imgWidth, imgHeight);
+            } else {
+              // 内容需要分页
+              let heightLeft = imgHeight;
+              let position = 0;
+              let page = 0;
+              
+              // 首页
+              pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
+              heightLeft -= a4Height;
+              
+              // 添加后续页
+              while (heightLeft > 0) {
+                position = -a4Height * (page + 1);
+                page++;
+                pdf.addPage();
+                pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= a4Height;
+              }
+            }
+            
+            pdf.save(`${songName}-分析报告.pdf`);
+            showToast('PDF文件已下载');
+          };
+          img.src = dataUrl;
+        }
+      } catch (error) {
+        console.error('下载失败:', error);
+        showToast('下载失败，请重试');
+      } finally {
+        setIsDownloading(false);
+      }
+    };
+
     return (
         <div style={{
           position: 'fixed',
@@ -188,6 +312,10 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(255, 255, 255, 0.2)'
         }} onScroll={handleScroll}>
+          <div ref={contentRef} style={{
+            backgroundColor: 'var(--card-bg, rgba(255, 255, 255, 0.92))',
+            width: '100%'
+          }}>
           <div style={{ 
             position: 'sticky', 
             zIndex: 10, 
@@ -226,7 +354,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                 )}
               </button>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
               {isLoading ? (
                 <FaSpinner 
                   style={{ 
@@ -286,6 +414,82 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                   showToast('链接已复制到剪贴板');
                 }} 
               />
+              <div className="download-button" style={{ position: 'relative' }}>
+                {isDownloading ? (
+                  <FaSpinner 
+                    style={{ 
+                      width: '24px', 
+                      height: '24px', 
+                      flexShrink: 0, 
+                      color: 'var(--text-secondary, #4A5568)', 
+                      marginLeft: '8px',
+                      animation: 'spin 1s linear infinite'
+                    }} 
+                  />
+                ) : (
+                  <FaDownload 
+                    className="download-button"
+                    style={{ 
+                      width: '24px', 
+                      height: '24px', 
+                      flexShrink: 0, 
+                      cursor: 'pointer', 
+                      color: 'var(--text-secondary, #4A5568)', 
+                      marginLeft: '8px',
+                      transition: 'all 0.2s ease'
+                    }} 
+                    onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary, #4CAF50)'}
+                    onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary, #4A5568)'}
+                    onClick={() => setShowDownloadOptions(!showDownloadOptions)} 
+                  />
+                )}
+                {showDownloadOptions && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '30px',
+                    right: '0',
+                    backgroundColor: 'white',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                    borderRadius: '8px',
+                    padding: '8px 0',
+                    zIndex: 1001,
+                    minWidth: '160px'
+                  }}>
+                    <div 
+                      className="download-option"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '8px 16px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      onClick={() => handleDownload('pdf')}
+                    >
+                      <FaFilePdf style={{ marginRight: '8px', color: '#e74c3c' }} />
+                      <span>下载PDF</span>
+                    </div>
+                    <div 
+                      className="download-option"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '8px 16px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      onClick={() => handleDownload('png')}
+                    >
+                      <FaFileImage style={{ marginRight: '8px', color: '#3498db' }} />
+                      <span>下载PNG</span>
+                    </div>
+                  </div>
+                )}
+              </div>
               <button 
                 onClick={handleClose}
                 style={{
@@ -524,6 +728,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
               </div>
             </div>
           )}
+          </div>
         </div>
       )
 }
