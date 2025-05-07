@@ -115,7 +115,7 @@ export const renderFrame = (
     
     // 在左上角绘制歌曲标题和作者名称
     if (songTitle || authorName) {
-      const padding = 20; // 边距
+      const padding = 60; // 边距
       
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
