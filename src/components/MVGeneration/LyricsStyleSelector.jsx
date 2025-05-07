@@ -13,13 +13,43 @@ const LyricsStyleSelector = ({
   lyricsColor,
   setLyricsColor,
   lyricsSecondaryColor,
-  setLyricsSecondaryColor
+  setLyricsSecondaryColor,
+  titleFontSize,
+  setTitleFontSize,
+  titleMargin,
+  setTitleMargin,
+  videoBitrate,
+  setVideoBitrate
 }) => {
   // 处理字号输入变化
   const handleFontSizeChange = (e) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value > 0) {
       setLyricsFontSize(value);
+    }
+  };
+  
+  // 处理标题字号输入变化
+  const handleTitleFontSizeChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value > 0) {
+      setTitleFontSize(value);
+    }
+  };
+  
+  // 处理标题边距输入变化
+  const handleTitleMarginChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value >= 0) {
+      setTitleMargin(value);
+    }
+  };
+  
+  // 处理视频码率输入变化
+  const handleVideoBitrateChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value > 0) {
+      setVideoBitrate(value);
     }
   };
 
@@ -35,7 +65,7 @@ const LyricsStyleSelector = ({
 
   return (
     <div style={{ marginBottom: '20px' }}>
-      <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>7. 歌词显示风格</h3>
+      <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>7. 显示风格设置</h3>
       
       {/* 遮罩和描边选项 */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
@@ -410,6 +440,117 @@ const LyricsStyleSelector = ({
               }}
               title="淡黄色"
             ></div>
+          </div>
+        </div>
+      </div>
+      
+      {/* 标题设置 */}
+      <div style={{ marginTop: '20px' }}>
+        <h4 style={{ marginBottom: '10px', fontSize: '1rem', color: '#4A5568', textAlign: 'center' }}>标题设置</h4>
+        <div style={{ 
+          display: 'flex', 
+          gap: '20px',
+          marginBottom: '15px',
+          flexWrap: 'wrap',
+          justifyContent: 'center'
+        }}>
+          {/* 标题字号 */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            padding: '10px',
+            backgroundColor: '#f7fafc',
+            borderRadius: '8px',
+            minWidth: '200px',
+            justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: '0.9rem', color: '#718096', whiteSpace: 'nowrap' }}>标题字号:</span>
+            <input 
+              type="number" 
+              min="12"
+              max="48"
+              value={titleFontSize}
+              onChange={handleTitleFontSizeChange}
+              style={{
+                width: '60px',
+                padding: '8px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '4px',
+                fontSize: '0.9rem'
+              }}
+            />
+            <span style={{ fontSize: '0.9rem', color: '#718096' }}>px</span>
+          </div>
+          
+          {/* 标题边距 */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            padding: '10px',
+            backgroundColor: '#f7fafc',
+            borderRadius: '8px',
+            minWidth: '200px',
+            justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: '0.9rem', color: '#718096', whiteSpace: 'nowrap' }}>标题边距:</span>
+            <input 
+              type="number" 
+              min="0"
+              max="200"
+              value={titleMargin}
+              onChange={handleTitleMarginChange}
+              style={{
+                width: '60px',
+                padding: '8px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '4px',
+                fontSize: '0.9rem'
+              }}
+            />
+            <span style={{ fontSize: '0.9rem', color: '#718096' }}>px</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* 视频设置 */}
+      <div style={{ marginTop: '20px' }}>
+        <h4 style={{ marginBottom: '10px', fontSize: '1rem', color: '#4A5568', textAlign: 'center' }}>视频设置</h4>
+        <div style={{ 
+          display: 'flex', 
+          gap: '20px',
+          marginBottom: '15px',
+          flexWrap: 'wrap',
+          justifyContent: 'center'
+        }}>
+          {/* 视频码率 */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            padding: '10px',
+            backgroundColor: '#f7fafc',
+            borderRadius: '8px',
+            minWidth: '200px',
+            justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: '0.9rem', color: '#718096', whiteSpace: 'nowrap' }}>视频码率:</span>
+            <input 
+              type="number" 
+              min="1"
+              max="20"
+              value={videoBitrate}
+              onChange={handleVideoBitrateChange}
+              style={{
+                width: '60px',
+                padding: '8px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '4px',
+                fontSize: '0.9rem'
+              }}
+            />
+            <span style={{ fontSize: '0.9rem', color: '#718096' }}>Mbps</span>
           </div>
         </div>
       </div>

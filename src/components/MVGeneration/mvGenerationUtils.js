@@ -83,6 +83,9 @@ export const generateMV = async ({
   lyricsFontSize,
   lyricsColor,
   lyricsSecondaryColor,
+  titleFontSize,
+  titleMargin,
+  videoBitrate,
   setGenerating,
   setStatusText,
   setProgress,
@@ -227,11 +230,11 @@ export const generateMV = async ({
           // 合并视频流和音频流
           const tracks = [...stream.getVideoTracks(), ...destination.stream.getAudioTracks()];
           const combinedStream = new MediaStream(tracks);
-          
+          console.log('videoBitrate', videoBitrate);
           // 创建MediaRecorder
           const mediaRecorder = new MediaRecorder(combinedStream, {
             mimeType: 'video/mp4;codecs=vp9',
-            videoBitsPerSecond: 10000000 // 10Mbps
+            videoBitsPerSecond: videoBitrate * 1000000 // 将Mbps转换为bps
           });
           
           // 保存MediaRecorder引用
@@ -318,7 +321,9 @@ export const generateMV = async ({
                   lyricsStrokeStyle,
                   lyricsFontSize,
                   lyricsColor,
-                  lyricsSecondaryColor
+                  lyricsSecondaryColor,
+                  titleFontSize,
+                  titleMargin
                 )
               );
             }).catch(error => {
@@ -365,7 +370,9 @@ export const generateMV = async ({
                 lyricsStrokeStyle,
                 lyricsFontSize,
                 lyricsColor,
-                lyricsSecondaryColor
+                lyricsSecondaryColor,
+                titleFontSize,
+                titleMargin
               )
             );
           }

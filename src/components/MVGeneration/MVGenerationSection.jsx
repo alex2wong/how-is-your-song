@@ -38,6 +38,13 @@ const MVGenerationSection = () => {
   const [lyricsColor, setLyricsColor] = useLocalStorageState('mvGenerator_lyricsColor', { defaultValue: '#ffcc00' }); // 主色，高亮歌词颜色
   const [lyricsSecondaryColor, setLyricsSecondaryColor] = useLocalStorageState('mvGenerator_lyricsSecondaryColor', { defaultValue: '#ffffff' }); // 配色，非高亮歌词颜色
   
+  // 标题设置
+  const [titleFontSize, setTitleFontSize] = useLocalStorageState('mvGenerator_titleFontSize', { defaultValue: 24 }); // 标题字号，默认24像素
+  const [titleMargin, setTitleMargin] = useLocalStorageState('mvGenerator_titleMargin', { defaultValue: 60 }); // 标题边距，默认60像素
+  
+  // 视频设置
+  const [videoBitrate, setVideoBitrate] = useLocalStorageState('mvGenerator_videoBitrate', { defaultValue: 10 }); // 视频码率，默认10Mbps
+  
   // 视频生成相关状态
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('');
@@ -110,6 +117,9 @@ const MVGenerationSection = () => {
       lyricsFontSize,
       lyricsColor,
       lyricsSecondaryColor,
+      titleFontSize,
+      titleMargin,
+      videoBitrate,
       setGenerating,
       setStatusText,
       setProgress,
@@ -285,7 +295,7 @@ const MVGenerationSection = () => {
             setLyricsPosition={setLyricsPosition} 
           />
           
-          {/* 步骤7：歌词显示风格 */}
+          {/* 步骤7：显示风格设置 */}
           <LyricsStyleSelector 
             lyricsMaskStyle={lyricsMaskStyle} 
             setLyricsMaskStyle={setLyricsMaskStyle} 
@@ -297,6 +307,12 @@ const MVGenerationSection = () => {
             setLyricsColor={setLyricsColor}
             lyricsSecondaryColor={lyricsSecondaryColor}
             setLyricsSecondaryColor={setLyricsSecondaryColor}
+            titleFontSize={titleFontSize}
+            setTitleFontSize={setTitleFontSize}
+            titleMargin={titleMargin}
+            setTitleMargin={setTitleMargin}
+            videoBitrate={videoBitrate}
+            setVideoBitrate={setVideoBitrate}
           />
           
           {/* 预览区域 */}

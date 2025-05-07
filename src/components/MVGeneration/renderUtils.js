@@ -20,6 +20,8 @@
  * @param {number} lyricsFontSize - 歌词字号，像素值
  * @param {string} lyricsColor - 主色，高亮歌词颜色
  * @param {string} lyricsSecondaryColor - 配色，非高亮歌词颜色
+ * @param {number} titleFontSize - 标题字号，像素值
+ * @param {number} titleMargin - 标题边距，像素值
  */
 export const renderFrame = (
   ctx, 
@@ -41,7 +43,9 @@ export const renderFrame = (
   lyricsStrokeStyle,
   lyricsFontSize = 28,
   lyricsColor = '#ffcc00',
-  lyricsSecondaryColor = '#ffffff'
+  lyricsSecondaryColor = '#ffffff',
+  titleFontSize = 24,
+  titleMargin = 60
 ) => {
   try {
     const currentTime = (Date.now() - startTimeRef.current) / 1000;
@@ -115,7 +119,8 @@ export const renderFrame = (
     
     // 在左上角绘制歌曲标题和作者名称
     if (songTitle || authorName) {
-      const padding = 60; // 边距
+      const padding = titleMargin; // 使用传入的标题边距
+      // console.log('title padding', padding);
       
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
@@ -130,10 +135,10 @@ export const renderFrame = (
           ctx.fillRect(0, 0, canvasWidth * 0.5, 60);
         }
       }
-      
+      // console.log('title font size', titleFontSize);
       // 绘制标题
       if (songTitle) {
-        ctx.font = 'bold 28px "Microsoft YaHei", Arial, sans-serif';
+        ctx.font = `bold ${titleFontSize}px "Microsoft YaHei", Arial, sans-serif`;
         ctx.fillStyle = '#ffffff';
         
         // 如果选择了描边样式，则添加描边
@@ -148,17 +153,22 @@ export const renderFrame = (
       
       // 绘制作者
       if (authorName) {
-        ctx.font = '20px "Microsoft YaHei", Arial, sans-serif';
+        // 作者名称字号为标题字号的0.75倍
+        const authorFontSize = Math.round(titleFontSize * 0.75);
+        // 行距为标题字号的1.5倍
+        const lineHeight = Math.round(titleFontSize * 1.5);
+        
+        ctx.font = `${authorFontSize}px "Microsoft YaHei", Arial, sans-serif`;
         ctx.fillStyle = '#cccccc';
         
         // 如果选择了描边样式，则添加描边
         if (lyricsStrokeStyle === 'stroke') {
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
           ctx.lineWidth = 2;
-          ctx.strokeText(authorName, padding, songTitle ? padding + 40 : padding);
+          ctx.strokeText(authorName, padding, songTitle ? padding + lineHeight : padding);
         }
         
-        ctx.fillText(authorName, padding, songTitle ? padding + 40 : padding);
+        ctx.fillText(authorName, padding, songTitle ? padding + lineHeight : padding);
       }
     }
     
@@ -312,7 +322,9 @@ export const renderFrame = (
         lyricsStrokeStyle,
         lyricsFontSize,
         lyricsColor,
-        lyricsSecondaryColor
+        lyricsSecondaryColor,
+        titleFontSize,
+        titleMargin
       )
     );
   } catch (error) {
