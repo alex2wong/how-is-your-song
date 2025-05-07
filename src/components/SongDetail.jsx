@@ -783,8 +783,6 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                 </div>
               </div>
               <div style={{ 
-                maxHeight: '300px', 
-                overflowY: 'auto',
                 padding: '16px',
                 backgroundColor: 'var(--card-bg, rgba(255, 255, 255, 0.92))',
                 borderRadius: 'var(--radius-md, 12px)',
