@@ -78,21 +78,14 @@ const MVGenerationSection = () => {
       if (audioElement.src) {
         audioElement.pause();
         URL.revokeObjectURL(audioElement.src);
+        // 重置音频元素的src属性
+        audioElement.removeAttribute('src');
       }
       
       // 清理旧的视频资源
       if (generatedMV && generatedMV.url) {
         URL.revokeObjectURL(generatedMV.url);
       }
-      
-      // 重新创建音频元素
-      const newAudioElement = new Audio();
-      const audioUrl = URL.createObjectURL(selectedMusic);
-      newAudioElement.src = audioUrl;
-      newAudioElement.load();
-      
-      // 替换原来的音频元素
-      Object.assign(audioElement, newAudioElement);
       
       // 重置生成状态
       setGeneratedMV(null);

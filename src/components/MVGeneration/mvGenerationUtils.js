@@ -121,11 +121,8 @@ export const generateMV = async ({
   // 清理之前的资源
   cleanupResources(mediaRecorderRef, animationFrameIdRef, audioElement, null);
   
-  // 创建全新的音频元素，而不是重用现有的
-  const newAudioElement = new Audio();
+  // 创建音频URL
   const audioUrl = URL.createObjectURL(selectedMusic);
-  newAudioElement.src = audioUrl;
-  newAudioElement.load();
   
   // 暂停并清理旧的音频元素
   if (audioElement.src) {
@@ -133,8 +130,8 @@ export const generateMV = async ({
     URL.revokeObjectURL(audioElement.src);
   }
   
-  // 复制新音频元素的属性到原音频元素
-  audioElement.src = newAudioElement.src;
+  // 直接设置音频元素的属性
+  audioElement.src = audioUrl;
   audioElement.load();
   audioElement.currentTime = 0;
   
@@ -215,7 +212,9 @@ export const generateMV = async ({
           // 创建临时音频元素用于录制
           console.log('创建临时音频元素...');
           const tempAudio = new Audio();
-          tempAudio.src = audioUrl;
+          // 确保使用新的Blob URL而不是重用可能已失效的URL
+          const tempAudioUrl = URL.createObjectURL(selectedMusic);
+          tempAudio.src = tempAudioUrl;
           tempAudio.load();
           
           // 创建MediaRecorder
@@ -271,6 +270,15 @@ export const generateMV = async ({
             
             // 清理临时资源
             cleanupResources(null, animationFrameIdRef, tempAudio, audioContextRef);
+            // 额外清理临时音频URL
+            if (tempAudioUrl) {
+              try {
+                URL.revokeObjectURL(tempAudioUrl);
+                console.log('释放临时音频URL');
+              } catch (e) {
+                console.error('释放临时音频URL失败:', e);
+              }
+            }
             
             resolve();
           };
@@ -335,6 +343,15 @@ export const generateMV = async ({
               setGenerating(false);
               // 清理资源
               cleanupResources(mediaRecorderRef, animationFrameIdRef, tempAudio, audioContextRef);
+              // 额外清理临时音频URL
+              if (tempAudioUrl) {
+                try {
+                  URL.revokeObjectURL(tempAudioUrl);
+                  console.log('释放临时音频URL');
+                } catch (e) {
+                  console.error('释放临时音频URL失败:', e);
+                }
+              }
               reject(error);
             });
           } else {
@@ -391,6 +408,15 @@ export const generateMV = async ({
           setGenerating(false);
           // 确保在出错时也清理资源
           cleanupResources(mediaRecorderRef, animationFrameIdRef, tempAudio, audioContextRef);
+          // 额外清理临时音频URL
+          if (tempAudioUrl) {
+            try {
+              URL.revokeObjectURL(tempAudioUrl);
+              console.log('释放临时音频URL');
+            } catch (e) {
+              console.error('释放临时音频URL失败:', e);
+            }
+          }
           reject(error);
         }
       };
