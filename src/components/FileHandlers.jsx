@@ -13,7 +13,8 @@ export const useFileHandlers = (
   authorName, 
   privacyMode, 
   setRating, 
-  setStats
+  setStats,
+  setSelectedSong
 ) => {
   const { showToast } = useToast();
   const handleFileChange = (e) => {
@@ -82,11 +83,17 @@ export const useFileHandlers = (
         setUploadProgress(progress);
       }, privacyMode);
       if (response) {
+        // 将分析结果保存到 rating 中（为了兼容现有代码）
         setRating(response.data);
+        
+        // 更新统计数据
         setStats(prev => ({
           ...prev,
           analyses: prev.analyses + 1
         }));
+        
+        // 将分析结果设置为 selectedSong，这样会自动在 SongDetail 窗口中显示
+        setSelectedSong(response.data);
       }
     } catch (error) {
       console.error('分析失败:', error);

@@ -90,7 +90,8 @@ function AppContent() {
     authorName, 
     privacyMode, 
     setRating, 
-    setStats
+    setStats,
+    setSelectedSong
   );
 
   // Initialize ranking utilities
@@ -191,8 +192,6 @@ function AppContent() {
             setFile={setFile}
             setAudioUrl={setAudioUrl}
           />
-
-          {rating && <AnalysisResult rating={rating} />}
           
           <InstructionsSection />
           
