@@ -1,4 +1,4 @@
-import { FaShare, FaThumbsUp, FaRegThumbsUp, FaSpinner, FaCopy } from "react-icons/fa";
+import { FaShare, FaThumbsUp, FaRegThumbsUp, FaSpinner, FaCopy, FaVideo } from "react-icons/fa";
 import { RiPlayFill, RiPauseFill } from "react-icons/ri";
 import { apiBase, scoreClassStyles, getAuthorNameColor } from "../utils";
 import { useBottomPlayer } from "./BottomPlayer/BottomPlayerContext";
@@ -396,7 +396,105 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           {/* 歌词时间轴 */}
           {selectedSong.structure && selectedSong.structure.comments && (
             <div style={{ marginTop: '24px' }}>
-              <h3 style={{ borderBottom: '2px solid var(--primary, #4CAF50)', paddingBottom: '8px', marginBottom: '16px' }}>歌词时间轴</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--primary, #4CAF50)', paddingBottom: '8px', marginBottom: '16px' }}>
+                <h3 style={{ margin: 0 }}>歌词时间轴</h3>
+                <button 
+                  onClick={() => {
+                    // 将歌词时间轴数据保存到localStorage
+                    const fullText = selectedSong.structure.comments;
+                    
+                    // 提取纯歌词时间轴内容，去除前面的评论信息
+                    // 查找第一个时间戳格式的行，如[00:00.00]或00:00.00
+                    const timeStampRegex = /\[?\d{2}:\d{2}\.\d{2}\]?/;
+                    const lines = fullText.split('\n');
+                    
+                    // 先提取所有的时间戳行
+                    const timeStampLines = [];
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                      const line = lines[i].trim();
+                      if (!line) continue;
+                      
+                      if (timeStampRegex.test(line)) {
+                        // 提取时间戳和歌词
+                        let timeStamp;
+                        let lyricText = '';
+                        
+                        // 直接提取原始行，不做任何格式转换
+                        timeStamp = line;
+                        lyricText = '';
+                        
+                        // 检查下一行是否存在且不是时间戳行
+                        if (i + 1 < lines.length && !timeStampRegex.test(lines[i + 1])) {
+                          lyricText = lines[i + 1].trim();
+                        }
+                        
+                        if (timeStamp) {
+                          timeStampLines.push({
+                            time: timeStamp,
+                            text: lyricText
+                          });
+                          
+                          // 如果下一行是歌词文本，跳过下一行
+                          if (i + 1 < lines.length && !timeStampRegex.test(lines[i + 1])) {
+                            i++;
+                          }
+                        }
+                      }
+                    }
+                    
+                    // 按照示例格式生成歌词字符串
+                    let pureLyrics = '';
+                    
+                    // 如果有歌词行，生成格式化的字符串
+                    if (timeStampLines.length > 0) {
+                      // 按照示例格式生成歌词字符串
+                      const formattedLines = [];
+                      timeStampLines.forEach(item => {
+                        formattedLines.push(item.time);  // 时间戳行
+                        formattedLines.push(item.text);  // 歌词行
+                      });
+                      
+                      // 生成带双引号的字符串
+                      // 使用单个换行符，避免重复
+                      const rawLyrics = formattedLines.join('\n');
+                      // 检查并替换可能的多余换行符
+                      const cleanedLyrics = rawLyrics.replace(/\n+/g, '\n');
+                      pureLyrics = JSON.stringify(cleanedLyrics);
+                    }
+                    
+                    localStorage.setItem('mvGenerator_lyrics', pureLyrics);
+                    
+                    // 关闭当前详情页
+                    onClose();
+                    
+                    // 通知父组件切换到MV生成页面
+                    // 创建并触发自定义事件
+                    const event = new CustomEvent('switchToMVTab');
+                    window.dispatchEvent(event);
+                    
+                    // 显示提示信息
+                    showToast('歌词已导入到MV生成页面');
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    backgroundColor: '#6B66FF',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '6px 12px',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                    fontWeight: 'bold'
+                  }}
+                  title="将歌词时间轴导入到MV生成页面"
+                >
+                  <FaVideo style={{ marginRight: '4px' }} /> 一键MV生成
+                </button>
+              </div>
               <div style={{ 
                 maxHeight: '300px', 
                 overflowY: 'auto',

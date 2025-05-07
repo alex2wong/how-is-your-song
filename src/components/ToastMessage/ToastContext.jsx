@@ -11,7 +11,7 @@ export const ToastProvider = ({ children }) => {
     duration: 2000
   });
 
-  const showToast = useCallback((message, type = 'info', duration = 2000) => {
+  const showToast = useCallback((message, type = 'info', duration = 5000) => {
     setToast({
       visible: true,
       message,

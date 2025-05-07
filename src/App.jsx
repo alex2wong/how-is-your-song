@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 
 // Import modular components
@@ -34,6 +34,21 @@ function App() {
 function AppContent() {
   // 添加顶层Tab状态
   const [activeMainTab, setActiveMainTab] = useState('single');
+  
+  // 添加事件监听器，处理从歌曲详情页切换到MV生成页面的事件
+  useEffect(() => {
+    const handleSwitchToMVTab = () => {
+      setActiveMainTab('mv');
+    };
+    
+    // 添加事件监听
+    window.addEventListener('switchToMVTab', handleSwitchToMVTab);
+    
+    // 组件卸载时移除事件监听
+    return () => {
+      window.removeEventListener('switchToMVTab', handleSwitchToMVTab);
+    };
+  }, []);
 
   // Initialize app state
   const {
