@@ -1,11 +1,12 @@
+require('dotenv').config()
+
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const { analyzeMusic } = require('./genai-analyze');
+const { analyzeMusic, getLyrics } = require('./genai-analyze');
 const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, calculateSongPercentiles } = require('./db');
-require('dotenv').config()
 
 const app = express();
 const port = 3000;
@@ -215,6 +216,46 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
     }
 
     res.json(result);
+  } catch (error) {
+    console.error('分析失败:', error);
+    res.status(500).json({ error: '分析失败: ' + error.message });
+  } finally {
+    if (privacyMode === 1) {
+      // 删除上传的文件
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error('删除文件失败:', err);
+        } else {
+          console.log('文件删除成功', filePath);
+        }
+      });
+    }
+  }
+});
+
+app.post('/api/getLyrics', upload.single('audio'), async (req, res) => {
+  console.log('# Request getLyrics: ', req.file, req.query.model_name);
+  if (!req.file) {
+    return res.status(400).send('未上传文件');
+  }
+  let apiKey = req.query.gemini_key;
+  if (!apiKey) {
+    apiKey = process.env.APIKEY.split(',')[Date.now() % process.env.APIKEY.split(',').length];
+  }
+
+  const modelName = req.query.model_name;
+
+  let privacyMode = 1;
+  let filePath;
+  try {
+    // 使用上传后的文件名（已经是时间戳格式）作为安全的文件名
+    filePath = req.file.path;
+    const fileName = path.basename(filePath); // 使用上传后的安全文件名
+
+    console.log('# upload as localfile done, path ', filePath, fileName);
+    let result = await getLyrics(filePath, apiKey, modelName);
+
+    res.json({ lyrics: result });
   } catch (error) {
     console.error('分析失败:', error);
     res.status(500).json({ error: '分析失败: ' + error.message });

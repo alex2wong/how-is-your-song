@@ -280,6 +280,7 @@ const MVGenerationSection = () => {
           <LyricsInput 
             lyrics={lyrics} 
             setLyrics={setLyrics} 
+            selectedMusic={selectedMusic}
           />
           
           {/* 步骤6：歌词显示位置 */}

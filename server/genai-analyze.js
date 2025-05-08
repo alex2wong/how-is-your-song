@@ -110,6 +110,31 @@ const promptConfigs = {
   }
 }
 
+const lyricConfigs = {
+  systemInstruction: "你是一个专业的歌词提取员。当你收到一个音乐文件，可以提取出歌词和时间戳，返回LRC格式的歌词",
+  history: (mimeType, fileUri) => [
+    {
+      role: "user",
+      parts: [
+        {
+          fileData: {
+            mimeType,
+            fileUri,
+          },
+        },
+        {text: "提取音乐的歌词及时间戳，返回LRC格式的歌词"},
+      ],
+    },
+    {
+      role: "model",
+      parts: [
+        {text: `[00:15.10]风从萧山吹过，拥紧凉角冻结成雾海\n[00:22.26]世人善也叹倾诉心中之音少人能懂\n[00:29.28]月亮从云海走来，洒下碧血更有伤的白\n[00:36.35]就算心动也暗藏汹涌，不可说谁人能懂\n[00:44.88]寺中飞动花开花落，荒唐不懂真实的寂寞\n[00:52.02]有话堪折直须折，莫待无花空所过\n[00:59.15]一时梦懂悟如因果，盛唐不懂南唐的失落\n[01:06.09]令我谢了太匆匆，人生长恨水长东`},
+      ],
+    }
+  ],
+  message: "提取音乐的歌词及时间戳，返回LRC格式的歌词。",
+}
+
 async function analyzeMusic(audioPath, apiKey, promptVersion, modelName) {
   console.log('analyzeMusic:',{audioPath, apiKey: apiKey.slice(0,4)+'...'+apiKey.slice(-4), promptVersion, modelName});
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -144,6 +169,37 @@ async function analyzeMusic(audioPath, apiKey, promptVersion, modelName) {
   return JSON5.parse(resultTxt);
 }
 
+async function getLyrics(audioPath, apiKey, modelName) {
+  console.log('getLyrics:', { audioPath, apiKey: apiKey.slice(0, 4) + '...' + apiKey.slice(-4), modelName });
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: modelName,
+    systemInstruction: lyricConfigs.systemInstruction,
+  });
+
+  // TODO Make these files available on the local file system
+  // You may need to update the file paths
+  const files = [
+    await uploadToGemini(audioPath, "audio/wav", apiKey),
+  ];
+
+  console.log('files:', files);
+
+  // file uri example: https://generativelanguage.googleapis.com/v1beta/files/cnqym46w30lc, use FileManager.listfiles to get download url by apiKey
+  console.log(`Uploaded file ${files[0].file.uri}, ${files[0].file.uri} `);
+
+  const chatSession = model.startChat({
+    generationConfig,
+    history: lyricConfigs.history(files[0].file.mimeType, files[0].file.uri),
+  });
+
+  const result = await chatSession.sendMessage(lyricConfigs.message);
+  let resultTxt = result.response.text();
+  console.log('return length:', resultTxt.length, typeof resultTxt);
+  console.log(resultTxt);
+  return resultTxt;
+}
+
 // 对 result.response.text() 进行解析
 function parseResult(resultTxt) {
   const result = {};
@@ -162,4 +218,4 @@ function parseResult(resultTxt) {
   return result;
 }
 
-module.exports = { analyzeMusic };
+module.exports = { analyzeMusic, getLyrics };
