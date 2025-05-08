@@ -134,6 +134,37 @@ const MVGenerationSection = () => {
     });
   };
   
+  // 终止MV生成的函数
+  const handleTerminateMV = () => {
+    console.log('用户终止MV生成');
+    
+    // 清理资源
+    if (animationFrameIdRef.current) {
+      cancelAnimationFrame(animationFrameIdRef.current);
+      animationFrameIdRef.current = null;
+    }
+    
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
+    }
+    
+    // 暂停音频播放
+    if (audioElement) {
+      audioElement.pause();
+    }
+    
+    // 更新状态
+    setGenerating(false);
+    setStatusText('MV生成已终止');
+    
+    // 如果有部分生成的视频，清理它
+    if (generatedMV && generatedMV.url) {
+      URL.revokeObjectURL(generatedMV.url);
+      setGeneratedMV(null);
+    }
+  };
+  
   // 重置所有字段的函数
   const resetAllFields = () => {
     // 清理音频元素
@@ -338,6 +369,7 @@ const MVGenerationSection = () => {
           {/* 步骤8：开始生成 */}
           <GenerateButton 
             handleGenerateMV={handleGenerateMV} 
+            handleTerminateMV={handleTerminateMV}
             generating={generating} 
             statusText={statusText} 
             generatedMV={generatedMV}
