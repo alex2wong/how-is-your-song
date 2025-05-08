@@ -22,6 +22,7 @@
  * @param {string} lyricsSecondaryColor - 配色，非高亮歌词颜色
  * @param {number} titleFontSize - 标题字号，像素值
  * @param {number} titleMargin - 标题边距，像素值
+ * @param {string} titlePosition - 标题位置，'leftTop'(左上)、'rightTop'(右上)、'leftBottom'(左下)、'rightBottom'(右下)、'center'(居中)
  * @param {string} lyricsDisplayMode - 歌词显示模式，'multiLine'(多行模式) 或 'singleLine'(单行模式)
  */
 export const renderFrame = (
@@ -47,6 +48,7 @@ export const renderFrame = (
   lyricsSecondaryColor = '#ffffff',
   titleFontSize = 24,
   titleMargin = 60,
+  titlePosition = 'leftTop',
   lyricsDisplayMode = 'multiLine'
 ) => {
   try {
@@ -119,25 +121,126 @@ export const renderFrame = (
       }
     }
     
-    // 在左上角绘制歌曲标题和作者名称
+    // 绘制歌曲标题和作者名称（根据titlePosition设置位置）
     if (songTitle || authorName) {
       const padding = titleMargin; // 使用传入的标题边距
-      // console.log('title padding', padding);
       
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
+      // 根据标题位置设置文本对齐方式和位置
+      let titleX, titleY, textAlign, textBaseline;
+      let maskX, maskY, maskWidth, maskHeight;
+      
+      // 设置标题位置参数
+      switch (titlePosition) {
+        case 'leftTop':
+          textAlign = 'left';
+          textBaseline = 'top';
+          titleX = padding;
+          titleY = padding;
+          maskX = 0;
+          maskY = 0;
+          break;
+        case 'rightTop':
+          textAlign = 'right';
+          textBaseline = 'top';
+          titleX = canvasWidth - padding;
+          titleY = padding;
+          maskX = canvasWidth * 0.5;
+          maskY = 0;
+          break;
+        case 'leftBottom':
+          textAlign = 'left';
+          textBaseline = 'bottom';
+          titleX = padding;
+          titleY = canvasHeight - padding;
+          maskX = 0;
+          maskY = canvasHeight - 100;
+          break;
+        case 'rightBottom':
+          textAlign = 'right';
+          textBaseline = 'bottom';
+          titleX = canvasWidth - padding;
+          titleY = canvasHeight - padding;
+          maskX = canvasWidth * 0.5;
+          maskY = canvasHeight - 100;
+          break;
+        case 'center':
+          textAlign = 'center';
+          textBaseline = 'middle';
+          titleX = canvasWidth / 2;
+          titleY = canvasHeight / 2;
+          maskX = canvasWidth * 0.25;
+          maskY = canvasHeight / 2 - 50;
+          break;
+        default:
+          textAlign = 'left';
+          textBaseline = 'top';
+          titleX = padding;
+          titleY = padding;
+          maskX = 0;
+          maskY = 0;
+      }
+      
+      ctx.textAlign = textAlign;
+      ctx.textBaseline = textBaseline;
       
       // 绘制半透明背景 (只有在选择了蒙版样式时才显示)
       if (lyricsMaskStyle === 'mask') {
-        if (songTitle && authorName) {
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-          ctx.fillRect(0, 0, canvasWidth * 0.5, 100);
-        } else if (songTitle || authorName) {
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-          ctx.fillRect(0, 0, canvasWidth * 0.5, 60);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        
+        if (titlePosition === 'center') {
+          // 居中时使用固定大小的背景
+          maskWidth = canvasWidth * 0.5;
+          maskHeight = 100;
+          ctx.fillRect((canvasWidth - maskWidth) / 2, canvasHeight / 2 - 50, maskWidth, maskHeight);
+        } else {
+          // 其他位置根据内容调整背景大小
+          if (songTitle && authorName) {
+            maskWidth = canvasWidth * 0.5;
+            maskHeight = 100;
+          } else {
+            maskWidth = canvasWidth * 0.5;
+            maskHeight = 60;
+          }
+          
+          // 根据位置调整背景位置
+          if (titlePosition === 'rightTop' || titlePosition === 'rightBottom') {
+            maskX = canvasWidth - maskWidth;
+          }
+          
+          ctx.fillRect(maskX, maskY, maskWidth, maskHeight);
         }
       }
-      // console.log('title font size', titleFontSize);
+      
+      // 计算行距，固定按照主标题的字号成比例计算
+      const lineHeight = Math.round(titleFontSize * 1.2); // 增加行距比例，使标题和副标题间距更大
+      let authorY;
+      let titleOffsetY = 0; // 标题垂直偏移量
+      
+      if (titlePosition === 'leftBottom' || titlePosition === 'rightBottom') {
+        // 底部位置时，作者名在标题上方
+        if (songTitle && authorName) {
+          titleOffsetY = lineHeight / 3; // 主标题向下偏移一点
+          authorY = titleY - lineHeight; // 副标题在上方，保持固定行距
+        } else {
+          authorY = titleY;
+        }
+      } else if (titlePosition === 'center') {
+        // 居中位置时，作者名在标题下方
+        if (songTitle && authorName) {
+          titleOffsetY = -lineHeight / 3; // 主标题向上偏移一点
+          authorY = titleY + lineHeight; // 副标题在下方，保持固定行距
+        } else {
+          authorY = titleY;
+        }
+      } else {
+        // 顶部位置时，作者名在标题下方
+        if (songTitle && authorName) {
+          authorY = titleY + lineHeight; // 副标题在下方，保持固定行距
+        } else {
+          authorY = titleY;
+        }
+      }
+      
       // 绘制标题
       if (songTitle) {
         ctx.font = `bold ${titleFontSize}px "Microsoft YaHei", Arial, sans-serif`;
@@ -147,18 +250,16 @@ export const renderFrame = (
         if (lyricsStrokeStyle === 'stroke') {
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
           ctx.lineWidth = 3;
-          ctx.strokeText(songTitle, padding, padding);
+          ctx.strokeText(songTitle, titleX, titleY + titleOffsetY);
         }
         
-        ctx.fillText(songTitle, padding, padding);
+        ctx.fillText(songTitle, titleX, titleY + titleOffsetY);
       }
       
       // 绘制作者
       if (authorName) {
         // 作者名称字号为标题字号的0.75倍
         const authorFontSize = Math.round(titleFontSize * 0.75);
-        // 行距为标题字号的1.5倍
-        const lineHeight = Math.round(titleFontSize * 1.5);
         
         ctx.font = `${authorFontSize}px "Microsoft YaHei", Arial, sans-serif`;
         ctx.fillStyle = '#cccccc';
@@ -167,10 +268,10 @@ export const renderFrame = (
         if (lyricsStrokeStyle === 'stroke') {
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
           ctx.lineWidth = 2;
-          ctx.strokeText(authorName, padding, songTitle ? padding + lineHeight : padding);
+          ctx.strokeText(authorName, titleX, authorY);
         }
         
-        ctx.fillText(authorName, padding, songTitle ? padding + lineHeight : padding);
+        ctx.fillText(authorName, titleX, authorY);
       }
     }
     
@@ -349,6 +450,7 @@ export const renderFrame = (
         lyricsSecondaryColor,
         titleFontSize,
         titleMargin,
+        titlePosition,
         lyricsDisplayMode
       )
     );

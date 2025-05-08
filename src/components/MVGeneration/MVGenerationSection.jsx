@@ -42,6 +42,7 @@ const MVGenerationSection = () => {
   // 标题设置
   const [titleFontSize, setTitleFontSize] = useLocalStorageState('mvGenerator_titleFontSize', { defaultValue: 24 }); // 标题字号，默认24像素
   const [titleMargin, setTitleMargin] = useLocalStorageState('mvGenerator_titleMargin', { defaultValue: 60 }); // 标题边距，默认60像素
+  const [titlePosition, setTitlePosition] = useLocalStorageState('mvGenerator_titlePosition', { defaultValue: 'leftTop' }); // 标题位置，默认左上角
   
   // 视频设置
   const [videoBitrate, setVideoBitrate] = useLocalStorageState('mvGenerator_videoBitrate', { defaultValue: 10 }); // 视频码率，默认10Mbps
@@ -92,7 +93,12 @@ const MVGenerationSection = () => {
       setGeneratedMV(null);
     }
     
-    // 继续生成MV
+    // 开始生成新的MV
+    setGenerating(true);
+    setProgress(0);
+    setStatusText('准备生成视频...');
+    
+    // 调用生成MV的核心函数
     generateMV({
       selectedMusic,
       backgroundImage,
@@ -114,6 +120,7 @@ const MVGenerationSection = () => {
       lyricsDisplayMode,
       titleFontSize,
       titleMargin,
+      titlePosition,
       videoBitrate,
       setGenerating,
       setStatusText,
@@ -122,6 +129,8 @@ const MVGenerationSection = () => {
       setGeneratedMV
     }).catch(error => {
       console.error('MV生成失败:', error);
+      setStatusText('MV生成失败: ' + error.message);
+      setGenerating(false);
     });
   };
   
@@ -151,6 +160,10 @@ const MVGenerationSection = () => {
     setLyricsFontSize(28);
     setLyricsColor('#ffcc00');
     setLyricsSecondaryColor('#ffffff');
+    setTitlePosition('leftTop');
+    setTitleFontSize(24);
+    setTitleMargin(60);
+    setLyricsDisplayMode('multiLine');
     setProgress(0);
     setStatusText('');
     
@@ -307,6 +320,8 @@ const MVGenerationSection = () => {
             setTitleFontSize={setTitleFontSize}
             titleMargin={titleMargin}
             setTitleMargin={setTitleMargin}
+            titlePosition={titlePosition}
+            setTitlePosition={setTitlePosition}
             videoBitrate={videoBitrate}
             setVideoBitrate={setVideoBitrate}
             lyricsDisplayMode={lyricsDisplayMode}
