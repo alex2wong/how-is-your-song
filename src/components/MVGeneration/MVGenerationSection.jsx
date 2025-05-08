@@ -37,6 +37,7 @@ const MVGenerationSection = () => {
   const [lyricsFontSize, setLyricsFontSize] = useLocalStorageState('mvGenerator_lyricsFontSize', { defaultValue: 28 }); // 数字类型，默认28像素
   const [lyricsColor, setLyricsColor] = useLocalStorageState('mvGenerator_lyricsColor', { defaultValue: '#ffcc00' }); // 主色，高亮歌词颜色
   const [lyricsSecondaryColor, setLyricsSecondaryColor] = useLocalStorageState('mvGenerator_lyricsSecondaryColor', { defaultValue: '#ffffff' }); // 配色，非高亮歌词颜色
+  const [lyricsDisplayMode, setLyricsDisplayMode] = useLocalStorageState('mvGenerator_lyricsDisplayMode', { defaultValue: 'multiLine' }); // 'multiLine'(多行模式) 或 'singleLine'(单行模式)
   
   // 标题设置
   const [titleFontSize, setTitleFontSize] = useLocalStorageState('mvGenerator_titleFontSize', { defaultValue: 24 }); // 标题字号，默认24像素
@@ -110,6 +111,7 @@ const MVGenerationSection = () => {
       lyricsFontSize,
       lyricsColor,
       lyricsSecondaryColor,
+      lyricsDisplayMode,
       titleFontSize,
       titleMargin,
       videoBitrate,
@@ -307,6 +309,8 @@ const MVGenerationSection = () => {
             setTitleMargin={setTitleMargin}
             videoBitrate={videoBitrate}
             setVideoBitrate={setVideoBitrate}
+            lyricsDisplayMode={lyricsDisplayMode}
+            setLyricsDisplayMode={setLyricsDisplayMode}
           />
           
           {/* 预览区域 */}

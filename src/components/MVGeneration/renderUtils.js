@@ -22,6 +22,7 @@
  * @param {string} lyricsSecondaryColor - 配色，非高亮歌词颜色
  * @param {number} titleFontSize - 标题字号，像素值
  * @param {number} titleMargin - 标题边距，像素值
+ * @param {string} lyricsDisplayMode - 歌词显示模式，'multiLine'(多行模式) 或 'singleLine'(单行模式)
  */
 export const renderFrame = (
   ctx, 
@@ -45,7 +46,8 @@ export const renderFrame = (
   lyricsColor = '#ffcc00',
   lyricsSecondaryColor = '#ffffff',
   titleFontSize = 24,
-  titleMargin = 60
+  titleMargin = 60,
+  lyricsDisplayMode = 'multiLine'
 ) => {
   try {
     const currentTime = (Date.now() - startTimeRef.current) / 1000;
@@ -261,25 +263,47 @@ export const renderFrame = (
         };
         
         try {
-          for (let i = Math.max(0, currentLyricIndex - 2); i < Math.min(lyrics.length, currentLyricIndex + 3); i++) {
-            if (i < 0 || i >= lyrics.length || !lyrics[i]) continue;
-            
-            const offsetY = (i - currentLyricIndex) * lineHeight;
-            const isCurrentLyric = i === currentLyricIndex;
-            
-            const fontSize = getFontSize(isCurrentLyric);
-            ctx.font = `${isCurrentLyric ? 'bold' : 'normal'} ${fontSize}px "Microsoft YaHei", Arial, sans-serif`;
-            ctx.fillStyle = getLyricsColor(isCurrentLyric);
-            
-            if (lyrics[i].text) {
-              // 根据样式决定是否添加描边
-              if (lyricsStrokeStyle === 'stroke') {
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.lineWidth = 3;
-                ctx.strokeText(lyrics[i].text, centerX, centerY + offsetY);
-              }
+          if (lyricsDisplayMode === 'singleLine') {
+            // 单行模式：只显示当前歌词
+            if (currentLyricIndex >= 0 && currentLyricIndex < lyrics.length && lyrics[currentLyricIndex]) {
+              const isCurrentLyric = true;
+              const fontSize = getFontSize(isCurrentLyric);
+              ctx.font = `bold ${fontSize}px "Microsoft YaHei", Arial, sans-serif`;
+              ctx.fillStyle = lyricsColor; // 使用主色
               
-              ctx.fillText(lyrics[i].text, centerX, centerY + offsetY);
+              if (lyrics[currentLyricIndex].text) {
+                // 根据样式决定是否添加描边
+                if (lyricsStrokeStyle === 'stroke') {
+                  ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                  ctx.lineWidth = 3;
+                  ctx.strokeText(lyrics[currentLyricIndex].text, centerX, centerY);
+                }
+                
+                ctx.fillText(lyrics[currentLyricIndex].text, centerX, centerY);
+              }
+            }
+          } else {
+            // 多行模式：显示前后几行歌词
+            for (let i = Math.max(0, currentLyricIndex - 2); i < Math.min(lyrics.length, currentLyricIndex + 3); i++) {
+              if (i < 0 || i >= lyrics.length || !lyrics[i]) continue;
+              
+              const offsetY = (i - currentLyricIndex) * lineHeight;
+              const isCurrentLyric = i === currentLyricIndex;
+              
+              const fontSize = getFontSize(isCurrentLyric);
+              ctx.font = `${isCurrentLyric ? 'bold' : 'normal'} ${fontSize}px "Microsoft YaHei", Arial, sans-serif`;
+              ctx.fillStyle = getLyricsColor(isCurrentLyric);
+              
+              if (lyrics[i].text) {
+                // 根据样式决定是否添加描边
+                if (lyricsStrokeStyle === 'stroke') {
+                  ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                  ctx.lineWidth = 3;
+                  ctx.strokeText(lyrics[i].text, centerX, centerY + offsetY);
+                }
+                
+                ctx.fillText(lyrics[i].text, centerX, centerY + offsetY);
+              }
             }
           }
         } catch (e) {
@@ -324,7 +348,8 @@ export const renderFrame = (
         lyricsColor,
         lyricsSecondaryColor,
         titleFontSize,
-        titleMargin
+        titleMargin,
+        lyricsDisplayMode
       )
     );
   } catch (error) {

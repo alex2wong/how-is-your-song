@@ -19,7 +19,9 @@ const LyricsStyleSelector = ({
   titleMargin,
   setTitleMargin,
   videoBitrate,
-  setVideoBitrate
+  setVideoBitrate,
+  lyricsDisplayMode,
+  setLyricsDisplayMode
 }) => {
   // 处理字号输入变化
   const handleFontSizeChange = (e) => {
@@ -66,6 +68,67 @@ const LyricsStyleSelector = ({
   return (
     <div style={{ marginBottom: '20px' }}>
       <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>7. 显示风格设置</h3>
+      
+      {/* 歌词显示模式选项 */}
+      <div style={{ marginBottom: '20px' }}>
+        <h4 style={{ marginBottom: '10px', fontSize: '1rem', color: '#4A5568' }}>歌词显示模式</h4>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <div 
+            onClick={() => setLyricsDisplayMode('multiLine')}
+            style={{
+              flex: '1',
+              padding: '12px 8px',
+              border: `2px solid ${lyricsDisplayMode === 'multiLine' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              backgroundColor: lyricsDisplayMode === 'multiLine' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+            }}
+          >
+            <div style={{ 
+              width: '40px', 
+              height: '40px', 
+              backgroundColor: '#e2e8f0',
+              borderRadius: '4px',
+              marginBottom: '8px',
+              margin: '0 auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#718096',
+              fontSize: '0.8rem'
+            }}>多行</div>
+            <div style={{ fontWeight: lyricsDisplayMode === 'multiLine' ? 'bold' : 'normal', fontSize: '0.9rem' }}>多行模式</div>
+          </div>
+          <div 
+            onClick={() => setLyricsDisplayMode('singleLine')}
+            style={{
+              flex: '1',
+              padding: '12px 8px',
+              border: `2px solid ${lyricsDisplayMode === 'singleLine' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              backgroundColor: lyricsDisplayMode === 'singleLine' ? 'rgba(107, 102, 255, 0.05)' : 'white'
+            }}
+          >
+            <div style={{ 
+              width: '40px', 
+              height: '40px', 
+              backgroundColor: '#e2e8f0',
+              borderRadius: '4px',
+              marginBottom: '8px',
+              margin: '0 auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#718096',
+              fontSize: '0.8rem'
+            }}>单行</div>
+            <div style={{ fontWeight: lyricsDisplayMode === 'singleLine' ? 'bold' : 'normal', fontSize: '0.9rem' }}>单行模式</div>
+          </div>
+        </div>
+      </div>
       
       {/* 遮罩和描边选项 */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
