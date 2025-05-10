@@ -2,6 +2,7 @@
  * 渲染视频帧
  * @param {CanvasRenderingContext2D} ctx - Canvas上下文
  * @param {HTMLImageElement|HTMLVideoElement} background - 背景图片或视频
+ * @param {HTMLImageElement|HTMLVideoElement} foreground - 前景图片或视频（可选）
  * @param {number} canvasWidth - Canvas宽度
  * @param {number} canvasHeight - Canvas高度
  * @param {number} frameRate - 帧率
@@ -28,6 +29,7 @@
 export const renderFrame = (
   ctx, 
   background, 
+  foreground = null, // 添加前景图参数，默认为null
   canvasWidth, 
   canvasHeight, 
   frameRate, 
@@ -56,15 +58,20 @@ export const renderFrame = (
     
     // 计算进度
     const progress = Math.min(100, (currentTime / audioElement.duration) * 100);
-    setProgress(progress);
+    // 使用防御性编程，确保函数存在才调用
+    if (typeof setProgress === 'function') {
+      setProgress(progress);
+    }
     
-    // 更新状态文本
-    if (currentTime < 1) {
-      setStatusText('开始生成视频...');
-    } else if (progress > 95) {
-      setStatusText('即将完成...');
-    } else {
-      setStatusText(`正在生成视频 (${Math.round(progress)}%)...`);
+    // 更新状态文本，添加防御性检查
+    if (typeof setStatusText === 'function') {
+      if (currentTime < 1) {
+        setStatusText('开始生成视频...');
+      } else if (progress > 95) {
+        setStatusText('即将完成...');
+      } else {
+        setStatusText(`正在生成视频 (${Math.round(progress)}%)...`);
+      }
     }
     
     // 清除画布
@@ -100,7 +107,107 @@ export const renderFrame = (
       y = (canvasHeight - drawHeight) / 2;
     }
     
+    // 直接绘制背景，确保背景可见
     ctx.drawImage(background, x, y, drawWidth, drawHeight);
+    
+    // 如果有前景图，添加半透明遮罩层来模拟模糊效果
+    if (foreground) {
+      // 添加半透明遮罩层来模拟模糊效果
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    }
+    
+    // 绘制前景图（如果存在）
+    if (foreground && foreground.complete !== false) {
+      try {
+        // 判断是否是视频前景
+        const isFgVideo = foreground.tagName === 'VIDEO';
+        
+        // 确保前景图已经加载完成
+        if ((isFgVideo && foreground.readyState >= 2) || (!isFgVideo && foreground.complete)) {
+          // 如果是视频且需要循环播放，检查是否需要重新播放
+          if (isFgVideo && foreground.ended) {
+            foreground.currentTime = 0;
+            foreground.play().catch(err => console.error('前景视频循环播放失败:', err));
+          }
+          
+          // 计算将前景图绘制为圆角正方形的尺寸和位置
+          const albumSize = Math.min(canvasWidth, canvasHeight) * 0.4; // 专辑封面大小为画布较小边长的40%
+          const albumX = (canvasWidth - albumSize) / 2; // 水平居中
+          const albumY = (canvasHeight - albumSize) / 2; // 垂直居中
+          const cornerRadius = albumSize * 0.1; // 圆角半径为封面大小的10%
+          
+          // 绘制圆角矩形路径
+          ctx.save(); // 保存当前绘图状态
+          ctx.beginPath();
+          ctx.moveTo(albumX + cornerRadius, albumY);
+          ctx.lineTo(albumX + albumSize - cornerRadius, albumY);
+          ctx.arcTo(albumX + albumSize, albumY, albumX + albumSize, albumY + cornerRadius, cornerRadius);
+          ctx.lineTo(albumX + albumSize, albumY + albumSize - cornerRadius);
+          ctx.arcTo(albumX + albumSize, albumY + albumSize, albumX + albumSize - cornerRadius, albumY + albumSize, cornerRadius);
+          ctx.lineTo(albumX + cornerRadius, albumY + albumSize);
+          ctx.arcTo(albumX, albumY + albumSize, albumX, albumY + albumSize - cornerRadius, cornerRadius);
+          ctx.lineTo(albumX, albumY + cornerRadius);
+          ctx.arcTo(albumX, albumY, albumX + cornerRadius, albumY, cornerRadius);
+          ctx.closePath();
+          
+          // 添加阴影效果
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+          ctx.shadowBlur = 20;
+          ctx.shadowOffsetX = 5;
+          ctx.shadowOffsetY = 5;
+          
+          // 创建裁剪区域
+          ctx.clip();
+          
+          // 获取前景图尺寸，添加防御性检查
+          let fgWidth = 1;
+          let fgHeight = 1;
+          
+          if (isFgVideo) {
+            fgWidth = foreground.videoWidth || 1;
+            fgHeight = foreground.videoHeight || 1;
+          } else {
+            fgWidth = foreground.width || 1;
+            fgHeight = foreground.height || 1;
+          }
+          
+          // 确保宽高比不为0
+          const fgRatio = (fgWidth && fgHeight) ? (fgWidth / fgHeight) : 1;
+          
+          let fgDrawWidth, fgDrawHeight, fgX, fgY;
+          
+          // 确保前景图完全覆盖圆角矩形区域，保持纵横比
+          if (fgRatio > 1) {
+            // 如果前景图是横向的
+            fgDrawHeight = albumSize;
+            fgDrawWidth = fgDrawHeight * fgRatio;
+            fgX = albumX - (fgDrawWidth - albumSize) / 2;
+            fgY = albumY;
+          } else {
+            // 如果前景图是纵向的
+            fgDrawWidth = albumSize;
+            fgDrawHeight = fgDrawWidth / fgRatio;
+            fgX = albumX;
+            fgY = albumY - (fgDrawHeight - albumSize) / 2;
+          }
+          
+          // 绘制前景图
+          ctx.drawImage(foreground, fgX, fgY, fgDrawWidth, fgDrawHeight);
+          
+          // 添加边框
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          
+          ctx.restore(); // 恢复绘图状态
+        }
+      } catch (e) {
+        console.error('绘制前景图时出错:', e);
+        // 如果绘制前景图出错，恢复绘图状态以确保不影响后续绘制
+        try { ctx.restore(); } catch (restoreError) {}
+      }
+    }
     
     // 根据歌词样式决定是否绘制半透明黑色覆盖层
     if (lyricsMaskStyle === 'mask') {
@@ -431,11 +538,13 @@ export const renderFrame = (
       console.warn('没有可用的歌词数据');
     }
     
-    // 检查音频是否结束
-    if (audioElement.ended || audioElement.paused) {
+    // 检查音频是否结束，添加防御性检查
+    if (audioElement && (audioElement.ended || audioElement.paused)) {
       console.log('音频播放结束或暂停，停止渲染');
-      cancelAnimationFrame(animationFrameIdRef.current);
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      if (animationFrameIdRef && animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+      if (mediaRecorderRef && mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
       }
       return;
@@ -446,6 +555,7 @@ export const renderFrame = (
       renderFrame(
         ctx, 
         background, 
+        foreground, // 添加前景图参数
         canvasWidth, 
         canvasHeight, 
         frameRate, 

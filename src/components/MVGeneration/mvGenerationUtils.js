@@ -68,6 +68,7 @@ export const cleanupResources = (mediaRecorderRef, animationFrameIdRef, audioEle
 export const generateMV = async ({
   selectedMusic,
   backgroundImage,
+  foregroundImage, // 添加前景图参数
   lyrics,
   canvasRef,
   videoOrientation,
@@ -110,6 +111,11 @@ export const generateMV = async ({
     return Promise.reject(new Error('未选择背景'));
   }
   console.log('背景验证通过:', backgroundImage.file.name);
+  
+  // 前景图是可选的，只在有前景图时记录日志
+  if (foregroundImage) {
+    console.log('前景图验证通过:', foregroundImage.file.name);
+  }
   
   if (!lyrics.trim()) {
     console.log('验证失败: 歌词时间轴为空');
@@ -184,25 +190,29 @@ export const generateMV = async ({
       console.log('开始加载背景...');
       setStatusText('加载背景中...');
       
-      // 判断背景类型
+      // 创建背景元素（图片或视频）
       const isVideo = backgroundImage.type === 'video';
-      
-      // 创建背景元素
-      let backgroundElement;
+      const backgroundElement = isVideo ? document.createElement('video') : new Image();
+      backgroundElement.crossOrigin = 'anonymous'; // 允许跨域
       
       if (isVideo) {
-        // 创建视频元素
-        backgroundElement = document.createElement('video');
         backgroundElement.muted = true;
+        backgroundElement.loop = true;
         backgroundElement.playsInline = true;
+      }
+      
+      // 创建前景元素（如果有）
+      let foregroundElement = null;
+      if (foregroundImage) {
+        const isFgVideo = foregroundImage.type === 'video';
+        foregroundElement = isFgVideo ? document.createElement('video') : new Image();
+        foregroundElement.crossOrigin = 'anonymous';
         
-        // 如果视频时长小于音频时长，设置循环播放
-        if (backgroundImage.duration && backgroundImage.duration < selectedMusic.duration) {
-          backgroundElement.loop = true;
+        if (isFgVideo) {
+          foregroundElement.muted = true;
+          foregroundElement.loop = true;
+          foregroundElement.playsInline = true;
         }
-      } else {
-        // 创建图片元素
-        backgroundElement = new Image();
       }
       
       // 设置加载事件
@@ -315,6 +325,7 @@ export const generateMV = async ({
                 renderFrame(
                   ctx, 
                   backgroundElement, 
+                  foregroundElement, // 添加前景图参数
                   canvas.width, 
                   canvas.height, 
                   30, 
@@ -375,6 +386,7 @@ export const generateMV = async ({
               renderFrame(
                 ctx, 
                 backgroundElement, 
+                foregroundElement, // 传递前景元素
                 canvas.width, 
                 canvas.height, 
                 30, 
@@ -454,6 +466,43 @@ export const generateMV = async ({
         
         // 设置图片源
         backgroundElement.src = backgroundImage.preview;
+      }
+      
+      // 如果有前景图，设置前景图的加载和错误处理
+      if (foregroundElement) {
+        const isFgVideo = foregroundImage.type === 'video';
+        
+        if (isFgVideo) {
+          // 视频前景的错误事件
+          foregroundElement.onerror = (error) => {
+            console.error('前景视频加载失败:', error);
+            console.log('继续使用背景图生成MV，忽略前景图');
+            foregroundElement = null; // 出错时不使用前景图
+          };
+          
+          // 视频前景的加载事件
+          foregroundElement.onloadeddata = () => {
+            console.log('前景视频加载成功');
+          };
+          
+          // 设置视频源
+          foregroundElement.src = foregroundImage.preview;
+        } else {
+          // 图片前景的错误事件
+          foregroundElement.onerror = (error) => {
+            console.error('前景图片加载失败:', error);
+            console.log('继续使用背景图生成MV，忽略前景图');
+            foregroundElement = null; // 出错时不使用前景图
+          };
+          
+          // 图片前景的加载事件
+          foregroundElement.onload = () => {
+            console.log('前景图片加载成功');
+          };
+          
+          // 设置图片源
+          foregroundElement.src = foregroundImage.preview;
+        }
       }
     } catch (error) {
       console.error('MV生成过程中出错:', error);

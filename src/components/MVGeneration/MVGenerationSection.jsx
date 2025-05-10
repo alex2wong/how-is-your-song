@@ -26,6 +26,7 @@ const MVGenerationSection = () => {
   const [authorName, setAuthorName] = useLocalStorageState('mvGenerator_authorName', { defaultValue: '' });
   const [videoOrientation, setVideoOrientation] = useLocalStorageState('mvGenerator_videoOrientation', { defaultValue: 'landscape' }); // 'landscape' 或 'portrait'
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [foregroundImage, setForegroundImage] = useState(null);
   const [lyrics, setLyrics] = useLocalStorageState('mvGenerator_lyrics', { defaultValue: '' });
   const [generating, setGenerating] = useState(false);
   const [generatedMV, setGeneratedMV] = useState(null);
@@ -56,6 +57,7 @@ const MVGenerationSection = () => {
   // Refs
   const musicInputRef = useRef(null);
   const imageInputRef = useRef(null);
+  const foregroundInputRef = useRef(null);
   const canvasRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const animationFrameIdRef = useRef(null);
@@ -102,6 +104,7 @@ const MVGenerationSection = () => {
     generateMV({
       selectedMusic,
       backgroundImage,
+      foregroundImage, // 添加前景图参数
       lyrics,
       canvasRef,
       videoOrientation,
@@ -182,6 +185,7 @@ const MVGenerationSection = () => {
     setAuthorName('');
     setVideoOrientation('landscape');
     setBackgroundImage(null);
+    setForegroundImage(null);
     setLyrics('');
     setGenerating(false);
     setGeneratedMV(null);
@@ -205,6 +209,10 @@ const MVGenerationSection = () => {
     
     if (imageInputRef.current) {
       imageInputRef.current.value = '';
+    }
+    
+    if (foregroundInputRef.current) {
+      foregroundInputRef.current.value = '';
     }
     
     // 重置画布尺寸
@@ -319,7 +327,10 @@ const MVGenerationSection = () => {
           <BackgroundImageSelector 
             backgroundImage={backgroundImage} 
             setBackgroundImage={setBackgroundImage} 
-            imageInputRef={imageInputRef} 
+            foregroundImage={foregroundImage}
+            setForegroundImage={setForegroundImage}
+            imageInputRef={imageInputRef}
+            foregroundInputRef={foregroundInputRef}
           />
           
           {/* 步骤5：输入歌词时间轴 */}
