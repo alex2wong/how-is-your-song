@@ -318,17 +318,24 @@ const BatchAnalysisSection = ({
   // 将分析结果转换为CSV格式
   const convertToCSV = (data) => {
     // CSV表头
-    const headers = ['ID', '文件名', '大小(MB)', '状态', '评分', '时长'];
+    const headers = ['ID', '文件名', '大小(MB)', '状态', '评分', '时长', '评价'];
     
     // 转换数据行
-    const rows = data.map(item => [
-      item.id,
-      item.fileName,
-      item.fileSize,
-      item.status,
-      item.score,
-      item.duration
-    ]);
+    const rows = data.map(item => {
+      // 获取评价内容（如果存在）
+      const comments = item.result?.comments || '';
+      
+      return [
+        item.id,
+        item.fileName,
+        item.fileSize,
+        item.status,
+        item.score,
+        item.duration,
+        // 处理评价内容中可能存在的逗号，用引号包裹以避免CSV格式错误
+        `"${comments.replace(/"/g, '""')}"`
+      ];
+    });
     
     // 合并表头和数据行
     const csvContent = [
