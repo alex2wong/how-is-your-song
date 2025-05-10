@@ -8,6 +8,7 @@ import './styles/theme.css'
 import { ToastProvider } from './components/ToastMessage/ToastContext.jsx';
 import { BottomPlayerProvider } from './components/BottomPlayer/BottomPlayerContext.jsx';
 import BottomPlayer from './components/BottomPlayer/index.jsx';
+import SharePosterPage from './pages/Poster/index.jsx';
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
   {
     path: "/song/:id",
     element: <BottomPlayerProvider><ToastProvider><SongDetailPage /><BottomPlayer /></ToastProvider></BottomPlayerProvider>,
+  },
+  {
+    path: "poster/song/:id",
+    element: <BottomPlayerProvider><ToastProvider><SharePosterPage /><BottomPlayer /></ToastProvider></BottomPlayerProvider>,
   }
 ]);
 

@@ -13,3 +13,25 @@
       color: #ff3c00;
     }
   }
+
+.tag-entry-content {
+  width: 160px;
+  height: 30px;
+  padding-left: 2px;
+  opacity: 0.8;
+  background: #eed5a1;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transform: rotate(-1deg);
+  transition: all 0.15s ease-in-out;
+  color: #4a3c1a;
+  font-size: 18px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+  }
+}

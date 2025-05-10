@@ -1,0 +1,255 @@
+.share-poster-root {
+  width: 100vw;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e8f0ff 0%, #fffbe7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.share-poster-card {
+  position: relative;
+  width: 380px;
+  min-height: 520px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 1.5px 0 #f7e7c6;
+  padding: 28px 24px 64px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: visible;
+  transition: box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.2s cubic-bezier(.4,2,.6,1);
+}
+.share-poster-card:hover {
+  box-shadow: 0 16px 48px 0 rgba(191,167,106,0.18), 0 4px 24px #f7e7c6;
+  transform: translateY(-2px) scale(1.01);
+}
+
+.poster-image-wrapper {
+  width: 260px;
+  height: 260px;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  background: #f9f6f2;
+  position: relative;
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+.poster-image-wrapper:hover {
+  box-shadow: 0 8px 32px 0 rgba(191,167,106,0.18), 0 2px 8px #f7e7c6;
+  transform: scale(1.03);
+  z-index: 2;
+}
+
+.poster-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.poster-image-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 32px;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(0,0,0,0.08) 100%);
+}
+
+.poster-song-title {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'PingFang SC', cursive, sans-serif;
+  font-size: 1.3rem;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.25), 0 1px 0 #f7e7c6;
+  margin-bottom: 4px;
+  letter-spacing: 1.2px;
+  text-align: center;
+  max-width: 90%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.poster-song-author {
+  font-size: 1.1rem;
+  color: #fbeece;
+  font-weight: bold;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.18);
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  text-align: left;
+  max-width: 80%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.play-button {
+    opacity: 0.1;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    z-index: 3;
+
+    &:hover {
+      opacity: 0.4;
+    }
+}
+
+.poster-title {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'PingFang SC', cursive, sans-serif;
+  font-size: 1.4rem;
+  color: #4a3c1a;
+  font-weight: bold;
+  margin-bottom: 10px;
+  letter-spacing: 1.5px;
+  text-align: center;
+  text-shadow: 0 2px 8px #f7e7c6;
+}
+
+.poster-tape {
+  position: absolute;
+  width: 60px;
+  height: 18px;
+  background: #f7e7c6;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  z-index: 2;
+}
+.tape-top-left {
+  top: 12px;
+  left: 24px;
+  transform: rotate(-8deg);
+}
+.tape-top-right {
+  top: 12px;
+  right: 24px;
+  transform: rotate(7deg);
+}
+
+.poster-message {
+  margin: 18px 0 8px 0;
+  font-size: 1.0rem;
+  font-weight: 500px;
+  color: #5a4d2b;
+  background: rgba(255, 249, 230, 0.7);
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-height: 48px;
+  text-align: center;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  box-shadow: 0 1px 4px rgba(247,231,198,0.15);
+  transition: box-shadow 0.22s, transform 0.18s;
+  cursor: pointer;
+}
+/* .poster-message:hover {
+  box-shadow: 0 6px 18px 0 rgba(191,167,106,0.18);
+  background: #fffbe7;
+  color: #a88b3a;
+  transform: scale(1.04) rotate(-1deg);
+} */
+
+.poster-tag-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.poster-tag {
+  font-size: 0.95rem;
+  color: #bfa76a;
+  background: #f7e7c6;
+  border-radius: 6px;
+  padding: 3px 12px;
+  letter-spacing: 1px;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+  box-shadow: 0 2px 8px rgba(191,167,106,0.08);
+  cursor: pointer;
+  transition: box-shadow 0.25s, transform 0.18s, background 0.18s;
+}
+.poster-tag:hover {
+  box-shadow: 0 6px 18px 0 rgba(191,167,106,0.18);
+  background: #ffe9b3;
+  color: #a88b3a;
+  transform: scale(1.05) rotate(-1deg);
+}
+
+.poster-logo {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #bfa76a;
+  font-size: 1.1rem;
+  opacity: 0.92;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.18s;
+}
+/* .poster-logo:hover {
+  filter: drop-shadow(0 2px 8px #bfa76a);
+  transform: scale(1.08) rotate(-2deg);
+} */
+.poster-logo-icon {
+  font-size: 1.2rem;
+  color: #bfa76a;
+}
+.poster-logo-text {
+    font-size: 0.8rem;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-weight: 600;
+}
+
+.poster-qrcode-placeholder {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 60px;
+  height: 60px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #aaa;
+  font-size: 0.95rem;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: box-shadow 0.22s, transform 0.18s;
+}
+.poster-qrcode-text {
+  font-size: 10px;
+}
+
+.poster-qrcode-placeholder:hover {
+  box-shadow: 0 8px 24px 0 rgba(191,167,106,0.18);
+  background: #ffe9b3;
+  color: #a88b3a;
+  transform: scale(1.05) rotate(1deg);
+}
+

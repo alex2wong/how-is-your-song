@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { SongDetail } from "../../components/SongDetail";
 import { apiBase } from "../../utils";
 import { useParams } from 'react-router-dom';
-import "./index.css";
+import SharePoster from "../../components/SharePoster";
 
-const SongDetailPage = () => {
+const SharePosterPage = () => {
     const { id } = useParams(); // 获取URL中的id参数
     const [selectedSong, setSelectedSong] = useState(null);
 
@@ -37,8 +36,8 @@ const SongDetailPage = () => {
         return <div>加载中...</div>;
     }
 
-    return ( <SongDetail selectedSong={selectedSong} onClose={onClose}></SongDetail>)
+    return ( <SharePoster song={selectedSong}></SharePoster>)
 
 }
 
-export default SongDetailPage;
+export default SharePosterPage;
