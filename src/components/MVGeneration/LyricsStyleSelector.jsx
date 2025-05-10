@@ -578,179 +578,245 @@ const LyricsStyleSelector = ({
           </div>
         </div>
         
-        {/* 标题位置选项 */}
-        <div style={{ marginTop: '15px' }}>
-          <div style={{ fontSize: '0.9rem', color: '#718096', marginBottom: '10px', textAlign: 'center' }}>标题位置:</div>
-          <div style={{ 
-            display: 'flex', 
-            flexWrap: 'wrap',
-            gap: '10px',
-            justifyContent: 'center'
-          }}>
-            {/* 左上 */}
-            <div 
-              onClick={() => setTitlePosition('leftTop')}
-              style={{
-                width: '80px',
-                height: '60px',
-                border: `2px solid ${titlePosition === 'leftTop' ? '#6B66FF' : '#e2e8f0'}`,
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-                padding: '8px',
-                cursor: 'pointer',
-                backgroundColor: titlePosition === 'leftTop' ? 'rgba(107, 102, 255, 0.05)' : 'white',
-                position: 'relative'
-              }}
-            >
-              <div style={{ 
-                fontSize: '0.7rem',
-                fontWeight: titlePosition === 'leftTop' ? 'bold' : 'normal',
-                color: '#4A5568'
-              }}>左上</div>
-              <div style={{
-                position: 'absolute',
-                bottom: '5px',
-                right: '5px',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: titlePosition === 'leftTop' ? '#6B66FF' : 'transparent'
-              }}></div>
-            </div>
-            
-            {/* 右上 */}
-            <div 
-              onClick={() => setTitlePosition('rightTop')}
-              style={{
-                width: '80px',
-                height: '60px',
-                border: `2px solid ${titlePosition === 'rightTop' ? '#6B66FF' : '#e2e8f0'}`,
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-end',
-                padding: '8px',
-                cursor: 'pointer',
-                backgroundColor: titlePosition === 'rightTop' ? 'rgba(107, 102, 255, 0.05)' : 'white',
-                position: 'relative'
-              }}
-            >
-              <div style={{ 
-                fontSize: '0.7rem',
-                fontWeight: titlePosition === 'rightTop' ? 'bold' : 'normal',
-                color: '#4A5568'
-              }}>右上</div>
-              <div style={{
-                position: 'absolute',
-                bottom: '5px',
-                right: '5px',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: titlePosition === 'rightTop' ? '#6B66FF' : 'transparent'
-              }}></div>
-            </div>
-            
-            {/* 左下 */}
-            <div 
-              onClick={() => setTitlePosition('leftBottom')}
-              style={{
-                width: '80px',
-                height: '60px',
-                border: `2px solid ${titlePosition === 'leftBottom' ? '#6B66FF' : '#e2e8f0'}`,
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'flex-end',
-                justifyContent: 'flex-start',
-                padding: '8px',
-                cursor: 'pointer',
-                backgroundColor: titlePosition === 'leftBottom' ? 'rgba(107, 102, 255, 0.05)' : 'white',
-                position: 'relative'
-              }}
-            >
-              <div style={{ 
-                fontSize: '0.7rem',
-                fontWeight: titlePosition === 'leftBottom' ? 'bold' : 'normal',
-                color: '#4A5568'
-              }}>左下</div>
-              <div style={{
-                position: 'absolute',
-                bottom: '5px',
-                right: '5px',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: titlePosition === 'leftBottom' ? '#6B66FF' : 'transparent'
-              }}></div>
-            </div>
-            
-            {/* 右下 */}
-            <div 
-              onClick={() => setTitlePosition('rightBottom')}
-              style={{
-                width: '80px',
-                height: '60px',
-                border: `2px solid ${titlePosition === 'rightBottom' ? '#6B66FF' : '#e2e8f0'}`,
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'flex-end',
-                justifyContent: 'flex-end',
-                padding: '8px',
-                cursor: 'pointer',
-                backgroundColor: titlePosition === 'rightBottom' ? 'rgba(107, 102, 255, 0.05)' : 'white',
-                position: 'relative'
-              }}
-            >
-              <div style={{ 
-                fontSize: '0.7rem',
-                fontWeight: titlePosition === 'rightBottom' ? 'bold' : 'normal',
-                color: '#4A5568'
-              }}>右下</div>
-              <div style={{
-                position: 'absolute',
-                bottom: '5px',
-                right: '5px',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: titlePosition === 'rightBottom' ? '#6B66FF' : 'transparent'
-              }}></div>
-            </div>
-            
-            {/* 居中 */}
-            <div 
-              onClick={() => setTitlePosition('center')}
-              style={{
-                width: '80px',
-                height: '60px',
-                border: `2px solid ${titlePosition === 'center' ? '#6B66FF' : '#e2e8f0'}`,
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '8px',
-                cursor: 'pointer',
-                backgroundColor: titlePosition === 'center' ? 'rgba(107, 102, 255, 0.05)' : 'white',
-                position: 'relative'
-              }}
-            >
-              <div style={{ 
-                fontSize: '0.7rem',
-                fontWeight: titlePosition === 'center' ? 'bold' : 'normal',
-                color: '#4A5568'
-              }}>居中</div>
-              <div style={{
-                position: 'absolute',
-                bottom: '5px',
-                right: '5px',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: titlePosition === 'center' ? '#6B66FF' : 'transparent'
-              }}></div>
-            </div>
+        {/* 标题位置 */}
+      <div style={{ marginBottom: '20px' }}>
+        <h4 style={{ marginBottom: '10px', fontSize: '1rem', color: '#4A5568' }}>标题位置</h4>
+        <div style={{ 
+          display: 'flex', 
+          gap: '10px',
+          flexWrap: 'wrap',
+          justifyContent: 'center'
+        }}>
+          {/* 左上 */}
+          <div 
+            onClick={() => setTitlePosition('leftTop')}
+            style={{
+              width: '80px',
+              height: '60px',
+              border: `2px solid ${titlePosition === 'leftTop' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'flex-start',
+              padding: '8px',
+              cursor: 'pointer',
+              backgroundColor: titlePosition === 'leftTop' ? 'rgba(107, 102, 255, 0.05)' : 'white',
+              position: 'relative'
+            }}
+          >
+            <div style={{ 
+              fontSize: '0.7rem',
+              fontWeight: titlePosition === 'leftTop' ? 'bold' : 'normal',
+              color: '#4A5568'
+            }}>左上</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: titlePosition === 'leftTop' ? '#6B66FF' : 'transparent'
+            }}></div>
+          </div>
+          
+          {/* 右上 */}
+          <div 
+            onClick={() => setTitlePosition('rightTop')}
+            style={{
+              width: '80px',
+              height: '60px',
+              border: `2px solid ${titlePosition === 'rightTop' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'flex-end',
+              padding: '8px',
+              cursor: 'pointer',
+              backgroundColor: titlePosition === 'rightTop' ? 'rgba(107, 102, 255, 0.05)' : 'white',
+              position: 'relative'
+            }}
+          >
+            <div style={{ 
+              fontSize: '0.7rem',
+              fontWeight: titlePosition === 'rightTop' ? 'bold' : 'normal',
+              color: '#4A5568'
+            }}>右上</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: titlePosition === 'rightTop' ? '#6B66FF' : 'transparent'
+            }}></div>
+          </div>
+          
+          {/* 上方 */}
+          <div 
+            onClick={() => setTitlePosition('top')}
+            style={{
+              width: '80px',
+              height: '60px',
+              border: `2px solid ${titlePosition === 'top' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              padding: '8px',
+              cursor: 'pointer',
+              backgroundColor: titlePosition === 'top' ? 'rgba(107, 102, 255, 0.05)' : 'white',
+              position: 'relative'
+            }}
+          >
+            <div style={{ 
+              fontSize: '0.7rem',
+              fontWeight: titlePosition === 'top' ? 'bold' : 'normal',
+              color: '#4A5568'
+            }}>上方</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: titlePosition === 'top' ? '#6B66FF' : 'transparent'
+            }}></div>
+          </div>
+          
+          {/* 左下 */}
+          <div 
+            onClick={() => setTitlePosition('leftBottom')}
+            style={{
+              width: '80px',
+              height: '60px',
+              border: `2px solid ${titlePosition === 'leftBottom' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'flex-start',
+              padding: '8px',
+              cursor: 'pointer',
+              backgroundColor: titlePosition === 'leftBottom' ? 'rgba(107, 102, 255, 0.05)' : 'white',
+              position: 'relative'
+            }}
+          >
+            <div style={{ 
+              fontSize: '0.7rem',
+              fontWeight: titlePosition === 'leftBottom' ? 'bold' : 'normal',
+              color: '#4A5568'
+            }}>左下</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: titlePosition === 'leftBottom' ? '#6B66FF' : 'transparent'
+            }}></div>
+          </div>
+          
+          {/* 右下 */}
+          <div 
+            onClick={() => setTitlePosition('rightBottom')}
+            style={{
+              width: '80px',
+              height: '60px',
+              border: `2px solid ${titlePosition === 'rightBottom' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'flex-end',
+              padding: '8px',
+              cursor: 'pointer',
+              backgroundColor: titlePosition === 'rightBottom' ? 'rgba(107, 102, 255, 0.05)' : 'white',
+              position: 'relative'
+            }}
+          >
+            <div style={{ 
+              fontSize: '0.7rem',
+              fontWeight: titlePosition === 'rightBottom' ? 'bold' : 'normal',
+              color: '#4A5568'
+            }}>右下</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: titlePosition === 'rightBottom' ? '#6B66FF' : 'transparent'
+            }}></div>
+          </div>
+          
+          {/* 下方 */}
+          <div 
+            onClick={() => setTitlePosition('bottom')}
+            style={{
+              width: '80px',
+              height: '60px',
+              border: `2px solid ${titlePosition === 'bottom' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              padding: '8px',
+              cursor: 'pointer',
+              backgroundColor: titlePosition === 'bottom' ? 'rgba(107, 102, 255, 0.05)' : 'white',
+              position: 'relative'
+            }}
+          >
+            <div style={{ 
+              fontSize: '0.7rem',
+              fontWeight: titlePosition === 'bottom' ? 'bold' : 'normal',
+              color: '#4A5568'
+            }}>下方</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: titlePosition === 'bottom' ? '#6B66FF' : 'transparent'
+            }}></div>
+          </div>
+          
+          {/* 居中 */}
+          <div 
+            onClick={() => setTitlePosition('center')}
+            style={{
+              width: '80px',
+              height: '60px',
+              border: `2px solid ${titlePosition === 'center' ? '#6B66FF' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '8px',
+              cursor: 'pointer',
+              backgroundColor: titlePosition === 'center' ? 'rgba(107, 102, 255, 0.05)' : 'white',
+              position: 'relative'
+            }}
+          >
+            <div style={{ 
+              fontSize: '0.7rem',
+              fontWeight: titlePosition === 'center' ? 'bold' : 'normal',
+              color: '#4A5568'
+            }}>居中</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: titlePosition === 'center' ? '#6B66FF' : 'transparent'
+            }}></div>
+          </div>
           </div>
         </div>
       </div>

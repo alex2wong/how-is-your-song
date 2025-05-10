@@ -147,6 +147,14 @@ export const renderFrame = (
           maskX = canvasWidth * 0.5;
           maskY = 0;
           break;
+        case 'top':
+          textAlign = 'center';
+          textBaseline = 'top';
+          titleX = canvasWidth / 2;
+          titleY = padding;
+          maskX = canvasWidth * 0.25;
+          maskY = 0;
+          break;
         case 'leftBottom':
           textAlign = 'left';
           textBaseline = 'bottom';
@@ -161,6 +169,14 @@ export const renderFrame = (
           titleX = canvasWidth - padding;
           titleY = canvasHeight - padding;
           maskX = canvasWidth * 0.5;
+          maskY = canvasHeight - 100;
+          break;
+        case 'bottom':
+          textAlign = 'center';
+          textBaseline = 'bottom';
+          titleX = canvasWidth / 2;
+          titleY = canvasHeight - padding;
+          maskX = canvasWidth * 0.25;
           maskY = canvasHeight - 100;
           break;
         case 'center':
@@ -216,7 +232,7 @@ export const renderFrame = (
       let authorY;
       let titleOffsetY = 0; // 标题垂直偏移量
       
-      if (titlePosition === 'leftBottom' || titlePosition === 'rightBottom') {
+      if (titlePosition === 'leftBottom' || titlePosition === 'rightBottom' || titlePosition === 'bottom') {
         // 底部位置时，作者名在标题上方
         if (songTitle && authorName) {
           titleOffsetY = lineHeight / 3; // 主标题向下偏移一点
