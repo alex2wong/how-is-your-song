@@ -53,7 +53,7 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
   const songAudioUrl = `${apiBase}/audio/${song.url.replace("uploads/", "")}`;
   const songName = song.song_name ?? "献给妈妈的歌";
   const contentRef = useRef(null);
-  const songAuthor = song.author ?? '妈妈的儿女'
+  const songAuthor = song.authorName ?? '妈妈的儿女'
   
   const [posterMessage,setMessage] = useState(defaultMessage)
 
@@ -133,14 +133,16 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
     <div className="share-poster-root">
       <div ref={contentRef} className="share-poster-card">
         {/* 封面插画+歌曲名+作者名融合 */}
-        <div className="poster-image-wrapper">
-          <img src={mothersdayImg} alt="母亲节插画" className="poster-image" />
-          <div className="poster-image-overlay">
+        <div onClick={handlePlayPause} className={`poster-image-wrapper${isPlaying ? ' circle is-rotating' : ''}`}>
+          <img src={mothersdayImg} alt="母亲节插画" className={`poster-image${isPlaying ? ' circle is-rotating' : ''}`} />
+          <div className="poster-image-overlay" style={{
+            background: `${isPlaying ? 'transparent': 'transparent'}`
+          }}>
             <div className="poster-song-title">{songName}</div>
-            {songAuthor && <div className="poster-song-author">{songAuthor}</div>}
+            {songAuthor && <div className="poster-song-author">作者：{songAuthor}</div>}
           </div>
           {/* 半透明播放按钮 */}
-          <div className="play-button" onClick={handlePlayPause}>
+          <div className="play-button" >
             <RiPlayFill size={40} color="#fff" />
           </div>
         </div>

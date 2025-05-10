@@ -36,12 +36,13 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   background: #f9f6f2;
   position: relative;
-  transition: box-shadow 0.3s, transform 0.2s;
+  transition: box-shadow 0.3s, transform 0.2s, border-radius 0.3s;
 }
-.poster-image-wrapper:hover {
-  box-shadow: 0 8px 32px 0 rgba(191,167,106,0.18), 0 2px 8px #f7e7c6;
-  transform: scale(1.03);
-  z-index: 2;
+.poster-image-wrapper.circle {
+  border-radius: 50%;
+  box-shadow: 0 8px 32px rgba(191,167,106,0.18), 0 2px 8px #f7e7c6, 0 0 0 8px #fffbe7;
+  border: 6px solid #f7e7c6;
+  overflow: visible;
 }
 
 .poster-image {
@@ -49,6 +50,11 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: border-radius 0.3s;
+}
+.poster-image.circle {
+  border-radius: 50%;
+  box-shadow: 0 0 0 8px #fffbe7 inset;
 }
 
 .poster-image-overlay {
@@ -84,7 +90,7 @@
 
 .poster-song-author {
   font-size: 1.1rem;
-  color: #fbeece;
+  color: #f6f0df;
   font-weight: bold;
   text-shadow: 0 1px 8px rgba(0,0,0,0.18);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
@@ -96,7 +102,7 @@
 }
 
 .play-button {
-    opacity: 0.1;
+    opacity: 0.2;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -113,7 +119,7 @@
     z-index: 3;
 
     &:hover {
-      opacity: 0.4;
+      opacity: 0.6;
     }
 }
 
@@ -251,5 +257,19 @@
   background: #ffe9b3;
   color: #a88b3a;
   transform: scale(1.05) rotate(1deg);
+}
+
+@keyframes poster-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.poster-image-wrapper.circle.is-rotating {
+  /* 不再应用旋转动画，仅用于圆形外观 */
+  animation: none;
+}
+
+.poster-image.circle.is-rotating {
+  animation: poster-rotate 30s linear infinite;
 }
 
