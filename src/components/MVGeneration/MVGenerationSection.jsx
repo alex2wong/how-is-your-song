@@ -57,6 +57,9 @@ const MVGenerationSection = () => {
   // 前景图尺寸设置
   const [foregroundSize, setForegroundSize] = useLocalStorageState('mvGenerator_foregroundSize', { defaultValue: 'medium' }); // 前景图尺寸，可选值：'small', 'medium', 'large'，默认中等
   
+  // 字体设置
+  const [selectedFont, setSelectedFont] = useLocalStorageState('mvGenerator_selectedFont', { defaultValue: '' }); // 选择的字体，默认为空字符串表示使用系统默认字体
+  
   // 视频生成相关状态
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('');
@@ -139,6 +142,7 @@ const MVGenerationSection = () => {
       foregroundOffsetY, // 添加前景图垂直偏移参数
       lyricsOffsetY, // 添加歌词垂直偏移参数
       foregroundSize, // 添加前景图尺寸参数
+      selectedFont, // 添加选择的字体参数
       setGenerating,
       setStatusText,
       setProgress,
@@ -399,6 +403,8 @@ const MVGenerationSection = () => {
             setVideoBitrate={setVideoBitrate}
             lyricsDisplayMode={lyricsDisplayMode}
             setLyricsDisplayMode={setLyricsDisplayMode}
+            selectedFont={selectedFont}
+            setSelectedFont={setSelectedFont}
           />
           
           {/* 预览区域 */}

@@ -61,7 +61,8 @@ export const renderFrame = (
   lyricsDisplayMode = 'multiLine',
   foregroundOffsetY = 0, // 添加前景图垂直偏移参数，默认为0
   lyricsOffsetY = 0, // 添加歌词垂直偏移参数，默认为0
-  foregroundSize = 'medium' // 添加前景图尺寸参数，默认为中等
+  foregroundSize = 'medium', // 添加前景图尺寸参数，默认为中等
+  selectedFont = '' // 添加选择的字体参数，默认为空字符串（使用系统默认字体）
 ) => {
   try {
     const currentTime = (Date.now() - startTimeRef.current) / 1000;
@@ -391,7 +392,9 @@ export const renderFrame = (
       
       // 绘制标题
       if (songTitle) {
-        ctx.font = `bold ${titleFontSize}px "Microsoft YaHei", Arial, sans-serif`;
+        // 使用用户选择的字体，如果没有选择则使用默认字体
+        const fontFamily = selectedFont ? selectedFont : '"Microsoft YaHei", Arial, sans-serif';
+        ctx.font = `bold ${titleFontSize}px ${fontFamily}`;
         ctx.fillStyle = titleColor; // 使用传入的主标题颜色
         
         // 如果选择了描边样式，则添加描边
@@ -409,7 +412,9 @@ export const renderFrame = (
         // 作者名称字号为标题字号的0.75倍
         const authorFontSize = Math.round(titleFontSize * 0.75);
         
-        ctx.font = `${authorFontSize}px "Microsoft YaHei", Arial, sans-serif`;
+        // 使用用户选择的字体，如果没有选择则使用默认字体
+        const fontFamily = selectedFont ? selectedFont : '"Microsoft YaHei", Arial, sans-serif';
+        ctx.font = `normal ${authorFontSize}px ${fontFamily}`;
         ctx.fillStyle = titleSecondaryColor; // 使用传入的副标题颜色
         
         // 如果选择了描边样式，则添加描边
@@ -517,7 +522,9 @@ export const renderFrame = (
             if (currentLyricIndex >= 0 && currentLyricIndex < lyrics.length && lyrics[currentLyricIndex]) {
               const isCurrentLyric = true;
               const fontSize = getFontSize(isCurrentLyric);
-              ctx.font = `bold ${fontSize}px "Microsoft YaHei", Arial, sans-serif`;
+              // 使用用户选择的字体，如果没有选择则使用默认字体
+              const fontFamily = selectedFont ? selectedFont : '"Microsoft YaHei", Arial, sans-serif';
+              ctx.font = `bold ${fontSize}px ${fontFamily}`;
               ctx.fillStyle = lyricsColor; // 使用主色
               
               if (lyrics[currentLyricIndex].text) {
@@ -540,7 +547,9 @@ export const renderFrame = (
               const isCurrentLyric = i === currentLyricIndex;
               
               const fontSize = getFontSize(isCurrentLyric);
-              ctx.font = `${isCurrentLyric ? 'bold' : 'normal'} ${fontSize}px "Microsoft YaHei", Arial, sans-serif`;
+              // 使用用户选择的字体，如果没有选择则使用默认字体
+              const fontFamily = selectedFont ? selectedFont : '"Microsoft YaHei", Arial, sans-serif';
+              ctx.font = `${isCurrentLyric ? 'bold' : 'normal'} ${fontSize}px ${fontFamily}`;
               ctx.fillStyle = getLyricsColor(isCurrentLyric);
               
               if (lyrics[i].text) {
@@ -607,7 +616,8 @@ export const renderFrame = (
         lyricsDisplayMode,
         foregroundOffsetY, // 添加前景图垂直偏移参数
         lyricsOffsetY, // 添加歌词垂直偏移参数
-        foregroundSize // 添加前景图尺寸参数
+        foregroundSize, // 添加前景图尺寸参数
+        selectedFont // 添加选择的字体参数
       )
     );
   } catch (error) {

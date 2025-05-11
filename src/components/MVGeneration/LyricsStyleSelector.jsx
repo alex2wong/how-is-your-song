@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 /**
  * 歌词显示风格选择组件
@@ -27,7 +27,9 @@ const LyricsStyleSelector = ({
   videoBitrate,
   setVideoBitrate,
   lyricsDisplayMode,
-  setLyricsDisplayMode
+  setLyricsDisplayMode,
+  selectedFont,
+  setSelectedFont
 }) => {
   // 处理字号输入变化
   const handleFontSizeChange = (e) => {
@@ -80,10 +82,138 @@ const LyricsStyleSelector = ({
   const handleTitleSecondaryColorChange = (e) => {
     setTitleSecondaryColor(e.target.value);
   };
+  
+  // 处理字体选择变化
+  const handleFontChange = (e) => {
+    setSelectedFont(e.target.value);
+  };
+  
+  // 状态管理：系统字体列表
+  const [systemFonts, setSystemFonts] = useState([]);
+  const [isLoadingFonts, setIsLoadingFonts] = useState(false);
+  const [fontError, setFontError] = useState('');
+  
+  // 加载系统字体
+  const loadSystemFonts = async () => {
+    // 检查API是否可用
+    if (!('queryLocalFonts' in window)) {
+      setFontError('您的浏览器不支持字体选择API，请使用Chrome或Edge最新版本');
+      return;
+    }
+    
+    try {
+      setIsLoadingFonts(true);
+      setFontError('');
+      
+      // 请求权限并获取系统字体
+      const availableFonts = await window.queryLocalFonts();
+      
+      // 提取字体名称并去重
+      const fontNames = [...new Set(availableFonts.map(font => font.family))];
+      
+      // 按字母顺序排序
+      fontNames.sort();
+      
+      setSystemFonts(fontNames);
+    } catch (error) {
+      console.error('加载系统字体失败:', error);
+      setFontError('加载系统字体失败: ' + (error.message || '未知错误'));
+    } finally {
+      setIsLoadingFonts(false);
+    }
+  };
 
+  // 组件挂载时加载系统字体
+  useEffect(() => {
+    // 只在组件首次渲染时加载字体
+    loadSystemFonts();
+  }, []);
+  
   return (
     <div style={{ marginBottom: '20px' }}>
       <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>7. 显示风格设置</h3>
+      
+      {/* 字体选择 */}
+      <div style={{ marginBottom: '20px' }}>
+        <h4 style={{ marginBottom: '10px', fontSize: '1rem', color: '#4A5568' }}>文本字体</h4>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          gap: '10px',
+          padding: '15px',
+          backgroundColor: '#f7fafc',
+          borderRadius: '8px',
+        }}>
+          <button 
+            onClick={loadSystemFonts}
+            disabled={isLoadingFonts}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: '#6B66FF',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isLoadingFonts ? 'wait' : 'pointer',
+              opacity: isLoadingFonts ? 0.7 : 1
+            }}
+          >
+            {isLoadingFonts ? '正在加载字体...' : '获取系统字体'}
+          </button>
+          
+          {fontError && (
+            <div style={{ 
+              color: '#e53e3e', 
+              padding: '8px', 
+              backgroundColor: '#fff5f5', 
+              borderRadius: '4px',
+              fontSize: '0.9rem'
+            }}>
+              {fontError}
+            </div>
+          )}
+          
+          {systemFonts.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '0.9rem', color: '#718096', whiteSpace: 'nowrap' }}>选择字体:</span>
+              <select 
+                value={selectedFont}
+                onChange={handleFontChange}
+                style={{
+                  flex: '1',
+                  padding: '8px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '4px',
+                  fontSize: '0.9rem',
+                  backgroundColor: 'white',
+                  fontFamily: selectedFont || 'inherit'
+                }}
+              >
+                <option value="">默认字体</option>
+                {systemFonts.map((font, index) => (
+                  <option key={index} value={font} style={{ fontFamily: font }}>
+                    {font}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          
+          {selectedFont && (
+            <div style={{ 
+              marginTop: '10px', 
+              padding: '10px', 
+              backgroundColor: 'white', 
+              border: '1px solid #e2e8f0',
+              borderRadius: '4px',
+              fontFamily: selectedFont,
+              fontSize: '1rem',
+              textAlign: 'center'
+            }}>
+              预览文本样式 (当前字体: {selectedFont})
+            </div>
+          )}
+        </div>
+      </div>
       
       {/* 歌词显示模式选项 */}
       <div style={{ marginBottom: '20px' }}>
