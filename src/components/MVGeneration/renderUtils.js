@@ -27,6 +27,8 @@
  * @param {string} titleColor - 主标题颜色
  * @param {string} titleSecondaryColor - 副标题颜色
  * @param {string} lyricsDisplayMode - 歌词显示模式，'multiLine'(多行模式) 或 'singleLine'(单行模式)
+ * @param {number} foregroundOffsetY - 前景图垂直偏移，像素值
+ * @param {number} lyricsOffsetY - 歌词垂直偏移，像素值
  */
 export const renderFrame = (
   ctx, 
@@ -55,7 +57,9 @@ export const renderFrame = (
   titlePosition = 'leftTop',
   titleColor = '#ffcc00',
   titleSecondaryColor = '#ffffff',
-  lyricsDisplayMode = 'multiLine'
+  lyricsDisplayMode = 'multiLine',
+  foregroundOffsetY = 0, // 添加前景图垂直偏移参数，默认为0
+  lyricsOffsetY = 0 // 添加歌词垂直偏移参数，默认为0
 ) => {
   try {
     const currentTime = (Date.now() - startTimeRef.current) / 1000;
@@ -138,7 +142,7 @@ export const renderFrame = (
           // 计算将前景图绘制为圆角正方形的尺寸和位置
           const albumSize = Math.min(canvasWidth, canvasHeight) * 0.4; // 专辑封面大小为画布较小边长的40%
           const albumX = (canvasWidth - albumSize) / 2; // 水平居中
-          const albumY = (canvasHeight - albumSize) / 2; // 垂直居中
+          const albumY = (canvasHeight - albumSize) / 2 + foregroundOffsetY; // 垂直居中并应用偏移
           const cornerRadius = albumSize * 0.1; // 圆角半径为封面大小的10%
           
           // 绘制圆角矩形路径
@@ -432,17 +436,17 @@ export const renderFrame = (
         if (lyricsPosition === 'left') {
           ctx.textAlign = 'left';
           centerX = canvasWidth * 0.15;
-          centerY = canvasHeight / 2;
+          centerY = canvasHeight / 2 + lyricsOffsetY;
         } else if (lyricsPosition === 'right') {
           ctx.textAlign = 'right';
           centerX = canvasWidth * 0.85;
-          centerY = canvasHeight / 2;
+          centerY = canvasHeight / 2 + lyricsOffsetY;
         } else if (lyricsPosition === 'center') {
           centerX = canvasWidth / 2;
-          centerY = canvasHeight / 2;
+          centerY = canvasHeight / 2 + lyricsOffsetY;
         } else { // bottom
           centerX = canvasWidth / 2;
-          centerY = canvasHeight - 100;
+          centerY = canvasHeight - 100 + lyricsOffsetY;
         }
         
         // 根据字号设置大小
@@ -583,7 +587,9 @@ export const renderFrame = (
         titlePosition,
         titleColor,
         titleSecondaryColor,
-        lyricsDisplayMode
+        lyricsDisplayMode,
+        foregroundOffsetY, // 添加前景图垂直偏移参数
+        lyricsOffsetY // 添加歌词垂直偏移参数
       )
     );
   } catch (error) {

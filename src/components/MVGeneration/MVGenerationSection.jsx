@@ -50,6 +50,10 @@ const MVGenerationSection = () => {
   // 视频设置
   const [videoBitrate, setVideoBitrate] = useLocalStorageState('mvGenerator_videoBitrate', { defaultValue: 10 }); // 视频码率，默认10Mbps
   
+  // 位置偏移设置
+  const [foregroundOffsetY, setForegroundOffsetY] = useLocalStorageState('mvGenerator_foregroundOffsetY', { defaultValue: 0 }); // 前景图垂直偏移，默认0
+  const [lyricsOffsetY, setLyricsOffsetY] = useLocalStorageState('mvGenerator_lyricsOffsetY', { defaultValue: 0 }); // 歌词垂直偏移，默认0
+  
   // 视频生成相关状态
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('');
@@ -129,6 +133,8 @@ const MVGenerationSection = () => {
       titleColor,
       titleSecondaryColor,
       videoBitrate,
+      foregroundOffsetY, // 添加前景图垂直偏移参数
+      lyricsOffsetY, // 添加歌词垂直偏移参数
       setGenerating,
       setStatusText,
       setProgress,
@@ -205,6 +211,8 @@ const MVGenerationSection = () => {
     setTitleColor('#ffcc00');
     setTitleSecondaryColor('#ffffff');
     setLyricsDisplayMode('multiLine');
+    setForegroundOffsetY(0); // 重置前景图垂直偏移
+    setLyricsOffsetY(0); // 重置歌词垂直偏移
     setProgress(0);
     setStatusText('');
     
@@ -337,6 +345,10 @@ const MVGenerationSection = () => {
             setForegroundImage={setForegroundImage}
             imageInputRef={imageInputRef}
             foregroundInputRef={foregroundInputRef}
+            foregroundOffsetY={foregroundOffsetY}
+            setForegroundOffsetY={setForegroundOffsetY}
+            lyricsOffsetY={lyricsOffsetY}
+            setLyricsOffsetY={setLyricsOffsetY}
           />
           
           {/* 步骤5：输入歌词时间轴 */}
@@ -349,7 +361,9 @@ const MVGenerationSection = () => {
           {/* 步骤6：歌词显示位置 */}
           <LyricsPositionSelector 
             lyricsPosition={lyricsPosition} 
-            setLyricsPosition={setLyricsPosition} 
+            setLyricsPosition={setLyricsPosition}
+            lyricsOffsetY={lyricsOffsetY}
+            setLyricsOffsetY={setLyricsOffsetY}
           />
           
           {/* 步骤7：显示风格设置 */}

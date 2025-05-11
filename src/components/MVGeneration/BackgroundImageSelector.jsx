@@ -12,7 +12,11 @@ const BackgroundImageSelector = ({
   setForegroundImage = () => {},
   backgroundInputRef = null,
   foregroundInputRef = null,
-  imageInputRef = null // 兼容旧版接口
+  imageInputRef = null, // 兼容旧版接口
+  foregroundOffsetY = 0,
+  setForegroundOffsetY = () => {},
+  lyricsOffsetY = 0,
+  setLyricsOffsetY = () => {}
 }) => {
   // 兼容旧版接口，如果使用旧版imageInputRef，则将其用作背景图片的ref
   const actualBackgroundInputRef = backgroundInputRef || imageInputRef;
@@ -112,6 +116,33 @@ const BackgroundImageSelector = ({
     </div>
   );
 
+  // 滑块组件
+  const PositionSlider = ({ title, value, onChange, min = -200, max = 200 }) => (
+    <div style={{ marginTop: '15px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+        <label style={{ fontSize: '0.9rem', color: '#4A5568' }}>{title}</label>
+        <span style={{ fontSize: '0.8rem', color: '#718096' }}>{value}px</span>
+      </div>
+      <input 
+        type="range" 
+        min={min} 
+        max={max} 
+        value={value} 
+        onChange={(e) => onChange(parseInt(e.target.value))} 
+        style={{ 
+          width: '100%', 
+          height: '8px',
+          WebkitAppearance: 'none',
+          appearance: 'none',
+          borderRadius: '4px',
+          background: 'linear-gradient(to right, #6B66FF, #A5B4FC)',
+          outline: 'none',
+          cursor: 'pointer'
+        }} 
+      />
+    </div>
+  );
+
   return (
     <div style={{ marginBottom: '20px' }}>
       <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: '#4A5568' }}>4. 选择背景</h3>
@@ -133,6 +164,31 @@ const BackgroundImageSelector = ({
             title="选择前景图（可选）"
             placeholder="点击选择前景图片"
           />
+          {foregroundImage && (
+            <div style={{ marginTop: '15px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                <label style={{ fontSize: '0.9rem', color: '#4A5568' }}>前景图垂直位置调整</label>
+                <span style={{ fontSize: '0.8rem', color: '#718096' }}>{foregroundOffsetY}px</span>
+              </div>
+              <input 
+                type="range" 
+                min={-500} 
+                max={500} 
+                value={foregroundOffsetY} 
+                onChange={(e) => setForegroundOffsetY(parseInt(e.target.value))} 
+                style={{ 
+                  width: '100%', 
+                  height: '8px',
+                  WebkitAppearance: 'none',
+                  appearance: 'none',
+                  borderRadius: '4px',
+                  background: 'linear-gradient(to right, #6B66FF, #A5B4FC)',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }} 
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

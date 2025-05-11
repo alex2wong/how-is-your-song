@@ -91,6 +91,8 @@ export const generateMV = async ({
   titleColor,
   titleSecondaryColor,
   videoBitrate,
+  foregroundOffsetY = 0, // 添加前景图垂直偏移参数，默认为0
+  lyricsOffsetY = 0, // 添加歌词垂直偏移参数，默认为0
   setGenerating,
   setStatusText,
   setProgress,
@@ -351,7 +353,9 @@ export const generateMV = async ({
                   titlePosition,
                   titleColor,
                   titleSecondaryColor,
-                  lyricsDisplayMode
+                  lyricsDisplayMode,
+                  foregroundOffsetY, // 添加前景图垂直偏移参数
+                  lyricsOffsetY // 添加歌词垂直偏移参数
                 )
               );
             }).catch(error => {
@@ -414,7 +418,9 @@ export const generateMV = async ({
                 titlePosition,
                 titleColor,
                 titleSecondaryColor,
-                lyricsDisplayMode
+                lyricsDisplayMode,
+                foregroundOffsetY, // 添加前景图垂直偏移参数
+                lyricsOffsetY // 添加歌词垂直偏移参数
               )
             );
           }
