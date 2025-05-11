@@ -361,7 +361,7 @@ const LyricsInput = ({ lyrics, setLyrics, selectedMusic }) => {
                   
                   // 从localStorage中读取模型配置，与歌曲分析API保持一致
                   const geminiKey = localStorage.getItem('gemini_key');
-                  const modelName = localStorage.getItem('model_name') || 'gemini-2.0-flash';
+                  const modelName = "gemini-2.5-flash-preview-04-17"; //localStorage.getItem('model_name') || 'gemini-2.0-flash';
                   
                   // 构建API URL，包含模型名称和可能的API密钥
                   const apiUrl = `${apiBase}/getLyrics?model_name=${modelName}${geminiKey ? `&gemini_key=${geminiKey}` : ''}`;
@@ -386,8 +386,14 @@ const LyricsInput = ({ lyrics, setLyrics, selectedMusic }) => {
                         const parsedData = JSON.parse(text);
                         
                         if (Array.isArray(parsedData)) {
+                          // 判断是否是包含 timestamp 和 text 属性的歌词数组
+                          if (parsedData.length > 0 && parsedData[0].timestamp && parsedData[0].text) {
+                            // 将数组转换为 LRC 格式
+                            const lrcLines = parsedData.map(item => `[${item.timestamp}]${item.text}`);
+                            setLyrics(lrcLines.join('\n'));
+                          } 
                           // 判断是否是包含 time 和 line 属性的歌词数组
-                          if (parsedData.length > 0 && parsedData[0].time && parsedData[0].line) {
+                          else if (parsedData.length > 0 && parsedData[0].time && parsedData[0].line) {
                             // 将数组转换为 LRC 格式
                             const lrcLines = parsedData.map(item => `[${item.time}]${item.line}`);
                             setLyrics(lrcLines.join('\n'));
