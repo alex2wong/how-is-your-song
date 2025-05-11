@@ -20,6 +20,10 @@ const LyricsStyleSelector = ({
   setTitleMargin,
   titlePosition,
   setTitlePosition,
+  titleColor,
+  setTitleColor,
+  titleSecondaryColor,
+  setTitleSecondaryColor,
   videoBitrate,
   setVideoBitrate,
   lyricsDisplayMode,
@@ -65,6 +69,16 @@ const LyricsStyleSelector = ({
   // 处理配色变化
   const handleSecondaryColorChange = (e) => {
     setLyricsSecondaryColor(e.target.value);
+  };
+  
+  // 处理标题主色变化
+  const handleTitleColorChange = (e) => {
+    setTitleColor(e.target.value);
+  };
+  
+  // 处理标题配色变化
+  const handleTitleSecondaryColorChange = (e) => {
+    setTitleSecondaryColor(e.target.value);
   };
 
   return (
@@ -575,6 +589,186 @@ const LyricsStyleSelector = ({
               }}
             />
             <span style={{ fontSize: '0.9rem', color: '#718096' }}>px</span>
+          </div>
+        </div>
+        
+        {/* 主标题颜色 */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          gap: '10px',
+          padding: '10px',
+          backgroundColor: '#f7fafc',
+          borderRadius: '8px',
+          marginBottom: '10px'
+        }}>
+          <span style={{ fontSize: '0.9rem', color: '#718096', whiteSpace: 'nowrap' }}>主标题颜色:</span>
+          <div style={{ 
+            display: 'inline-block', 
+            padding: '2px', 
+            border: '1px solid #e2e8f0', 
+            borderRadius: '4px',
+            backgroundColor: '#fff'
+          }}>
+            <input 
+              type="color" 
+              value={titleColor}
+              onChange={handleTitleColorChange}
+              style={{
+                width: '36px',
+                height: '36px',
+                border: 'none',
+                borderRadius: '2px',
+                cursor: 'pointer',
+                padding: '0'
+              }}
+            />
+          </div>
+          
+          <input 
+            type="text" 
+            value={titleColor}
+            onChange={handleTitleColorChange}
+            style={{
+              width: '80px',
+              padding: '8px',
+              border: '1px solid #e2e8f0',
+              borderRadius: '4px',
+              fontSize: '0.9rem'
+            }}
+          />
+          
+          <span style={{ fontSize: '0.9rem', color: '#718096', marginLeft: '5px' }}>主标题</span>
+          
+          {/* 快速颜色选择 */}
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <div 
+              onClick={() => setTitleColor('#ffcc00')}
+              style={{
+                width: '24px',
+                height: '24px',
+                backgroundColor: '#ffcc00',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: titleColor === '#ffcc00' ? '2px solid #6B66FF' : '1px solid #e2e8f0'
+              }}
+              title="黄色"
+            ></div>
+            <div 
+              onClick={() => setTitleColor('#ff66cc')}
+              style={{
+                width: '24px',
+                height: '24px',
+                backgroundColor: '#ff66cc',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: titleColor === '#ff66cc' ? '2px solid #6B66FF' : '1px solid #e2e8f0'
+              }}
+              title="粉色"
+            ></div>
+            <div 
+              onClick={() => setTitleColor('#00ccff')}
+              style={{
+                width: '24px',
+                height: '24px',
+                backgroundColor: '#00ccff',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: titleColor === '#00ccff' ? '2px solid #6B66FF' : '1px solid #e2e8f0'
+              }}
+              title="青色"
+            ></div>
+          </div>
+        </div>
+        
+        {/* 副标题颜色 */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          gap: '10px',
+          padding: '10px',
+          backgroundColor: '#f7fafc',
+          borderRadius: '8px',
+          marginBottom: '10px'
+        }}>
+          <span style={{ fontSize: '0.9rem', color: '#718096', whiteSpace: 'nowrap' }}>副标题颜色:</span>
+          <div style={{ 
+            display: 'inline-block', 
+            padding: '2px', 
+            border: '1px solid #e2e8f0', 
+            borderRadius: '4px',
+            backgroundColor: '#fff'
+          }}>
+            <input 
+              type="color" 
+              value={titleSecondaryColor}
+              onChange={handleTitleSecondaryColorChange}
+              style={{
+                width: '36px',
+                height: '36px',
+                border: 'none',
+                borderRadius: '2px',
+                cursor: 'pointer',
+                padding: '0'
+              }}
+            />
+          </div>
+          
+          <input 
+            type="text" 
+            value={titleSecondaryColor}
+            onChange={handleTitleSecondaryColorChange}
+            style={{
+              width: '80px',
+              padding: '8px',
+              border: '1px solid #e2e8f0',
+              borderRadius: '4px',
+              fontSize: '0.9rem'
+            }}
+          />
+          
+          <span style={{ fontSize: '0.9rem', color: '#718096', marginLeft: '5px' }}>副标题</span>
+          
+          {/* 快速颜色选择 */}
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <div 
+              onClick={() => setTitleSecondaryColor('#ffffff')}
+              style={{
+                width: '24px',
+                height: '24px',
+                backgroundColor: '#ffffff',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: titleSecondaryColor === '#ffffff' ? '2px solid #6B66FF' : '1px solid #e2e8f0'
+              }}
+              title="白色"
+            ></div>
+            <div 
+              onClick={() => setTitleSecondaryColor('#cccccc')}
+              style={{
+                width: '24px',
+                height: '24px',
+                backgroundColor: '#cccccc',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: titleSecondaryColor === '#cccccc' ? '2px solid #6B66FF' : '1px solid #e2e8f0'
+              }}
+              title="灰色"
+            ></div>
+            <div 
+              onClick={() => setTitleSecondaryColor('#ffffcc')}
+              style={{
+                width: '24px',
+                height: '24px',
+                backgroundColor: '#ffffcc',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: titleSecondaryColor === '#ffffcc' ? '2px solid #6B66FF' : '1px solid #e2e8f0'
+              }}
+              title="淡黄色"
+            ></div>
           </div>
         </div>
         

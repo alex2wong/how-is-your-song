@@ -88,6 +88,8 @@ export const generateMV = async ({
   titleFontSize,
   titleMargin,
   titlePosition,
+  titleColor,
+  titleSecondaryColor,
   videoBitrate,
   setGenerating,
   setStatusText,
@@ -347,6 +349,8 @@ export const generateMV = async ({
                   titleFontSize,
                   titleMargin,
                   titlePosition,
+                  titleColor,
+                  titleSecondaryColor,
                   lyricsDisplayMode
                 )
               );
@@ -408,6 +412,8 @@ export const generateMV = async ({
                 titleFontSize,
                 titleMargin,
                 titlePosition,
+                titleColor,
+                titleSecondaryColor,
                 lyricsDisplayMode
               )
             );

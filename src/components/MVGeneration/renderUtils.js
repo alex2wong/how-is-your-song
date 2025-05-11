@@ -24,6 +24,8 @@
  * @param {number} titleFontSize - 标题字号，像素值
  * @param {number} titleMargin - 标题边距，像素值
  * @param {string} titlePosition - 标题位置，'leftTop'(左上)、'rightTop'(右上)、'leftBottom'(左下)、'rightBottom'(右下)、'center'(居中)
+ * @param {string} titleColor - 主标题颜色
+ * @param {string} titleSecondaryColor - 副标题颜色
  * @param {string} lyricsDisplayMode - 歌词显示模式，'multiLine'(多行模式) 或 'singleLine'(单行模式)
  */
 export const renderFrame = (
@@ -51,6 +53,8 @@ export const renderFrame = (
   titleFontSize = 24,
   titleMargin = 60,
   titlePosition = 'leftTop',
+  titleColor = '#ffcc00',
+  titleSecondaryColor = '#ffffff',
   lyricsDisplayMode = 'multiLine'
 ) => {
   try {
@@ -367,7 +371,7 @@ export const renderFrame = (
       // 绘制标题
       if (songTitle) {
         ctx.font = `bold ${titleFontSize}px "Microsoft YaHei", Arial, sans-serif`;
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = titleColor; // 使用传入的主标题颜色
         
         // 如果选择了描边样式，则添加描边
         if (lyricsStrokeStyle === 'stroke') {
@@ -385,7 +389,7 @@ export const renderFrame = (
         const authorFontSize = Math.round(titleFontSize * 0.75);
         
         ctx.font = `${authorFontSize}px "Microsoft YaHei", Arial, sans-serif`;
-        ctx.fillStyle = '#cccccc';
+        ctx.fillStyle = titleSecondaryColor; // 使用传入的副标题颜色
         
         // 如果选择了描边样式，则添加描边
         if (lyricsStrokeStyle === 'stroke') {
@@ -577,6 +581,8 @@ export const renderFrame = (
         titleFontSize,
         titleMargin,
         titlePosition,
+        titleColor,
+        titleSecondaryColor,
         lyricsDisplayMode
       )
     );

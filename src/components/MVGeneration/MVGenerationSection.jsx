@@ -44,6 +44,8 @@ const MVGenerationSection = () => {
   const [titleFontSize, setTitleFontSize] = useLocalStorageState('mvGenerator_titleFontSize', { defaultValue: 24 }); // 标题字号，默认24像素
   const [titleMargin, setTitleMargin] = useLocalStorageState('mvGenerator_titleMargin', { defaultValue: 60 }); // 标题边距，默认60像素
   const [titlePosition, setTitlePosition] = useLocalStorageState('mvGenerator_titlePosition', { defaultValue: 'leftTop' }); // 标题位置，默认左上角
+  const [titleColor, setTitleColor] = useLocalStorageState('mvGenerator_titleColor', { defaultValue: '#ffcc00' }); // 主标题颜色，默认黄色
+  const [titleSecondaryColor, setTitleSecondaryColor] = useLocalStorageState('mvGenerator_titleSecondaryColor', { defaultValue: '#ffffff' }); // 副标题颜色，默认白色
   
   // 视频设置
   const [videoBitrate, setVideoBitrate] = useLocalStorageState('mvGenerator_videoBitrate', { defaultValue: 10 }); // 视频码率，默认10Mbps
@@ -124,6 +126,8 @@ const MVGenerationSection = () => {
       titleFontSize,
       titleMargin,
       titlePosition,
+      titleColor,
+      titleSecondaryColor,
       videoBitrate,
       setGenerating,
       setStatusText,
@@ -198,6 +202,8 @@ const MVGenerationSection = () => {
     setTitlePosition('leftTop');
     setTitleFontSize(24);
     setTitleMargin(60);
+    setTitleColor('#ffcc00');
+    setTitleSecondaryColor('#ffffff');
     setLyricsDisplayMode('multiLine');
     setProgress(0);
     setStatusText('');
@@ -364,6 +370,10 @@ const MVGenerationSection = () => {
             setTitleMargin={setTitleMargin}
             titlePosition={titlePosition}
             setTitlePosition={setTitlePosition}
+            titleColor={titleColor}
+            setTitleColor={setTitleColor}
+            titleSecondaryColor={titleSecondaryColor}
+            setTitleSecondaryColor={setTitleSecondaryColor}
             videoBitrate={videoBitrate}
             setVideoBitrate={setVideoBitrate}
             lyricsDisplayMode={lyricsDisplayMode}
