@@ -16,25 +16,38 @@ export const parseLyrics = (lyricsText) => {
     const isSubtitleFormat = /^\d+$/.test(firstLine) && lines.length > 2 && lines[1].includes(' --> ');
     
     if (isBracketFormat) {
-      // 处理带方括号的格式: [00:08.601]用夏天的雨水
+      // 处理带方括号的格式: [00:08.601]用夏天的雨水 或 [00:08]用夏天的雨水
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
         
-        // 匹配 [00:08.601] 格式的时间戳
-        const timeMatch = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+        // 尝试匹配两种格式的时间戳
+        // 1. [00:08.601] 格式 - 带毫秒
+        // 2. [00:08] 格式 - 不带毫秒
+        const timeMatchWithMs = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+        const timeMatchNoMs = line.match(/^\[(\d+):(\d+)\](.*)$/);
         
-        if (!timeMatch) {
-          console.error(`时间格式错误: "${line}"，应为 "[分:秒.毫秒]歌词" 格式`);
+        let minutes, seconds, milliseconds, lyricText, timeInSeconds;
+        
+        if (timeMatchWithMs) {
+          // 处理带毫秒的格式
+          minutes = parseInt(timeMatchWithMs[1]);
+          seconds = parseInt(timeMatchWithMs[2]);
+          milliseconds = parseInt(timeMatchWithMs[3]);
+          lyricText = timeMatchWithMs[4].trim();
+          
+          timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
+        } else if (timeMatchNoMs) {
+          // 处理不带毫秒的格式
+          minutes = parseInt(timeMatchNoMs[1]);
+          seconds = parseInt(timeMatchNoMs[2]);
+          lyricText = timeMatchNoMs[3].trim();
+          
+          timeInSeconds = minutes * 60 + seconds;
+        } else {
+          console.error(`时间格式错误: "${line}"，应为 "[分:秒.毫秒]歌词" 或 "[分:秒]歌词" 格式`);
           continue; // 跳过错误行，继续解析
         }
-        
-        const minutes = parseInt(timeMatch[1]);
-        const seconds = parseInt(timeMatch[2]);
-        const milliseconds = parseInt(timeMatch[3]);
-        const lyricText = timeMatch[4].trim();
-        
-        const timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
         
         lyrics.push({
           time: timeInSeconds,
