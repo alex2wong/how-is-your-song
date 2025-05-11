@@ -16,7 +16,9 @@ const BackgroundImageSelector = ({
   foregroundOffsetY = 0,
   setForegroundOffsetY = () => {},
   lyricsOffsetY = 0,
-  setLyricsOffsetY = () => {}
+  setLyricsOffsetY = () => {},
+  foregroundSize = 'medium',
+  setForegroundSize = () => {}
 }) => {
   // 兼容旧版接口，如果使用旧版imageInputRef，则将其用作背景图片的ref
   const actualBackgroundInputRef = backgroundInputRef || imageInputRef;
@@ -165,29 +167,88 @@ const BackgroundImageSelector = ({
             placeholder="点击选择前景图片"
           />
           {foregroundImage && (
-            <div style={{ marginTop: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-                <label style={{ fontSize: '0.9rem', color: '#4A5568' }}>前景图垂直位置调整</label>
-                <span style={{ fontSize: '0.8rem', color: '#718096' }}>{foregroundOffsetY}px</span>
+            <>
+              <div style={{ marginTop: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                  <label style={{ fontSize: '0.9rem', color: '#4A5568' }}>前景图垂直位置调整</label>
+                  <span style={{ fontSize: '0.8rem', color: '#718096' }}>{foregroundOffsetY}px</span>
+                </div>
+                <input 
+                  type="range" 
+                  min={-500} 
+                  max={500} 
+                  value={foregroundOffsetY} 
+                  onChange={(e) => setForegroundOffsetY(parseInt(e.target.value))} 
+                  style={{ 
+                    width: '100%', 
+                    height: '8px',
+                    WebkitAppearance: 'none',
+                    appearance: 'none',
+                    borderRadius: '4px',
+                    background: 'linear-gradient(to right, #6B66FF, #A5B4FC)',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }} 
+                />
               </div>
-              <input 
-                type="range" 
-                min={-500} 
-                max={500} 
-                value={foregroundOffsetY} 
-                onChange={(e) => setForegroundOffsetY(parseInt(e.target.value))} 
-                style={{ 
-                  width: '100%', 
-                  height: '8px',
-                  WebkitAppearance: 'none',
-                  appearance: 'none',
-                  borderRadius: '4px',
-                  background: 'linear-gradient(to right, #6B66FF, #A5B4FC)',
-                  outline: 'none',
-                  cursor: 'pointer'
-                }} 
-              />
-            </div>
+              
+              {/* 前景图尺寸选择 */}
+              <div style={{ marginTop: '15px' }}>
+                <div style={{ marginBottom: '5px' }}>
+                  <label style={{ fontSize: '0.9rem', color: '#4A5568' }}>前景图尺寸</label>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={() => setForegroundSize('small')} 
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: `1px solid ${foregroundSize === 'small' ? '#6B66FF' : '#e2e8f0'}`,
+                      borderRadius: '4px',
+                      backgroundColor: foregroundSize === 'small' ? 'rgba(107, 102, 255, 0.1)' : 'white',
+                      color: foregroundSize === 'small' ? '#6B66FF' : '#4A5568',
+                      fontWeight: foregroundSize === 'small' ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    小
+                  </button>
+                  <button 
+                    onClick={() => setForegroundSize('medium')} 
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: `1px solid ${foregroundSize === 'medium' ? '#6B66FF' : '#e2e8f0'}`,
+                      borderRadius: '4px',
+                      backgroundColor: foregroundSize === 'medium' ? 'rgba(107, 102, 255, 0.1)' : 'white',
+                      color: foregroundSize === 'medium' ? '#6B66FF' : '#4A5568',
+                      fontWeight: foregroundSize === 'medium' ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    中
+                  </button>
+                  <button 
+                    onClick={() => setForegroundSize('large')} 
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: `1px solid ${foregroundSize === 'large' ? '#6B66FF' : '#e2e8f0'}`,
+                      borderRadius: '4px',
+                      backgroundColor: foregroundSize === 'large' ? 'rgba(107, 102, 255, 0.1)' : 'white',
+                      color: foregroundSize === 'large' ? '#6B66FF' : '#4A5568',
+                      fontWeight: foregroundSize === 'large' ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    大
+                  </button>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>

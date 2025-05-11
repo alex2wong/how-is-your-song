@@ -29,6 +29,7 @@
  * @param {string} lyricsDisplayMode - 歌词显示模式，'multiLine'(多行模式) 或 'singleLine'(单行模式)
  * @param {number} foregroundOffsetY - 前景图垂直偏移，像素值
  * @param {number} lyricsOffsetY - 歌词垂直偏移，像素值
+ * @param {string} foregroundSize - 前景图尺寸，可选值：'small', 'medium', 'large'
  */
 export const renderFrame = (
   ctx, 
@@ -59,7 +60,8 @@ export const renderFrame = (
   titleSecondaryColor = '#ffffff',
   lyricsDisplayMode = 'multiLine',
   foregroundOffsetY = 0, // 添加前景图垂直偏移参数，默认为0
-  lyricsOffsetY = 0 // 添加歌词垂直偏移参数，默认为0
+  lyricsOffsetY = 0, // 添加歌词垂直偏移参数，默认为0
+  foregroundSize = 'medium' // 添加前景图尺寸参数，默认为中等
 ) => {
   try {
     const currentTime = (Date.now() - startTimeRef.current) / 1000;
@@ -139,8 +141,23 @@ export const renderFrame = (
             foreground.play().catch(err => console.error('前景视频循环播放失败:', err));
           }
           
+          // 根据选择的尺寸计算前景图大小
+          let sizeRatio;
+          switch (foregroundSize) {
+            case 'small':
+              sizeRatio = 0.3; // 小尺寸，画布较小边长的30%
+              break;
+            case 'large':
+              sizeRatio = 0.5; // 大尺寸，画布较小边长的50%
+              break;
+            case 'medium':
+            default:
+              sizeRatio = 0.4; // 中等尺寸，画布较小边长的40%
+              break;
+          }
+          
           // 计算将前景图绘制为圆角正方形的尺寸和位置
-          const albumSize = Math.min(canvasWidth, canvasHeight) * 0.4; // 专辑封面大小为画布较小边长的40%
+          const albumSize = Math.min(canvasWidth, canvasHeight) * sizeRatio; // 专辑封面大小根据选择的尺寸调整
           const albumX = (canvasWidth - albumSize) / 2; // 水平居中
           const albumY = (canvasHeight - albumSize) / 2 + foregroundOffsetY; // 垂直居中并应用偏移
           const cornerRadius = albumSize * 0.1; // 圆角半径为封面大小的10%
@@ -589,7 +606,8 @@ export const renderFrame = (
         titleSecondaryColor,
         lyricsDisplayMode,
         foregroundOffsetY, // 添加前景图垂直偏移参数
-        lyricsOffsetY // 添加歌词垂直偏移参数
+        lyricsOffsetY, // 添加歌词垂直偏移参数
+        foregroundSize // 添加前景图尺寸参数
       )
     );
   } catch (error) {
