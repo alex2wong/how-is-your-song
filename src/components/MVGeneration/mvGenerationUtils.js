@@ -250,7 +250,7 @@ export const generateMV = async ({
           // 创建MediaRecorder
           const mediaRecorder = new MediaRecorder(combinedStream, {
             audioBitsPerSecond: 320000,
-            mimeType: 'video/mp4;codecs=vp9',
+            mimeType: 'video/mp4;codecs=avc1.42E01E,opus',
             videoBitsPerSecond: videoBitrate * 1000000 // 将Mbps转换为bps
           });
           
