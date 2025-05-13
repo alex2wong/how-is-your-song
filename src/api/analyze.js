@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
 console.log('apiBase', apiBase);
-export const analyzeMusic = async (file, authorName, onProgress, privacyMode) => {
+export const analyzeMusic = async (file, authorName, onProgress, privacyMode, eventTag) => {
   const formData = new FormData();
   formData.append('audio', file);
 
@@ -10,7 +10,7 @@ export const analyzeMusic = async (file, authorName, onProgress, privacyMode) =>
   const promptVersion = localStorage.getItem('prompt_version') || 'v1.0.0';
   const modelName = localStorage.getItem('model_name') || 'gemini-2.0-flash';
 
-  const response = await axios.post(`${apiBase}/analyze?prompt_version=${promptVersion}&model_name=${modelName}&file_name=${encodeURIComponent(file.name)}${geminiKey ? `&gemini_key=${geminiKey}` : ''}${authorName ? `&author_name=${encodeURIComponent(authorName)}` : ''}&privacy_mode=${privacyMode ? '1' : '0'}`, formData, {
+  const response = await axios.post(`${apiBase}/analyze?prompt_version=${promptVersion}&model_name=${modelName}&file_name=${encodeURIComponent(file.name)}${geminiKey ? `&gemini_key=${geminiKey}` : ''}${authorName ? `&author_name=${encodeURIComponent(authorName)}` : ''}&privacy_mode=${privacyMode ? '1' : '0'}${eventTag ? `&event_tag=${encodeURIComponent(eventTag)}` : ''}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

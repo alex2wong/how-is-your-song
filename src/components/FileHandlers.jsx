@@ -14,7 +14,8 @@ export const useFileHandlers = (
   privacyMode, 
   setRating, 
   setStats,
-  setSelectedSong
+  setSelectedSong,
+  eventTag
 ) => {
   const { showToast } = useToast();
   const handleFileChange = (e) => {
@@ -81,7 +82,7 @@ export const useFileHandlers = (
     try {
       const response = await analyzeMusic(file, authorName, (progress) => {
         setUploadProgress(progress);
-      }, privacyMode);
+      }, privacyMode, eventTag);
       if (response) {
         // 将分析结果保存到 rating 中（为了兼容现有代码）
         setRating(response.data);

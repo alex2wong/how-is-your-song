@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RiFileUploadLine, RiMusicLine, RiCloseLine, RiMusic2Line, RiDownload2Line, RiCheckLine, RiErrorWarningLine, RiRefreshLine } from 'react-icons/ri';
+import { RiFileUploadLine, RiMusicLine, RiCloseLine, RiMusic2Line, RiDownload2Line, RiCheckLine, RiErrorWarningLine, RiRefreshLine, RiAwardLine } from 'react-icons/ri';
 import { analyzeMusic } from '../api/analyze';
 import { SongDetail } from './SongDetail';
 
@@ -9,7 +9,9 @@ const BatchAnalysisSection = ({
   loading,
   uploadProgress,
   setAuthorName, 
-  setPrivacyMode 
+  setPrivacyMode,
+  eventTag,
+  setEventTag
 }) => {
   // 批量文件状态
   const [batchFiles, setBatchFiles] = useState([]);
@@ -208,7 +210,8 @@ const BatchAnalysisSection = ({
             }));
           }
         }, 
-        privacyMode
+        privacyMode,
+        eventTag
       );
       
       // 存储分析结果
@@ -742,6 +745,61 @@ const BatchAnalysisSection = ({
           <p style={{ color: '#666', marginTop: '4px' }}>点击或拖拽文件到此处</p>
         </div>
       )}
+
+<div className="event-selection" style={{ 
+            display: 'flex',
+            marginTop: '20px',
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(240,240,255,0.8) 100%)',
+            padding: '6px 10px',
+            borderRadius: '6px',
+            boxShadow: '0 2px 10px rgba(107, 102, 255, 0.1)',
+            border: '1px solid rgba(107, 102, 255, 0.2)'
+          }}>
+            <RiAwardLine style={{ 
+              fontSize: '1.2rem', 
+              color: '#FF6B66', 
+              marginRight: '8px',
+              filter: 'drop-shadow(0 0 2px rgba(255, 107, 102, 0.3))'
+            }} />
+            <label htmlFor="event-select" style={{ 
+              fontWeight: 'bold', 
+              marginRight: '10px',
+              color: '#444',
+              flexShrink: 0
+            }}>
+              参与活动：
+            </label>
+            <select 
+              id="batch-event-select"
+              value={eventTag}
+              onChange={(e) => setEventTag(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: 'var(--border-radius)',
+                border: '1px solid #d1d5db',
+                fontSize: '0.9rem',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                background: 'linear-gradient(to right, #fff, #f8f8ff)',
+                cursor: 'pointer',
+                appearance: 'none',
+                backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 0.7rem top 50%',
+                backgroundSize: '0.65rem auto',
+                paddingRight: '2rem'
+              }}
+            >
+              <option value="">不参加活动</option>
+              <option value="xiyouji" style={{ 
+                background: 'linear-gradient(45deg, #FFD700, #FFA500)', 
+                fontWeight: 'bold',
+                color: '#8B4513'
+              }}>AI音乐达人《西游记》共创盛典</option>
+            </select>
+          </div>
 
       {loading && (
         <div style={{ marginTop: '1rem', width: '100%' }}>

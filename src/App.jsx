@@ -69,6 +69,9 @@ function AppContent() {
     searchLoading,
     handleInputChange
   } = useAppState();
+  
+  // 添加活动标签状态
+  const [eventTag, setEventTag] = useState('');
 
   const fileInputRef = useRef(null);
 
@@ -91,7 +94,8 @@ function AppContent() {
     privacyMode, 
     setRating, 
     setStats,
-    setSelectedSong
+    setSelectedSong,
+    eventTag
   );
 
   // Initialize ranking utilities
@@ -191,6 +195,8 @@ function AppContent() {
             setPrivacyMode={setPrivacyMode}
             setFile={setFile}
             setAudioUrl={setAudioUrl}
+            eventTag={eventTag}
+            setEventTag={setEventTag}
           />
           
           <InstructionsSection />
@@ -236,6 +242,8 @@ function AppContent() {
               uploadProgress={uploadProgress}
               setAuthorName={setAuthorName}
               setPrivacyMode={setPrivacyMode}
+              eventTag={eventTag}
+              setEventTag={setEventTag}
             />
           </div>
         </div>

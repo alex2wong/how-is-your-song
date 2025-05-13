@@ -6,7 +6,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { analyzeMusic, getLyrics } = require('./genai-analyze');
-const { insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, calculateSongPercentiles } = require('./db');
+const { connectToDb, insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, calculateSongPercentiles } = require('./db');
 
 const app = express();
 const port = 3000;
@@ -70,6 +70,33 @@ app.get('/api/stats', (req, res) => {
 });
 
 app.get('/api/rank', async (req, res) => {
+  // 添加对 eventTag 参数的支持
+  if (req.query.eventTag) {
+    try {
+      const db = await connectToDb();
+      console.log('Fetching songs with eventTag:', req.query.eventTag);
+      const songs = await db.collection('songs').find(
+        { eventTag: req.query.eventTag },
+        {
+          projection: {
+            song_name: 1,
+            overall_score: 1,
+            authorName: 1,
+            likes: 1,
+            _id: 1,
+            eventTag: 1
+          }
+        }
+      ).sort({ "overall_score": -1 }).limit(300).toArray();
+      console.log(`Found ${songs.length} songs with eventTag: ${req.query.eventTag}`);
+      return res.json(songs);
+    } catch (error) {
+      console.error('Error fetching songs by eventTag:', error);
+      return res.status(500).json({ error: 'Failed to fetch songs by eventTag' });
+    }
+  }
+  
+  // 原有的标签和时间戳筛选逻辑
   const songs = await getSongRank(req.query.tag ? '#' + req.query.tag : undefined, req.query.timestamp);
   res.json(songs);
 });
@@ -152,6 +179,9 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   const promptVersion = req.query.prompt_version;
 
   const modelName = req.query.model_name;
+  
+  // 获取活动标签
+  const eventTag = req.query.event_tag;
 
   let privacyMode = Number(req.query.privacy_mode);
   let filePath;
@@ -206,6 +236,11 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
       result.overall_score = Number((totalItem > 0 ? totalScore / totalItem : 0).toFixed(1));
       result.modelName = modelName;
       result.promptVersion = promptVersion;
+      
+      // 添加活动标签到结果中
+      if (eventTag) {
+        result.eventTag = eventTag;
+      }
 
       const res = await insertSong(result);
       if (res.insertedId) {

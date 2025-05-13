@@ -7,7 +7,7 @@ export const useRankTabLogic = (activeRankTab, setRankLoading, setRankList, fetc
     const WEEK = 7 * DAY;
     const MONTH = 30 * DAY;
     
-    let tag, timestamp;
+    let tag, timestamp, eventTag;
     
     switch (activeRankTab) {
       case 'weekly':
@@ -79,12 +79,15 @@ export const useRankTabLogic = (activeRankTab, setRankLoading, setRankList, fetc
       case 'edm':
         tag = 'EDM';
         break;
+      case 'xiyouji':
+        eventTag = 'xiyouji';
+        break;
     }
     
     setRankLoading(true);
     setRankList([]);
     
-    fetchRankList(tag, timestamp)
+    fetchRankList(tag, timestamp, eventTag)
       .then(data => {
         setRankList(data);
         setRankLoading(false);

@@ -103,7 +103,8 @@ async function getSongRank(tagName, timestamp) {
             overall_score: 1,
             authorName: 1,
             likes: 1,
-            _id: 1
+            _id: 1,
+            eventTag: 1
         }
     }).sort({ "overall_score": -1 }).limit(300).toArray();
     return songs;
@@ -118,7 +119,8 @@ async function getSongRankReverse() {
             overall_score: 1,
             authorName: 1,
             likes: 1,
-            _id: 1
+            _id: 1,
+            eventTag: 1
         }
     }).sort({ "overall_score": 1 }).limit(300).toArray();
     return songs;
@@ -159,7 +161,8 @@ async function getRankByLike() {
                 overall_score: 1,
                 authorName: 1,
                 likes: 1,
-                _id: 1
+                _id: 1,
+                eventTag: 1
             }
         }
     ).sort({ "likes": -1 }).limit(300).toArray();
@@ -242,7 +245,8 @@ async function getSongRankByIds(songIds) {
             overall_score: 1,
             authorName: 1,
             likes: 1,
-            _id: 1
+            _id: 1,
+            eventTag: 1
         }
     }).sort({ "timestamp": -1 }).toArray();
     return songs;

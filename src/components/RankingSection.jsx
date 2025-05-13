@@ -14,6 +14,64 @@ const RankingSection = ({
       <div className="ranking-header">
         <h2>最受 AI 喜爱的歌曲</h2>
       </div>
+      <div 
+          className={`event-tag ${activeRankTab === 'xiyouji' ? 'active' : ''}`}
+          onClick={() => setActiveRankTab('xiyouji')}
+          style={{
+            display: 'inline-block',
+            marginTop: '0px',
+            marginBottom: '10px',
+            padding: '6px 12px',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: 'bold',
+            background: activeRankTab === 'xiyouji' 
+              ? 'linear-gradient(45deg, #FF6B66, #6B66FF)' 
+              : 'linear-gradient(45deg, #FF6B66, #9966FF)',
+            color: '#fff',
+            border: activeRankTab === 'xiyouji' 
+              ? '1px solid #6B66FF' 
+              : '0px solid #9966FF',
+            boxShadow: '0 2px 10px rgba(107, 102, 255, 0.3)',
+            transition: 'all 0.3s ease',
+            animation: activeRankTab === 'xiyouji' ? 'pulse 1.5s infinite' : 'none',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <span style={{
+            position: 'relative',
+            zIndex: 2,
+            textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+          }}>
+            AI音乐达人《西游记》共创盛典
+          </span>
+          {activeRankTab !== 'xiyouji' && (
+            <span style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(45deg, rgba(255,107,102,0.3), rgba(153,102,255,0.3))',
+              zIndex: 1,
+              transform: 'translateX(-100%)',
+              animation: 'shimmer 2s infinite'
+            }}></span>
+          )}
+        </div>
+        <style jsx>{`
+          @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+          }
+          @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
       
       <div className="ranking-tabs">
         {[

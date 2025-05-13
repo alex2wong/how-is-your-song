@@ -3,7 +3,7 @@ import { apiBase } from '../utils';
 
 export const useRankingUtils = () => {
   // 获取指定时间范围内的排行榜数据
-  const fetchRankList = useCallback(async (tag, timestamp) => {
+  const fetchRankList = useCallback(async (tag, timestamp, eventTag) => {
     try {
       console.log('# Fetching rank list: ', tag, timestamp);
       if (tag === 'worst') {
@@ -28,6 +28,19 @@ export const useRankingUtils = () => {
       const params = new URLSearchParams();
       if (tag) params.append('tag', tag);
       if (timestamp) params.append('timestamp', timestamp);
+      
+      // 如果有活动标签，则需要获取特定活动的歌曲
+      if (eventTag) {
+        try {
+          // 直接使用服务器端 API 的 eventTag 参数获取特定活动的歌曲
+          const response = await fetch(`${apiBase}/rank?eventTag=${eventTag}`);
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error('获取活动歌曲失败:', error);
+          return [];
+        }
+      }
       
       const response = await fetch(`${apiBase}/rank?${params.toString()}`);
       const data = await response.json();
