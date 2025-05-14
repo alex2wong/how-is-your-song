@@ -458,6 +458,9 @@ export const generateMV = async ({
           console.error('视频生成失败:', error);
           setStatusText('MV生成失败: ' + error.message);
           setGenerating(false);
+
+          alert('当前浏览器不兼容, 请使用Chrome浏览器或者Chrome内核的浏览器!');
+
           // 确保在出错时也清理资源
           cleanupResources(mediaRecorderRef, animationFrameIdRef, tempAudio, audioContextRef);
           // 额外清理临时音频URL
