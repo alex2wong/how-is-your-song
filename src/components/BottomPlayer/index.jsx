@@ -73,7 +73,7 @@ const BottomPlayer = () => {
   const getSongName = () => {
     if (!songInfo) return null;
     const songName = songInfo.song_name || '';
-    return songName.replace(/\.[^/.]+$/, ""); // 移除文件扩展名
+    return typeof songName === 'string' ? songName.replace(/\.[^/.]+$/, "") : ''; // 移除文件扩展名
   };
 
   // 获取作者名称（如果有）

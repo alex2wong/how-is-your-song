@@ -336,7 +336,7 @@ const BatchAnalysisSection = ({
         item.score,
         item.duration,
         // 处理评价内容中可能存在的逗号，用引号包裹以避免CSV格式错误
-        `"${comments.replace(/"/g, '""')}"`
+        `"${comments && typeof comments === 'string' ? comments.replace(/"/g, '""') : ''}"`
       ];
     });
     

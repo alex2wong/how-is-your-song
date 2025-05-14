@@ -50,7 +50,7 @@ const defaultMessage = `❤️ 亲爱的妈妈，谢谢对我的付出与无私�
  */
 const SharePoster = ({ song, message, comment, qrUrl }) => {
   const { play, pause, isPlaying, audioUrl } = useBottomPlayer();
-  const songAudioUrl = `${apiBase}/audio/${song.url.replace("uploads/", "")}`;
+  const songAudioUrl = song.url ? `${apiBase}/audio/${song.url.replace("uploads/", "")}` : '';
   const songName = song.song_name ?? "献给妈妈的歌";
   const contentRef = useRef(null);
   const songAuthor = song.authorName ?? '妈妈的儿女'

@@ -41,10 +41,10 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [songData, setSongData] = useState(selectedSong);
   const { play, pause, isPlaying, audioUrl } = useBottomPlayer();
-  const songAudioUrl = `${apiBase}/audio/${selectedSong.url.replace(
+  const songAudioUrl = selectedSong.url ? `${apiBase}/audio/${selectedSong.url.replace(
     "uploads/",
     ""
-  )}`;
+  )}` : '';
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const contentRef = useRef(null);
@@ -117,7 +117,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
     if (!rating) {
       return "";
     }
-    const songName = rating.song_name.replace(/\.[^/.]+$/, "");
+    const songName = rating.song_name ? rating.song_name.replace(/\.[^/.]+$/, "") : '';
 
     return (
       <div
@@ -206,7 +206,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
     return matches
       .map((line) => {
         const timeMatch = line.match(/\[(\d{2}):(\d{2}\.\d{2})\]/);
-        const text = line.replace(/\[\d{2}:\d{2}\.\d{2}\]/, "").trim();
+        const text = typeof line === 'string' ? line.replace(/\[\d{2}:\d{2}\.\d{2}\]/, "").trim() : '';
         if (timeMatch) {
           const minutes = parseInt(timeMatch[1]);
           const seconds = parseFloat(timeMatch[2]);

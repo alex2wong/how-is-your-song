@@ -28,7 +28,7 @@ const AnalysisResult = ({ rating }) => {
       classTxt = '较一般';
       className += 'normal';
     }
-    const songName = rating.song_name.replace(/\.[^/.]+$/, "");
+    const songName = rating.song_name ? rating.song_name.replace(/\.[^/.]+$/, "") : '';
     
     return (
       <p>
