@@ -94,6 +94,8 @@ export const generateMV = async ({
   foregroundOffsetY = 0, // 添加前景图垂直偏移参数，默认为0
   lyricsOffsetY = 0, // 添加歌词垂直偏移参数，默认为0
   foregroundSize = 'medium', // 添加前景图尺寸参数，默认为中等
+  foregroundShape = 'roundedRect', // 添加前景图形状参数，默认为圆角矩形
+  foregroundAutoRotate = false, // 添加前景图自动旋转参数，默认为否
   selectedFont = '', // 添加选择的字体参数，默认为空字符串（使用系统默认字体）
   setGenerating,
   setStatusText,
@@ -121,6 +123,10 @@ export const generateMV = async ({
   // 前景图是可选的，只在有前景图时记录日志
   if (foregroundImage) {
     console.log('前景图验证通过:', foregroundImage.file.name);
+    console.log('前景图形状:', foregroundShape);
+    console.log('前景图自动旋转:', foregroundAutoRotate ? '是' : '否');
+    console.log('前景图尺寸:', foregroundSize);
+    console.log('前景图垂直偏移:', foregroundOffsetY);
   }
   
   if (!lyrics.trim()) {
@@ -326,6 +332,11 @@ export const generateMV = async ({
               }
               
               // 开始渲染动画
+              // 在调用renderFrame前打印参数信息
+              console.log('🔴 调用renderFrame前的参数检查:');
+              console.log('🔴 foregroundShape:', foregroundShape);
+              console.log('🔴 foregroundAutoRotate:', foregroundAutoRotate ? '是' : '否');
+              
               startTimeRef.current = Date.now();
               animationFrameIdRef.current = requestAnimationFrame(() => 
                 renderFrame(
@@ -359,7 +370,9 @@ export const generateMV = async ({
                   foregroundOffsetY, // 添加前景图垂直偏移参数
                   lyricsOffsetY, // 添加歌词垂直偏移参数
                   foregroundSize, // 添加前景图尺寸参数
-                  selectedFont // 添加选择的字体参数
+                  selectedFont, // 添加选择的字体参数
+                  foregroundShape, // 添加前景图形状参数
+                  foregroundAutoRotate // 添加前景图自动旋转参数
                 )
               );
             }).catch(error => {
@@ -426,7 +439,9 @@ export const generateMV = async ({
                 foregroundOffsetY, // 添加前景图垂直偏移参数
                 lyricsOffsetY, // 添加歌词垂直偏移参数
                 foregroundSize, // 添加前景图尺寸参数
-                selectedFont // 添加选择的字体参数
+                selectedFont, // 添加选择的字体参数
+                foregroundShape, // 添加前景图形状参数
+                foregroundAutoRotate // 添加前景图自动旋转参数
               )
             );
           }

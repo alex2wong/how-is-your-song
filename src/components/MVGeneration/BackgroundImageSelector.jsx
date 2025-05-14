@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { RiImageAddLine, RiFileUploadLine } from 'react-icons/ri';
 import { handleBackgroundChange, handleClearBackground } from './fileUtils';
 
@@ -18,7 +18,11 @@ const BackgroundImageSelector = ({
   lyricsOffsetY = 0,
   setLyricsOffsetY = () => {},
   foregroundSize = 'medium',
-  setForegroundSize = () => {}
+  setForegroundSize = () => {},
+  foregroundShape = 'roundedRect',
+  setForegroundShape = () => {},
+  foregroundAutoRotate = false,
+  setForegroundAutoRotate = () => {}
 }) => {
   // 兼容旧版接口，如果使用旧版imageInputRef，则将其用作背景图片的ref
   const actualBackgroundInputRef = backgroundInputRef || imageInputRef;
@@ -245,6 +249,104 @@ const BackgroundImageSelector = ({
                     }}
                   >
                     大
+                  </button>
+                  <button 
+                    onClick={() => setForegroundSize('extraLarge')} 
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: `1px solid ${foregroundSize === 'extraLarge' ? '#6B66FF' : '#e2e8f0'}`,
+                      borderRadius: '4px',
+                      backgroundColor: foregroundSize === 'extraLarge' ? 'rgba(107, 102, 255, 0.1)' : 'white',
+                      color: foregroundSize === 'extraLarge' ? '#6B66FF' : '#4A5568',
+                      fontWeight: foregroundSize === 'extraLarge' ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    特大
+                  </button>
+                </div>
+              </div>
+              
+              {/* 前景图形状选择 */}
+              <div style={{ marginTop: '15px' }}>  
+                <div style={{ marginBottom: '5px' }}>
+                  <label style={{ fontSize: '0.9rem', color: '#4A5568' }}>前景图形状</label>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={() => setForegroundShape('roundedRect')} 
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: `1px solid ${foregroundShape === 'roundedRect' ? '#6B66FF' : '#e2e8f0'}`,
+                      borderRadius: '4px',
+                      backgroundColor: foregroundShape === 'roundedRect' ? 'rgba(107, 102, 255, 0.1)' : 'white',
+                      color: foregroundShape === 'roundedRect' ? '#6B66FF' : '#4A5568',
+                      fontWeight: foregroundShape === 'roundedRect' ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    圆角矩形
+                  </button>
+                  <button 
+                    onClick={() => setForegroundShape('circle')} 
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: `1px solid ${foregroundShape === 'circle' ? '#6B66FF' : '#e2e8f0'}`,
+                      borderRadius: '4px',
+                      backgroundColor: foregroundShape === 'circle' ? 'rgba(107, 102, 255, 0.1)' : 'white',
+                      color: foregroundShape === 'circle' ? '#6B66FF' : '#4A5568',
+                      fontWeight: foregroundShape === 'circle' ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    圆形
+                  </button>
+                </div>
+              </div>
+              
+              {/* 前景图自动旋转选项 */}
+              <div style={{ marginTop: '15px' }}>  
+                <div style={{ marginBottom: '5px' }}>
+                  <label style={{ fontSize: '0.9rem', color: '#4A5568' }}>前景图自动旋转</label>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={() => setForegroundAutoRotate(true)} 
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: `1px solid ${foregroundAutoRotate ? '#6B66FF' : '#e2e8f0'}`,
+                      borderRadius: '4px',
+                      backgroundColor: foregroundAutoRotate ? 'rgba(107, 102, 255, 0.1)' : 'white',
+                      color: foregroundAutoRotate ? '#6B66FF' : '#4A5568',
+                      fontWeight: foregroundAutoRotate ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    是
+                  </button>
+                  <button 
+                    onClick={() => setForegroundAutoRotate(false)} 
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: `1px solid ${!foregroundAutoRotate ? '#6B66FF' : '#e2e8f0'}`,
+                      borderRadius: '4px',
+                      backgroundColor: !foregroundAutoRotate ? 'rgba(107, 102, 255, 0.1)' : 'white',
+                      color: !foregroundAutoRotate ? '#6B66FF' : '#4A5568',
+                      fontWeight: !foregroundAutoRotate ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    否
                   </button>
                 </div>
               </div>

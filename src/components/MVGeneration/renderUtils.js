@@ -30,6 +30,8 @@
  * @param {number} foregroundOffsetY - 前景图垂直偏移，像素值
  * @param {number} lyricsOffsetY - 歌词垂直偏移，像素值
  * @param {string} foregroundSize - 前景图尺寸，可选值：'small', 'medium', 'large'
+ * @param {string} foregroundShape - 前景图形状，可选值：'roundedRect', 'circle'
+ * @param {boolean} foregroundAutoRotate - 前景图是否自动旋转
  */
 export const renderFrame = (
   ctx, 
@@ -62,11 +64,30 @@ export const renderFrame = (
   foregroundOffsetY = 0, // 添加前景图垂直偏移参数，默认为0
   lyricsOffsetY = 0, // 添加歌词垂直偏移参数，默认为0
   foregroundSize = 'medium', // 添加前景图尺寸参数，默认为中等
-  selectedFont = '' // 添加选择的字体参数，默认为空字符串（使用系统默认字体）
+  selectedFont = '', // 添加选择的字体参数，默认为空字符串（使用系统默认字体）
+  foregroundShape = 'roundedRect', // 添加前景图形状参数，默认为圆角矩形
+  foregroundAutoRotate = false // 添加前景图自动旋转参数，默认为否
 ) => {
   try {
     const currentTime = (Date.now() - startTimeRef.current) / 1000;
     
+    // 仅在首次调用时打印参数信息
+    const isFirstFrame = currentTime < 0.1;
+    
+    // 将收到的参数打印出来，不使用全局变量
+    if (isFirstFrame) {
+      console.log('💚 收到的参数值:');
+      console.log('💚 foregroundShape:', foregroundShape);
+      console.log('💚 foregroundAutoRotate:', foregroundAutoRotate ? '是' : '否');
+    }
+    
+    if (isFirstFrame) {
+      console.log('✅ renderFrame 函数首次调用，参数检查:');
+      console.log('✅ foregroundShape:', foregroundShape);
+      console.log('✅ foregroundAutoRotate:', foregroundAutoRotate ? '是' : '否');
+      console.log('✅ foregroundSize:', foregroundSize);
+      console.log('✅ foregroundOffsetY:', foregroundOffsetY);
+    }
     // 计算进度
     const progress = Math.min(100, (currentTime / audioElement.duration) * 100);
     // 使用防御性编程，确保函数存在才调用
@@ -151,6 +172,9 @@ export const renderFrame = (
             case 'large':
               sizeRatio = 0.5; // 大尺寸，画布较小边长的50%
               break;
+            case 'extraLarge':
+              sizeRatio = 0.7; // 特大尺寸，画布较小边长的70%
+              break;
             case 'medium':
             default:
               sizeRatio = 0.4; // 中等尺寸，画布较小边长的40%
@@ -163,18 +187,37 @@ export const renderFrame = (
           const albumY = (canvasHeight - albumSize) / 2 + foregroundOffsetY; // 垂直居中并应用偏移
           const cornerRadius = albumSize * 0.1; // 圆角半径为封面大小的10%
           
-          // 绘制圆角矩形路径
+          // 根据形状绘制不同的路径
           ctx.save(); // 保存当前绘图状态
           ctx.beginPath();
-          ctx.moveTo(albumX + cornerRadius, albumY);
-          ctx.lineTo(albumX + albumSize - cornerRadius, albumY);
-          ctx.arcTo(albumX + albumSize, albumY, albumX + albumSize, albumY + cornerRadius, cornerRadius);
-          ctx.lineTo(albumX + albumSize, albumY + albumSize - cornerRadius);
-          ctx.arcTo(albumX + albumSize, albumY + albumSize, albumX + albumSize - cornerRadius, albumY + albumSize, cornerRadius);
-          ctx.lineTo(albumX + cornerRadius, albumY + albumSize);
-          ctx.arcTo(albumX, albumY + albumSize, albumX, albumY + albumSize - cornerRadius, cornerRadius);
-          ctx.lineTo(albumX, albumY + cornerRadius);
-          ctx.arcTo(albumX, albumY, albumX + cornerRadius, albumY, cornerRadius);
+          
+          // 只在首次渲染或每5秒输出一次日志，避免日志过多
+          if (currentTime < 0.1 || Math.floor(currentTime) % 5 === 0) {
+            console.log('渲染前景图 - 形状:', foregroundShape);
+            console.log('渲染前景图 - 自动旋转:', foregroundAutoRotate ? '是' : '否');
+          }
+          
+          if (foregroundShape === 'circle') {
+            // 绘制圆形路径
+            const centerX = albumX + albumSize / 2;
+            const centerY = albumY + albumSize / 2;
+            const radius = albumSize / 2;
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            if (currentTime < 0.1) console.log('应用圆形路径');
+          } else {
+            // 默认绘制圆角矩形路径
+            ctx.moveTo(albumX + cornerRadius, albumY);
+            ctx.lineTo(albumX + albumSize - cornerRadius, albumY);
+            ctx.arcTo(albumX + albumSize, albumY, albumX + albumSize, albumY + cornerRadius, cornerRadius);
+            ctx.lineTo(albumX + albumSize, albumY + albumSize - cornerRadius);
+            ctx.arcTo(albumX + albumSize, albumY + albumSize, albumX + albumSize - cornerRadius, albumY + albumSize, cornerRadius);
+            ctx.lineTo(albumX + cornerRadius, albumY + albumSize);
+            ctx.arcTo(albumX, albumY + albumSize, albumX, albumY + albumSize - cornerRadius, cornerRadius);
+            ctx.lineTo(albumX, albumY + cornerRadius);
+            ctx.arcTo(albumX, albumY, albumX + cornerRadius, albumY, cornerRadius);
+            if (currentTime < 0.1) console.log('应用圆角矩形路径');
+          }
+          
           ctx.closePath();
           
           // 添加阴影效果
@@ -216,6 +259,26 @@ export const renderFrame = (
             fgDrawHeight = fgDrawWidth / fgRatio;
             fgX = albumX;
             fgY = albumY - (fgDrawHeight - albumSize) / 2;
+          }
+          
+          // 如果启用自动旋转，则应用旋转效果
+          if (foregroundAutoRotate) {
+            // 计算旋转中心点
+            const centerX = fgX + fgDrawWidth / 2;
+            const centerY = fgY + fgDrawHeight / 2;
+            
+            // 计算旋转角度，根据当前时间持续旋转
+            const rotationSpeed = 0.2; // 增大旋转速度，使旋转更明显
+            const rotationAngle = (currentTime * rotationSpeed) % (Math.PI * 2);
+            
+            // 应用旋转变换
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotationAngle);
+            ctx.translate(-centerX, -centerY);
+            
+            if (currentTime < 0.1 || Math.floor(currentTime) % 5 === 0) {
+              console.log('应用旋转效果 - 角度:', Math.round(rotationAngle * 180 / Math.PI), '度');
+            }
           }
           
           // 绘制前景图
@@ -617,7 +680,9 @@ export const renderFrame = (
         foregroundOffsetY, // 添加前景图垂直偏移参数
         lyricsOffsetY, // 添加歌词垂直偏移参数
         foregroundSize, // 添加前景图尺寸参数
-        selectedFont // 添加选择的字体参数
+        selectedFont, // 添加选择的字体参数
+        foregroundShape, // 添加前景图形状参数，保持原始值
+        foregroundAutoRotate // 添加前景图自动旋转参数，保持原始值
       )
     );
   } catch (error) {

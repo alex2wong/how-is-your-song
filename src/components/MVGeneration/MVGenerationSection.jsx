@@ -54,6 +54,10 @@ const MVGenerationSection = () => {
   const [foregroundOffsetY, setForegroundOffsetY] = useLocalStorageState('mvGenerator_foregroundOffsetY', { defaultValue: 0 }); // 前景图垂直偏移，默认0
   const [lyricsOffsetY, setLyricsOffsetY] = useLocalStorageState('mvGenerator_lyricsOffsetY', { defaultValue: 0 }); // 歌词垂直偏移，默认0
   
+  // 前景图设置
+  const [foregroundShape, setForegroundShape] = useLocalStorageState('mvGenerator_foregroundShape', { defaultValue: 'roundedRect' }); // 前景图形状，默认圆角矩形
+  const [foregroundAutoRotate, setForegroundAutoRotate] = useLocalStorageState('mvGenerator_foregroundAutoRotate', { defaultValue: false }); // 前景图自动旋转，默认否
+  
   // 前景图尺寸设置
   const [foregroundSize, setForegroundSize] = useLocalStorageState('mvGenerator_foregroundSize', { defaultValue: 'medium' }); // 前景图尺寸，可选值：'small', 'medium', 'large'，默认中等
   
@@ -142,6 +146,8 @@ const MVGenerationSection = () => {
       foregroundOffsetY, // 添加前景图垂直偏移参数
       lyricsOffsetY, // 添加歌词垂直偏移参数
       foregroundSize, // 添加前景图尺寸参数
+      foregroundShape, // 添加前景图形状参数
+      foregroundAutoRotate, // 添加前景图自动旋转参数
       selectedFont, // 添加选择的字体参数
       setGenerating,
       setStatusText,
@@ -222,6 +228,8 @@ const MVGenerationSection = () => {
     setForegroundOffsetY(0); // 重置前景图垂直偏移
     setLyricsOffsetY(0); // 重置歌词垂直偏移
     setForegroundSize('medium'); // 重置前景图尺寸
+    setForegroundShape('roundedRect'); // 重置前景图形状
+    setForegroundAutoRotate(false); // 重置前景图自动旋转
     setProgress(0);
     setStatusText('');
     
@@ -360,6 +368,10 @@ const MVGenerationSection = () => {
             setLyricsOffsetY={setLyricsOffsetY}
             foregroundSize={foregroundSize}
             setForegroundSize={setForegroundSize}
+            foregroundShape={foregroundShape}
+            setForegroundShape={setForegroundShape}
+            foregroundAutoRotate={foregroundAutoRotate}
+            setForegroundAutoRotate={setForegroundAutoRotate}
           />
           
           {/* 步骤5：输入歌词时间轴 */}
