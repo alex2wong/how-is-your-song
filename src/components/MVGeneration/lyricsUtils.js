@@ -6,7 +6,8 @@
 export const parseLyrics = (lyricsText) => {
   const lyrics = [];
   // 支持\r\n和\n两种换行符
-  const lines = lyricsText.split(/\r\n|\n/).filter(line => line.trim() !== '');
+
+  const lines = lyricsText.replaceAll('\"', '').split(/\r\n|\n/).filter(line => line.trim() !== '');
   
   console.log('解析歌词，总行数:', lines.length);
   

@@ -33,7 +33,7 @@ const MVGenerationSection = () => {
   
   // 歌词显示风格
   const [lyricsPosition, setLyricsPosition] = useLocalStorageState('mvGenerator_lyricsPosition', { defaultValue: 'bottom' }); // 'left', 'right', 'center', 'bottom'
-  const [lyricsMaskStyle, setLyricsMaskStyle] = useLocalStorageState('mvGenerator_lyricsMaskStyle', { defaultValue: 'mask' }); // 'mask', 'noMask'
+  const [lyricsMaskStyle, setLyricsMaskStyle] = useLocalStorageState('mvGenerator_lyricsMaskStyle', { defaultValue: 'noMask' }); // 'mask', 'noMask'
   const [lyricsStrokeStyle, setLyricsStrokeStyle] = useLocalStorageState('mvGenerator_lyricsStrokeStyle', { defaultValue: 'noStroke' }); // 'stroke', 'noStroke'
   const [lyricsFontSize, setLyricsFontSize] = useLocalStorageState('mvGenerator_lyricsFontSize', { defaultValue: 28 }); // 数字类型，默认28像素
   const [lyricsColor, setLyricsColor] = useLocalStorageState('mvGenerator_lyricsColor', { defaultValue: '#ffcc00' }); // 主色，高亮歌词颜色
