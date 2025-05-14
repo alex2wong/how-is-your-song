@@ -99,7 +99,7 @@ const BackgroundImageSelector = ({
               position: 'absolute',
               top: '8px',
               right: '8px',
-              background: 'rgba(255, 255, 255, 0.8)',
+              background: 'rgba(249, 3, 3, 0.8)',
               border: 'none',
               borderRadius: '50%',
               width: '28px',
@@ -108,10 +108,10 @@ const BackgroundImageSelector = ({
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              color: '#4A5568'
+              color: '#fff'
             }}
           >
-            <RiFileUploadLine />
+            X
           </button>
         </div>
       )}
