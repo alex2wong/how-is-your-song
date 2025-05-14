@@ -409,7 +409,15 @@ const LyricsInput = ({ lyrics, setLyrics, selectedMusic }) => {
                           // 其他情况直接使用原始文本
                           setLyrics(text);
                         }
+                      } else if (text.trim().startsWith('\"')) {
+                        console.log('是带引号的整体LRC格式');
+                        // 去除开头和结尾的引号，然后按换行符分割
+                        const content = text.substring(1, text.length - 1);
+                        const lrcLines = content.replaceAll("\\n", "\n").replaceAll("\\r", "\r").split(/\r\n|\n/).filter(line => line.trim() !== '');
+                        console.log('lrcLines:', lrcLines);
+                        setLyrics(lrcLines.join('\n'));
                       } else {
+                        console.log('不是JSON格式，也不是带引号的整体LRC格式');
                         // 不是JSON格式，直接使用
                         setLyrics(text);
                       }
