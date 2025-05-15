@@ -204,6 +204,11 @@ export const renderFrame = (
             const radius = albumSize / 2;
             ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
             if (currentTime < 0.1) console.log('应用圆形路径');
+            
+            // 保存圆形图片的中心点和半径，用于后续绘制黑胶唱片圆环
+            ctx.vinylCenterX = centerX;
+            ctx.vinylCenterY = centerY;
+            ctx.vinylRadius = radius;
           } else {
             // 默认绘制圆角矩形路径
             ctx.moveTo(albumX + cornerRadius, albumY);
@@ -284,12 +289,73 @@ export const renderFrame = (
           // 绘制前景图
           ctx.drawImage(foreground, fgX, fgY, fgDrawWidth, fgDrawHeight);
           
-          // 添加边框
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-          ctx.lineWidth = 3;
-          ctx.stroke();
+          // 如果不是圆形模式，才添加边框
+          if (foregroundShape !== 'circle') {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+          }
           
           ctx.restore(); // 恢复绘图状态
+          
+          // 如果是圆形模式，绘制黑胶唱片圆环
+          if (foregroundShape === 'circle' && ctx.vinylCenterX && ctx.vinylCenterY && ctx.vinylRadius) {
+            const centerX = ctx.vinylCenterX;
+            const centerY = ctx.vinylCenterY;
+            const imageRadius = ctx.vinylRadius;
+            
+            // 绘制黑色唱片圆环 - 只绘制环形部分，不影响中间的图片
+            ctx.save();
+            
+            // 创建径向渐变，模拟黑胶唱片的光影效果
+            const vinylRingWidth = imageRadius * 0.45; // 唱片圆环宽度为图片半径的45%
+            const outerRadius = imageRadius + vinylRingWidth;
+            
+            // 使用环形路径，只绘制圆环部分
+            ctx.beginPath();
+            // 绘制外圆
+            ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
+            // 绘制内圆（逆时针方向，创建一个挖空区域）
+            ctx.arc(centerX, centerY, imageRadius, 0, Math.PI * 2, true);
+            
+            // 创建径向渐变
+            const gradient = ctx.createRadialGradient(
+              centerX, centerY, imageRadius,
+              centerX, centerY, outerRadius
+            );
+            
+            // 添加渐变颜色停止点 - 调暗50%
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
+            gradient.addColorStop(0.3, 'rgba(20, 20, 20, 0.95)');
+            gradient.addColorStop(0.6, 'rgba(10, 10, 10, 0.95)');
+            gradient.addColorStop(0.8, 'rgba(30, 30, 30, 0.95)');
+            gradient.addColorStop(1, 'rgba(5, 5, 5, 0.95)');
+            
+            // 填充圆环
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // 添加高光效果
+            // 创建高光渐变
+            const highlightAngle = (currentTime * 0.2) % (Math.PI * 2); // 随时间旋转的高光角度
+            const highlightX = centerX + Math.cos(highlightAngle) * (imageRadius + vinylRingWidth * 0.5);
+            const highlightY = centerY + Math.sin(highlightAngle) * (imageRadius + vinylRingWidth * 0.5);
+            
+            const highlightGradient = ctx.createRadialGradient(
+              highlightX, highlightY, 0,
+              highlightX, highlightY, vinylRingWidth * 0.8
+            );
+            
+            highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+            highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctx.beginPath();
+            ctx.arc(highlightX, highlightY, vinylRingWidth * 0.8, 0, Math.PI * 2);
+            ctx.fillStyle = highlightGradient;
+            ctx.fill();
+            
+            ctx.restore();
+          }
         }
       } catch (e) {
         console.error('绘制前景图时出错:', e);
