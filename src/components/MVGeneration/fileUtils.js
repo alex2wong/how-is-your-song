@@ -1,4 +1,18 @@
 /**
+ * 检查浏览器是否支持指定的媒体格式
+ * @param {string} mimeType - 要检查的MIME类型
+ * @returns {boolean} - 是否支持该格式
+ */
+export const isFormatSupported = (mimeType) => {
+  try {
+    return MediaRecorder.isTypeSupported(mimeType);
+  } catch (error) {
+    console.error('检查媒体格式支持时出错:', error);
+    return false;
+  }
+};
+
+/**
  * 处理音乐文件选择
  * @param {Event} e - 文件选择事件
  * @param {Function} setSelectedMusic - 设置选中音乐的状态函数

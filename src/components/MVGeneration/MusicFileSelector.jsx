@@ -1,5 +1,5 @@
 import React from 'react';
-import { RiMusic2Line, RiFileUploadLine } from 'react-icons/ri';
+import { RiMusic2Line, RiFileUploadLine, RiAlertLine } from 'react-icons/ri';
 import { handleMusicFileChange, handleClearMusic } from './fileUtils';
 
 /**
@@ -9,7 +9,8 @@ const MusicFileSelector = ({
   selectedMusic, 
   setSelectedMusic, 
   audioElement, 
-  musicInputRef 
+  musicInputRef,
+  isFormatSupported = true // 默认为true
 }) => {
   return (
     <div style={{ marginBottom: '20px' }}>
@@ -21,20 +22,33 @@ const MusicFileSelector = ({
             borderRadius: '8px',
             padding: '20px',
             textAlign: 'center',
-            cursor: 'pointer',
-            backgroundColor: '#f8fafc'
+            cursor: isFormatSupported ? 'pointer' : 'not-allowed',
+            backgroundColor: isFormatSupported ? '#f8fafc' : '#fef2f2',
+            opacity: isFormatSupported ? 1 : 0.8
           }}
-          onClick={() => musicInputRef.current.click()}
+          onClick={() => isFormatSupported && musicInputRef.current.click()}
         >
-          <RiMusic2Line style={{ fontSize: '2rem', color: '#6B66FF', marginBottom: '10px' }} />
-          <p style={{ color: '#718096' }}>点击选择音乐文件（支持 MP3、WAV 格式）</p>
-          <input
-            ref={musicInputRef}
-            type="file"
-            accept=".mp3,.wav,audio/*"
-            onChange={(e) => handleMusicFileChange(e, setSelectedMusic, audioElement)}
-            style={{ display: 'none' }}
-          />
+          {isFormatSupported ? (
+            <>
+              <RiMusic2Line style={{ fontSize: '2rem', color: '#6B66FF', marginBottom: '10px' }} />
+              <p style={{ color: '#718096' }}>点击选择音乐文件（支持 MP3、WAV 格式）</p>
+            </>
+          ) : (
+            <>
+              <RiAlertLine style={{ fontSize: '2rem', color: '#DC2626', marginBottom: '10px' }} />
+              <p style={{ color: '#DC2626', fontWeight: 'bold' }}>当前浏览器不支持视频录制</p>
+              <p style={{ color: '#718096', fontSize: '0.9rem' }}>请使用Chrome浏览器或其他支持视频录制的现代浏览器</p>
+            </>
+          )}
+          {isFormatSupported && (
+            <input
+              ref={musicInputRef}
+              type="file"
+              accept=".mp3,.wav,audio/*"
+              onChange={(e) => handleMusicFileChange(e, setSelectedMusic, audioElement)}
+              style={{ display: 'none' }}
+            />
+          )}
         </div>
       ) : (
         <div style={{ 

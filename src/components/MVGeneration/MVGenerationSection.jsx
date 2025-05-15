@@ -4,6 +4,7 @@ import useLocalStorageState from 'use-local-storage-state';
 // 导入子组件
 import MusicFileSelector from './MusicFileSelector';
 import SongInfoInput from './SongInfoInput';
+import { isFormatSupported } from './fileUtils';
 import VideoOrientationSelector from './VideoOrientationSelector';
 import BackgroundImageSelector from './BackgroundImageSelector';
 import LyricsInput from './LyricsInput';
@@ -22,6 +23,7 @@ import { generateMV } from './mvGenerationUtils';
 const MVGenerationSection = () => {
   // 基本状态
   const [selectedMusic, setSelectedMusic] = useState(null);
+  const [isFormatSupportedState, setIsFormatSupportedState] = useState(true); // 默认为true，表示支持
   const [songTitle, setSongTitle] = useLocalStorageState('mvGenerator_songTitle', { defaultValue: '' });
   const [authorName, setAuthorName] = useLocalStorageState('mvGenerator_authorName', { defaultValue: '' });
   const [videoOrientation, setVideoOrientation] = useLocalStorageState('mvGenerator_videoOrientation', { defaultValue: 'landscape' }); // 'landscape' 或 'portrait'
@@ -78,6 +80,20 @@ const MVGenerationSection = () => {
   const mediaRecorderRef = useRef(null);
   const animationFrameIdRef = useRef(null);
   const startTimeRef = useRef(0);
+  const chunksRef = useRef([]);
+  const audioContextRef = useRef(null);
+  
+  // 在组件加载时检查浏览器是否支持指定的视频录制格式
+  useEffect(() => {
+    const mimeType = 'video/mp4;codecs=avc1.42E01E,opus';
+    const supported = isFormatSupported(mimeType);
+    setIsFormatSupportedState(supported);
+    
+    if (!supported) {
+      console.error('当前浏览器不支持视频录制格式:', mimeType);
+      alert('当前浏览器不支持视频录制，无法生成MV。请使用Chrome浏览器或其他支持视频录制的现代浏览器。');
+    }
+  }, []);
   
   // 生成MV的函数
   const handleGenerateMV = () => {
@@ -337,7 +353,8 @@ const MVGenerationSection = () => {
             selectedMusic={selectedMusic} 
             setSelectedMusic={setSelectedMusic} 
             audioElement={audioElement} 
-            musicInputRef={musicInputRef} 
+            musicInputRef={musicInputRef}
+            isFormatSupported={isFormatSupportedState}
           />
           
           {/* 步骤2：输入歌曲信息 */}
