@@ -22,7 +22,28 @@ else
     exit 1
 fi
 
-# 删除超过一周的备份文件
-echo "正在清理超过一周的旧备份文件..."
-find "$BACKUP_DIR" -name "db_backup_*.tar.gz" -type f -mtime +7 -exec rm {} \;
+# 删除超过3天的备份文件
+echo "正在清理超过3天的旧备份文件..."
+
+# 获取3天前的日期时间戳
+CUTOFF_TIME=$(date -d "3 days ago" +%s)
+
+# 遍历备份目录中的所有备份文件
+for file in "$BACKUP_DIR"/db_backup_*.tar.gz; do
+    # 检查文件是否存在（防止通配符不匹配的情况）
+    [ -f "$file" ] || continue
+    
+    # 获取文件的修改时间戳
+    file_time=$(stat -c %Y "$file")
+    
+    # 如果文件修改时间早于截止时间，则删除该文件
+    if [ "$file_time" -lt "$CUTOFF_TIME" ]; then
+        echo "删除旧备份: $file"
+        rm "$file"
+    fi
+done
+
+# 使用find命令的另一种方式（作为备用）
+# find "$BACKUP_DIR" -name "db_backup_*.tar.gz" -type f -not -newermt "7 days ago" -delete
+
 echo "清理完成"
