@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { exampleLyrics } from './lyricsUtils';
 import { RiAiGenerate } from 'react-icons/ri';
-import { FaEdit, FaPlay, FaPause, FaPlus } from 'react-icons/fa';
+import { FaEdit, FaPlay, FaPause, FaPlus, FaDownload, FaUpload } from 'react-icons/fa';
 import { apiBase } from '../../api/analyze';
 import Modal from '../common/Modal';
 
 /**
  * 歌词输入组件
  */
-const LyricsInput = ({ lyrics, setLyrics, selectedMusic }) => {
+const LyricsInput = ({ lyrics, setLyrics, selectedMusic, songTitle }) => {
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [showLyricsEditor, setShowLyricsEditor] = useState(false);
   const [lyricsLines, setLyricsLines] = useState([]);
@@ -506,6 +506,116 @@ const LyricsInput = ({ lyrics, setLyrics, selectedMusic }) => {
             >
               手动制作滚动歌词
               <FaEdit />
+            </button>
+            <button 
+              onClick={() => {
+                if (!lyrics || lyrics.trim() === '') {
+                  alert('没有歌词内容可下载');
+                  return;
+                }
+                
+                // 创建Blob对象
+                const blob = new Blob([lyrics], { type: 'text/plain;charset=utf-8' });
+                
+                // 创建下载链接
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                // 设置文件名 - 优先使用UI上输入的歌曲标题
+                let filename = 'lyrics.lrc';
+                
+                // 优先级：1. UI输入的歌曲标题 > 2. LRC文件中的标题信息 > 3. 音乐文件名 > 4. 默认名
+                
+                // 1. 如果有UI上输入的歌曲标题，优先使用
+                if (songTitle && songTitle.trim() !== '') {
+                  filename = `${songTitle.trim()}.lrc`;
+                } else {
+                  // 2. 尝试从歌词内容中提取歌曲名
+                  const titleMatch = lyrics.match(/\[ti:([^\]]+)\]/i);
+                  if (titleMatch && titleMatch[1]) {
+                    filename = `${titleMatch[1].trim()}.lrc`;
+                  } 
+                  // 3. 如果有选择音乐文件，使用音乐文件名
+                  else if (selectedMusic && selectedMusic.name) {
+                    // 从音乐文件名中提取名称部分（不含扩展名）
+                    const musicName = selectedMusic.name.replace(/\.[^\.]+$/, '');
+                    filename = `${musicName}.lrc`;
+                  }
+                  // 4. 否则使用默认文件名 'lyrics.lrc'
+                }
+                
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                // 清理
+                setTimeout(() => {
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }, 100);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: 'transparent',
+                border: '1px solid rgb(52, 139, 165)',
+                borderRadius: '12px',
+                color: '#6B66FF',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: 'bold'
+              }}
+            >
+              下载LRC歌词
+              <FaDownload />
+            </button>
+            <input
+              type="file"
+              id="lrc-upload"
+              accept=".lrc,.txt"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                  try {
+                    const content = event.target.result;
+                    setLyrics(content);
+                  } catch (error) {
+                    console.error('读取LRC文件失败:', error);
+                    alert(`读取LRC文件失败: ${error.message}`);
+                  }
+                };
+                
+                reader.readAsText(file, 'UTF-8');
+                
+                // 重置input，以便可以重复上传同一个文件
+                e.target.value = null;
+              }}
+            />
+            <button 
+              onClick={() => {
+                document.getElementById('lrc-upload').click();
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: 'transparent',
+                border: '1px solid rgb(52, 139, 165)',
+                borderRadius: '12px',
+                color: '#6B66FF',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: 'bold'
+              }}
+            >
+              上传LRC歌词
+              <FaUpload />
             </button>
           </div>
         </div>

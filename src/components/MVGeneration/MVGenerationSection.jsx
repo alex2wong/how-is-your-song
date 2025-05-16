@@ -396,6 +396,7 @@ const MVGenerationSection = () => {
             lyrics={lyrics} 
             setLyrics={setLyrics} 
             selectedMusic={selectedMusic}
+            songTitle={songTitle}
           />
           
           {/* 步骤6：歌词显示位置 */}
