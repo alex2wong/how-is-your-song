@@ -214,11 +214,11 @@ export const useFileHandlers = (
         };
         
         // 点击模态框外部关闭
-        modalElement.onclick = (e) => {
-          if (e.target === modalElement) {
-            document.body.removeChild(modalElement);
-          }
-        };
+        // modalElement.onclick = (e) => {
+        //   if (e.target === modalElement) {
+        //     document.body.removeChild(modalElement);
+        //   }
+        // };
         
         // 组装模态框
         modalContent.style.position = 'relative';

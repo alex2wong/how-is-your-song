@@ -45,6 +45,12 @@ export default function Settings({ children }) {
     setIsOpen(false);
   };
 
+  const handleReset = () => {
+    localStorage.removeItem('gemini_key');
+    localStorage.removeItem('prompt_version');
+    localStorage.removeItem('model_name');
+  }
+
   return (
     <div className="settings-container" style={{ position: 'relative' }}>
       <button 
@@ -130,6 +136,24 @@ export default function Settings({ children }) {
               <option value="gemini-2.5-flash-preview-04-17">gemini-2.5-flash-preview-04-17</option>
             </select>
           </div>
+
+          <button 
+            onClick={handleReset}
+            style={{
+              background: 'var(--secondary-gradient)',
+              color: 'white',
+              border: 'none',
+              borderRadius: 'var(--border-radius)',
+              padding: '10px 16px',
+              cursor: 'pointer',
+              float: 'left',
+              fontWeight: '600',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            重置
+          </button>
           
           <button 
             onClick={handleSave}
