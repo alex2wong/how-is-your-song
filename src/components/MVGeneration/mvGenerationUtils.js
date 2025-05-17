@@ -118,11 +118,11 @@ export const generateMV = async ({
     alert('请选择背景图片或视频');
     return Promise.reject(new Error('未选择背景'));
   }
-  console.log('背景验证通过:', backgroundImage.file.name);
+  console.log('背景验证通过:', backgroundImage.preview || '预设背景');
   
   // 前景图是可选的，只在有前景图时记录日志
   if (foregroundImage) {
-    console.log('前景图验证通过:', foregroundImage.file.name);
+    console.log('前景图验证通过:', foregroundImage.preview || '预设前景');
     console.log('前景图形状:', foregroundShape);
     console.log('前景图自动旋转:', foregroundAutoRotate ? '是' : '否');
     console.log('前景图尺寸:', foregroundSize);

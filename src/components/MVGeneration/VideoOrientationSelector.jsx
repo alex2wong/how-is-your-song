@@ -6,7 +6,7 @@ import React from 'react';
 const VideoOrientationSelector = ({ videoOrientation, setVideoOrientation }) => {
   return (
     <div style={{ marginBottom: '20px' }}>
-      <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>3. 选择视频方向</h3>
+      <h3 style={{ marginBottom: '10px', fontSize: '1.1rem', color: '#4A5568' }}>4. 选择视频方向</h3>
       <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
         <div 
           onClick={() => setVideoOrientation('landscape')}

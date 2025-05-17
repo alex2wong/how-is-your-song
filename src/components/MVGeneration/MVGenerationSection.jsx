@@ -4,6 +4,7 @@ import useLocalStorageState from 'use-local-storage-state';
 // 导入子组件
 import MusicFileSelector from './MusicFileSelector';
 import SongInfoInput from './SongInfoInput';
+import TemplateSelector from './TemplateSelector';
 import { isFormatSupported } from './fileUtils';
 import VideoOrientationSelector from './VideoOrientationSelector';
 import BackgroundImageSelector from './BackgroundImageSelector';
@@ -25,6 +26,7 @@ const MVGenerationSection = () => {
   const [selectedMusic, setSelectedMusic] = useState(null);
   const [isFormatSupportedState, setIsFormatSupportedState] = useState(true); // 默认为true，表示支持
   const [songTitle, setSongTitle] = useLocalStorageState('mvGenerator_songTitle', { defaultValue: '' });
+  const [selectedTemplate, setSelectedTemplate] = useLocalStorageState('mvGenerator_selectedTemplate', { defaultValue: 'template1' });
   const [authorName, setAuthorName] = useLocalStorageState('mvGenerator_authorName', { defaultValue: '' });
   const [videoOrientation, setVideoOrientation] = useLocalStorageState('mvGenerator_videoOrientation', { defaultValue: 'landscape' }); // 'landscape' 或 'portrait'
   const [backgroundImage, setBackgroundImage] = useState(null);
@@ -92,6 +94,14 @@ const MVGenerationSection = () => {
     if (!supported) {
       console.error('当前浏览器不支持视频录制格式:', mimeType);
       alert('当前浏览器不支持视频录制，无法生成MV。请使用Chrome浏览器或其他支持视频录制的现代浏览器。');
+    }
+  }, []);
+  
+  // 在组件首次加载时应用默认模板
+  useEffect(() => {
+    // 只在首次加载时应用默认模板
+    if (selectedTemplate && !backgroundImage) {
+      applyTemplate(selectedTemplate);
     }
   }, []);
   
@@ -208,6 +218,82 @@ const MVGenerationSection = () => {
     }
   };
   
+  // 应用模板参数的函数
+  const applyTemplate = (templateId) => {
+    // 创建一个函数来处理背景图和前景图的加载
+    const createImageObject = (src) => {
+      if (!src || src === 'none') return null;
+      
+      // 创建符合BackgroundImageSelector组件期望的对象格式
+      return {
+        type: 'image',
+        preview: src,
+        file: null // 我们没有实际的File对象，但这个属性在预览时不是必需的
+      };
+    };
+    
+    // 根据模板ID应用不同的参数
+    if (templateId === 'template1') {
+      // 1. 裙角飞扬（竖版）
+      setVideoOrientation('portrait');
+      setBackgroundImage(createImageObject('/p1.png'));
+      setForegroundImage(null);
+      setLyricsPosition('left');
+      setLyricsOffsetY(9);
+      setLyricsDisplayMode('multiLine');
+      setLyricsMaskStyle('noMask');
+      setLyricsStrokeStyle('noStroke');
+      setLyricsFontSize(36);
+      setLyricsColor('#00ccff');
+      setLyricsSecondaryColor('#ffffff');
+      setTitleFontSize(40);
+      setTitleMargin(80);
+      setTitleColor('#00ccff');
+      setTitleSecondaryColor('#ffffff');
+      setTitlePosition('leftTop');
+    } else if (templateId === 'template2') {
+      // 2. 彩色气球（横版）
+      setVideoOrientation('landscape');
+      setBackgroundImage(createImageObject('/p2.png'));
+      setForegroundImage(null);
+      setLyricsPosition('bottom');
+      setLyricsOffsetY(9);
+      setLyricsDisplayMode('singleLine');
+      setLyricsMaskStyle('noMask');
+      setLyricsStrokeStyle('stroke');
+      setLyricsFontSize(45);
+      setLyricsColor('#00ccff');
+      setLyricsSecondaryColor('#ffffff');
+      setTitleFontSize(60);
+      setTitleMargin(260);
+      setTitleColor('#00ccff');
+      setTitleSecondaryColor('#ffffff');
+      setTitlePosition('top');
+    } else if (templateId === 'template3') {
+      // 3. 黑胶唱片（竖版）
+      setVideoOrientation('portrait');
+      setBackgroundImage(createImageObject('/p3.png'));
+      setForegroundImage(createImageObject('/p2.png'));
+      setForegroundSize('medium');
+      setForegroundShape('circle');
+      setForegroundAutoRotate(true);
+      setForegroundOffsetY(-156);
+      setLyricsPosition('center');
+      setLyricsOffsetY(215);
+      setLyricsDisplayMode('multiLine');
+      setLyricsMaskStyle('noMask');
+      setLyricsStrokeStyle('stroke');
+      setLyricsFontSize(36);
+      setLyricsColor('#00ccff');
+      setLyricsSecondaryColor('#ffffff');
+      setTitleFontSize(50);
+      setTitleMargin(160);
+      setTitleColor('#00ccff');
+      setTitleSecondaryColor('#ffffff');
+      setTitlePosition('top');
+    }
+  };
+
   // 重置所有字段的函数
   const resetAllFields = () => {
     // 清理音频元素
@@ -365,7 +451,14 @@ const MVGenerationSection = () => {
             setAuthorName={setAuthorName} 
           />
           
-          {/* 步骤3：选择视频方向 */}
+          {/* 步骤3：选择预设模板 */}
+          <TemplateSelector
+            selectedTemplate={selectedTemplate}
+            setSelectedTemplate={setSelectedTemplate}
+            applyTemplate={applyTemplate}
+          />
+          
+          {/* 步骤4：选择视频方向 */}
           <VideoOrientationSelector 
             videoOrientation={videoOrientation} 
             setVideoOrientation={setVideoOrientation} 
