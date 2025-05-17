@@ -69,3 +69,8 @@ export const getAuthorNameColor = (authorName) => {
 export const copyShareLinkforSong = (songId) => {
   navigator.clipboard.writeText(`https://${location.host}/song/${songId}`);
 }
+
+
+export const copySharePosterLinkForSong = (songId) => {
+  navigator.clipboard.writeText(`https://${location.host}/poster/song/${songId}`);
+}

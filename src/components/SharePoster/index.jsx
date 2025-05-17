@@ -1,48 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { RiMusic2Fill, RiPlayFill } from "react-icons/ri";
 import "./index.css";
-import mothersdayImg from "./mothersday.png"; // 请将母亲节插画图片放在本目录下
+import DefaultCover from "./default_cover.jpg";
 import { useBottomPlayer } from "../BottomPlayer/BottomPlayerContext";
-import { apiBase } from "../../utils";
+import { apiBase, copySharePosterLinkForSong, scoreClassStyles } from "../../utils";
 import domtoimage from "dom-to-image-more";
 import { useToast } from "../ToastMessage/ToastContext";
 import { QRCodeCanvas } from 'qrcode.react';
-
-
-const lovelyWords = `
-亲爱的妈妈，感谢您的付出与爱，祝您永远快乐!
-在无涯无际的时间海里
-漂浮着一个无知无觉的我
-是她划着一只爱的小船
-把我打捞到了人世间
-在无怨无悔的麦地田里
-为我种下无忧无虑的春天
-让我跟着花草一起疯长
-把风雨扛在自己双肩
-岁月的手啊
-无影无形
-却将蒲公英的孩子
-带到海角天边
-在无穷无尽的庸碌日常
-我一次又一次怀念
-在无亲无故的异地他乡
-我一次又一次梦见
-一场无声无息的大雪
-已经落满了她的发间
-岁月的手啊
-无影无形
-却将蒲公英的孩子
-带到海角天边
-在无穷无尽的庸碌日常
-我一次又一次怀念
-带到海角天边
-在无穷无尽的庸碌日常
-我一次又一次怀念`;
+import { parseSongStructureLyrics } from "../../utils/lyrics";
+import { FaShare } from "react-icons/fa";
 
 const defaultMessage = `❤️ 亲爱的妈妈，谢谢对我的付出与无私的爱，祝您永远快乐! ❤️你`;
 
 /**
- * SharePoster 母亲节歌曲海报组件
+ * SharePoster 分享海报组件
  * @param {string} songName 歌曲名
  * @param {string} message 写给妈妈的一句话
  * @param {string} [comment] 歌曲整体评价（默认展示）
@@ -51,14 +22,19 @@ const defaultMessage = `❤️ 亲爱的妈妈，谢谢对我的付出与无私�
 const SharePoster = ({ song, message, comment, qrUrl }) => {
   const { play, pause, isPlaying, audioUrl } = useBottomPlayer();
   const songAudioUrl = song.url ? `${apiBase}/audio/${song.url.replace("uploads/", "")}` : '';
-  const songName = song.song_name ?? "献给妈妈的歌";
+  const songName = song.song_name ?? "";
   const contentRef = useRef(null);
-  const songAuthor = song.authorName ?? '妈妈的儿女'
+  const songAuthor = song.authorName ?? '匿名'
   
-  const [posterMessage,setMessage] = useState(defaultMessage)
+  const [posterMessage, setMessage] = useState(song.comments)
+  const [currentLyricIndex, setCurrentLyricIndex] = useState(2); // 当前高亮歌词索引
+  const [lyrics, setLyrics] = useState([]); // 解析后的歌词数组
+  const [activeTab, setActiveTab] = useState('message'); // 当前激活的标签页：message/lyrics
+  const [totalScore, _]= useState(song.overall_score);
+  const { bgColor, classTxt } = scoreClassStyles(song.overall_score);
+  const [switchedTab, setSwitchedTab] = useState(false);
 
   const { showToast } = useToast();
-
   const qrValue = qrUrl || (typeof window !== 'undefined' ? window.location.href : '');
 
   // 播放/暂停按钮点击事件
@@ -67,14 +43,12 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
       pause();
     } else {
       play(songAudioUrl, song);
+      if (!switchedTab) {
+        setActiveTab('lyrics');
+      }
+      setSwitchedTab(true);
     }
   };
-
-  const getRandomTwoSentenceForPosterMessage = () => {
-    const words = lovelyWords.split('\n');
-    const randomIndex = Math.floor(Math.random() * words.length);
-    return words[randomIndex];
-  }
 
   const downloadSharePoster = async (format = "png") => {
     try {
@@ -105,7 +79,7 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
       // 下载为PNG
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = `母亲节歌曲-${songName}.png`;
+      link.download = `爱乐评-${songName}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -116,29 +90,56 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
     }
   };
 
-  const imageSet = {
-    src: 'https://aiyueping.com/favicon.ico',
-                height: 16,
-                width: 16,
-                excavate: true,
-                opacity: 1,
-                crossOrigin: 'anonymous'
-  }
+  useEffect(() => {
+    // 解析歌词
+    const parsedLyrics = parseSongStructureLyrics(song.structure.comments);
+    setLyrics(parsedLyrics);
 
-  useEffect(()=>{
-    
-  }, [])
+    // 监听音频播放进度，更新当前歌词
+    const handleTimeUpdate = () => {
+      const audioElement = document.querySelector('audio');
+      if (!audioElement) return;
+
+      const currentTime = audioElement.currentTime;
+      const index = parsedLyrics.findIndex((lyric, i) => {
+        const nextLyric = parsedLyrics[i + 1];
+        return currentTime >= lyric.time && (!nextLyric || currentTime < nextLyric.time);
+      });
+
+      if (index !== -1) {
+        setCurrentLyricIndex(index);
+      }
+    };
+
+    const audioElement = document.querySelector('audio');
+    if (audioElement) {
+      audioElement.addEventListener('timeupdate', handleTimeUpdate);
+    }
+
+    return () => {
+      const audioElement = document.querySelector('audio');
+      if (audioElement) {
+        audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+      }
+    };
+  }, [song.lyrics]);
+
+  const isMobile = screen.width < 480;
+  const cardClasses = `share-poster-card${isMobile? ' card-mobile' : ''}`;
+  const imageWrapperClasses = `poster-image-wrapper${isMobile?' image-wrapper-mobile' : ''} ${isPlaying ? ' circle is-rotating' : ''}`;
+  const titleMobileClasses = `poster-song-title${isMobile?' poster-title-mobile' : ''}`;
+  const posterMessageClasses = `poster-message${isMobile?' poster-message-mobile' : ''}`;
 
   return (
     <div className="share-poster-root">
-      <div ref={contentRef} className="share-poster-card">
+      <div ref={contentRef} className={cardClasses}>
         {/* 封面插画+歌曲名+作者名融合 */}
-        <div onClick={handlePlayPause} className={`poster-image-wrapper${isPlaying ? ' circle is-rotating' : ''}`}>
-          <img src={mothersdayImg} alt="母亲节插画" className={`poster-image${isPlaying ? ' circle is-rotating' : ''}`} />
+        <div onClick={handlePlayPause} className={imageWrapperClasses}>
+          <img src={DefaultCover} alt="封面" className={`poster-image${isPlaying ? ' circle is-rotating' : ''}`} />
           <div className="poster-image-overlay" style={{
             background: `${isPlaying ? 'transparent': 'transparent'}`
           }}>
-            <div className="poster-song-title">{songName}</div>
+            <div className={titleMobileClasses}>{songName}</div>
             {songAuthor && <div className="poster-song-author">作者：{songAuthor}</div>}
           </div>
           {/* 半透明播放按钮 */}
@@ -147,17 +148,95 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
           </div>
         </div>
         {/* 胶带效果 */}
-        <div className="poster-tape tape-top-left" />
-        <div className="poster-tape tape-top-right" />
-        {/* 写给妈妈的一句话/整体评价 */}
-        <div className="poster-message" suppressContentEditableWarning contentEditable>
-          {posterMessage ?? defaultMessage}
+        <div className="poster-tape tape-top-left">
         </div>
-        {/* #Music mood 标签 */}
-        <div className="poster-tag-row">
-          <div className="poster-tag">#写给妈妈的歌 </div>
-          <div className="poster-tag">#母亲节特辑 </div>
+        <div className="poster-tape tape-top-right">
+          <FaShare
+              style={{
+                width: "16px",
+                height: "16px",
+                // flexShrink: 0,
+                cursor: "pointer",
+                color: "var(--text-secondary, #6B66FF)",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  color: "#6B66FF",
+                },
+              }}
+              onClick={() => {
+                copySharePosterLinkForSong(song._id);
+                showToast("链接已复制到剪贴板");
+              }}
+            />
         </div>
+        {/* 标签页切换器 */}
+        <div className="poster-tabs">
+          <div 
+            className={`poster-tab ${activeTab === 'message' ? 'active' : ''}`}
+            onClick={() => setActiveTab('message')}
+          >
+          </div>
+          <div 
+            className={`poster-tab ${activeTab === 'lyrics' ? 'active' : ''}`}
+            onClick={() => setActiveTab('lyrics')}
+          >
+            
+          </div>
+        </div>
+
+        {/* 内容区域 */}
+        <div className="poster-content" style={{ transform: `translateX(${activeTab === 'message' ? '25%' : '-25%'})` }}>
+          <div className={posterMessageClasses} style={{ opacity: `${activeTab === 'message' ? 1: 0}` }} suppressContentEditableWarning>
+            {posterMessage ?? defaultMessage}
+            <div style={{ marginTop: 6 }}>
+                <span
+                style={{
+                  background: bgColor,
+                  color: "white",
+                  padding: "2px 8px",
+                  borderRadius: "12px",
+                  fontSize: "14px",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                {totalScore}分
+              </span>
+              <span
+                style={{
+                  color: bgColor,
+                  fontWeight: 700,
+                  marginLeft: 4,
+                }}
+              >
+                {classTxt}
+              </span>
+            </div>
+          </div>
+          <div className="poster-lyrics" style={{ opacity: `${activeTab !== 'message' ? 1: 0}` }}>
+            {lyrics.slice(Math.max(0, currentLyricIndex - 2), currentLyricIndex + 3).map((lyric, index) => {
+              const isCenter = index === Math.min(2, currentLyricIndex);
+              return (
+                <div
+                  key={index}
+                  className={`lyric-line ${isCenter ? 'active' : ''}`}
+                  style={{
+                    fontSize: isCenter ? '1.2em' : '1em',
+                    opacity: isCenter ? 1 : 0.6,
+                    transform: `scale(${isCenter ? 1.1 : 1})`,
+                    fontWeight: isCenter ? 'bold' : 'normal',
+                    color: isCenter ? '#6B66FF' : '#666',
+                    margin: '8px 0',
+                    transition: 'all 0.3s ease',
+                    textAlign: 'center'
+                  }}
+                >
+                  {lyric.text}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* 左下角 logo */}
         <div className="poster-logo">
           <RiMusic2Fill className="poster-logo-icon" />
@@ -171,7 +250,7 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
             {/**保存歌曲海报 */}
           <QRCodeCanvas title="AiYuePing" value={qrValue} level="M" size={60} bgColor="#fff" fgColor="rgb(191, 167, 106)" includeMargin={false} 
           />
-                      <div className="poster-qrcode-text" >点击保存海报</div>
+                      <div className="poster-qrcode-text" >扫码听听看</div>
 
         </div>
       </div>

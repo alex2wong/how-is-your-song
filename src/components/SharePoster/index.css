@@ -1,11 +1,11 @@
 .share-poster-root {
   width: 100vw;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #e8f0ff 0%, #fffbe7 100%);
+  min-height: 95vh;
+  background: linear-gradient(135deg, rgba(107, 102, 255, 0.1) 0%, rgba(107, 102, 255, 0.05) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 0;
+  padding: 36px 0;
 }
 
 .share-poster-card {
@@ -13,18 +13,21 @@
   width: 380px;
   min-height: 520px;
   background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 1.5px 0 #f7e7c6;
-  padding: 28px 24px 64px 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(107, 102, 255, 0.1), 0 1.5px 0 rgba(107, 102, 255, 0.2);
+  padding: 46px 32px 72px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: visible;
+  overflow: hidden;
   transition: box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.2s cubic-bezier(.4,2,.6,1);
 }
-.share-poster-card:hover {
-  box-shadow: 0 16px 48px 0 rgba(191,167,106,0.18), 0 4px 24px #f7e7c6;
-  transform: translateY(-2px) scale(1.01);
+
+.card-mobile {
+  width: 90vw;
+  min-height: 600px;
+  padding: 24px 20px 48px 20px;
+  position: relative;
 }
 
 .poster-image-wrapper {
@@ -38,10 +41,17 @@
   position: relative;
   transition: box-shadow 0.3s, transform 0.2s, border-radius 0.3s;
 }
+
+.image-wrapper-mobile {
+  width: calc(90vw - 96px);
+  height: calc(90vw - 96px);
+  margin-bottom: 24px;
+}
+
 .poster-image-wrapper.circle {
   border-radius: 50%;
-  box-shadow: 0 8px 32px rgba(191,167,106,0.18), 0 2px 8px #f7e7c6, 0 0 0 8px #fffbe7;
-  border: 6px solid #f7e7c6;
+  box-shadow: 0 8px 32px rgba(107, 102, 255, 0.15), 0 2px 8px rgba(107, 102, 255, 0.1), 0 0 0 8px rgba(107, 102, 255, 0.05);
+  border: 6px solid rgba(107, 102, 255, 0.2);
   overflow: visible;
 }
 
@@ -54,7 +64,7 @@
 }
 .poster-image.circle {
   border-radius: 50%;
-  box-shadow: 0 0 0 8px #fffbe7 inset;
+  box-shadow: 0 0 0 8px rgba(107, 102, 255, 0.05) inset;
 }
 
 .poster-image-overlay {
@@ -78,7 +88,7 @@
   font-size: 1.3rem;
   color: #fff;
   font-weight: bold;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.25), 0 1px 0 #f7e7c6;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.25), 0 1px 0 #5a4d2b;
   margin-bottom: 4px;
   letter-spacing: 1.2px;
   text-align: center;
@@ -90,9 +100,9 @@
 
 .poster-song-author {
   font-size: 1.1rem;
-  color: #f6f0df;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.25), 0 1px 0 #5a4d2b;
   font-weight: bold;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.18);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
   text-align: left;
   max-width: 80%;
@@ -102,7 +112,7 @@
 }
 
 .play-button {
-    opacity: 0.2;
+    opacity: 0.6;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -119,7 +129,7 @@
     z-index: 3;
 
     &:hover {
-      opacity: 0.6;
+      opacity: 0.8;
     }
 }
 
@@ -134,47 +144,113 @@
   text-shadow: 0 2px 8px #f7e7c6;
 }
 
+.poster-title-mobile {
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+}
+
 .poster-tape {
   position: absolute;
   width: 60px;
-  height: 18px;
-  background: #f7e7c6;
+  height: 24px;
+  /* background: rgba(107, 102, 255, 0.2); */
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  /* box-shadow: 0 2px 6px rgba(107, 102, 255, 0.1); */
   z-index: 2;
 }
 .tape-top-left {
-  top: 12px;
-  left: 24px;
-  transform: rotate(-8deg);
+  top: 10px;
+  left: 10px;
+  transform: rotate(0deg);
 }
 .tape-top-right {
-  top: 12px;
-  right: 24px;
-  transform: rotate(7deg);
+  top: 16px;
+  right: 16px;
+  text-align: right;
+  transform: rotate(0deg);
+}
+
+.poster-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.poster-tab {
+  font-size: 1rem;
+  color: #666;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(107, 102, 255, 0.05);
+}
+
+.poster-tab.active {
+  color: #fff;
+  background: #6B66FF;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(107, 102, 255, 0.2);
+}
+
+.poster-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 0;
+  width: 200%;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.poster-lyrics {
+  width: 50%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: auto;
+  padding: 20px;
+  transition: opacity 0.32s;
 }
 
 .poster-message {
-  margin: 18px 0 8px 0;
+  width: 50%;
   font-size: 1.0rem;
   font-weight: 500px;
-  color: #5a4d2b;
-  background: rgba(255, 249, 230, 0.7);
-  border-radius: 8px;
-  padding: 12px 16px;
-  min-height: 48px;
+  color: #333;
+  background: rgba(107, 102, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px 20px;
+  min-height: 100px;
   text-align: center;
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  box-shadow: 0 1px 4px rgba(247,231,198,0.15);
-  transition: box-shadow 0.22s, transform 0.18s;
+  transition: opacity 0.32s, transform 0.18s;
   cursor: pointer;
 }
-/* .poster-message:hover {
-  box-shadow: 0 6px 18px 0 rgba(191,167,106,0.18);
-  background: #fffbe7;
-  color: #a88b3a;
-  transform: scale(1.04) rotate(-1deg);
-} */
+
+
+.poster-message::before {
+  content: '“';
+  position: absolute;
+  top: -5px;
+  left: 10px;
+  font-size: 40px;
+  color: var(--primary);
+  font-family: serif;
+}
+
+.poster-message-mobile {
+  font-size: 1.3rem;
+  margin: 20px 0;
+  padding: 20px 20px;
+}
+
+.poster-message:hover {
+  box-shadow: 0 6px 18px 0 rgba(107, 102, 255, 0.15);
+  /* background: rgba(107, 102, 255, 0.15); */
+  transform: scale(1.01) rotate(0deg);
+}
 
 .poster-tag-row {
   display: flex;
@@ -185,43 +261,50 @@
 
 .poster-tag {
   font-size: 0.95rem;
-  color: #bfa76a;
-  background: #f7e7c6;
-  border-radius: 6px;
-  padding: 3px 12px;
+  color: #6B66FF;
+  background: rgba(107, 102, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px 14px;
   letter-spacing: 1px;
   font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
-  box-shadow: 0 2px 8px rgba(191,167,106,0.08);
+  box-shadow: 0 2px 8px rgba(107, 102, 255, 0.08);
   cursor: pointer;
   transition: box-shadow 0.25s, transform 0.18s, background 0.18s;
 }
+
+@media screen and (max-width: 480px) {
+  .poster-tag {
+    font-size: 1.1rem;
+    padding: 6px 18px;
+  }
+}
 .poster-tag:hover {
-  box-shadow: 0 6px 18px 0 rgba(191,167,106,0.18);
-  background: #ffe9b3;
-  color: #a88b3a;
+  box-shadow: 0 6px 18px 0 rgba(107, 102, 255, 0.15);
+  background: rgba(107, 102, 255, 0.15);
+  color: #5652CC;
   transform: scale(1.05) rotate(-1deg);
 }
 
 .poster-logo {
   position: absolute;
-  left: 18px;
-  bottom: 18px;
+  left: 24px;
+  bottom: 24px;
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #bfa76a;
+  color: #6B66FF;
   font-size: 1.1rem;
   opacity: 0.92;
   cursor: pointer;
   transition: filter 0.2s, transform 0.18s;
 }
-/* .poster-logo:hover {
-  filter: drop-shadow(0 2px 8px #bfa76a);
+.poster-logo:hover {
+  filter: drop-shadow(0 2px 8px rgba(107, 102, 255, 0.3));
   transform: scale(1.08) rotate(-2deg);
-} */
+}
 .poster-logo-icon {
   font-size: 1.2rem;
-  color: #bfa76a;
+  color: #6B66FF;
 }
 .poster-logo-text {
     font-size: 0.8rem;
@@ -231,20 +314,20 @@
 
 .poster-qrcode-placeholder {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
+  right: 24px;
+  bottom: 24px;
   width: 60px;
   height: 60px;
-  background: #e0e0e0;
-  border-radius: 10px;
+  background: rgba(107, 102, 255, 0.1);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  color: #aaa;
+  color: #6B66FF;
   font-size: 0.95rem;
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(107, 102, 255, 0.08);
   cursor: pointer;
   transition: box-shadow 0.22s, transform 0.18s;
 }
@@ -253,9 +336,9 @@
 }
 
 .poster-qrcode-placeholder:hover {
-  box-shadow: 0 8px 24px 0 rgba(191,167,106,0.18);
-  background: #ffe9b3;
-  color: #a88b3a;
+  box-shadow: 0 8px 24px 0 rgba(107, 102, 255, 0.15);
+  background: rgba(107, 102, 255, 0.15);
+  color: #5652CC;
   transform: scale(1.05) rotate(1deg);
 }
 

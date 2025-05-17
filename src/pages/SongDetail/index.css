@@ -15,9 +15,9 @@
   }
 
 .tag-entry-content {
-  width: 160px;
+  width: 140px;
   height: 30px;
-  padding-left: 2px;
+  padding: 4px;
   opacity: 0.8;
   background: #eed5a1;
   border-radius: 8px;
@@ -33,5 +33,6 @@
 
   &:hover {
     opacity: 1;
+    text-decoration: none;
   }
 }

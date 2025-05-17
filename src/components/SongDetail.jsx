@@ -20,6 +20,7 @@ import { useToast } from "./ToastMessage/ToastContext";
 import RadarChart from "./chart";
 import domtoimage from "dom-to-image-more";
 import { jsPDF } from "jspdf";
+import { parseSongStructureLyrics } from "../utils/lyrics";
 
 /**
  * 
@@ -196,28 +197,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
       </div>
     );
   };
-
-  const parseLyrics = (structureComment) => {
-    if (!structureComment) return [];
-    const matches = structureComment.match(
-      /\[\d{2}:\d{2}\.\d{2}\].*?(?=\n|$)/g
-    );
-    if (!matches) return [];
-    return matches
-      .map((line) => {
-        const timeMatch = line.match(/\[(\d{2}):(\d{2}\.\d{2})\]/);
-        const text = typeof line === 'string' ? line.replace(/\[\d{2}:\d{2}\.\d{2}\]/, "").trim() : '';
-        if (timeMatch) {
-          const minutes = parseInt(timeMatch[1]);
-          const seconds = parseFloat(timeMatch[2]);
-          const time = minutes * 60 + seconds;
-          return { time, text };
-        }
-        return null;
-      })
-      .filter((item) => item !== null);
-  };
-
+  
   const handleScroll = (e) => {
     // stop event propagation
     e.stopPropagation();
@@ -425,16 +405,13 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
               position: "relative",
             }}
           >
-            {/* 增加 母亲节特辑海报的入口，可爱的 tag 入口样式 */}
-
-            <div
+            <a
               className="tag-entry-content"
-              onClick={() => {
-                location.href = `/poster/song/${selectedSong._id}`;
-              }}
+              target="_blank"
+              href={`/poster/song/${selectedSong._id}`}
             >
-              <span className="tag-entry-text">❤️ 母亲节歌曲海报</span>
-            </div>
+              <span className="tag-entry-text">🎵音乐分享海报</span>
+            </a>
             {isLoading ? (
               <FaSpinner
                 style={{
@@ -964,7 +941,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                 border: "1px solid rgba(0, 0, 0, 0.05)",
               }}
             >
-              {parseLyrics(selectedSong.structure.comments).map(
+              {parseSongStructureLyrics(selectedSong.structure.comments).map(
                 (lyric, index) => (
                   <div
                     key={index}
