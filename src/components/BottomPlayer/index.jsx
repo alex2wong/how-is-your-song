@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useBottomPlayer } from './BottomPlayerContext';
-import { RiPlayFill, RiPauseFill, RiVolumeMuteFill, RiVolumeUpFill} from 'react-icons/ri'
+import { RiPlayFill, RiPauseFill, RiVolumeMuteFill, RiVolumeUpFill, RiSkipBackFill, RiSkipForwardFill, RiPlayListFill } from 'react-icons/ri'
 import { scoreClassStyles } from '../../utils';
 
 const BottomPlayer = () => {
@@ -13,10 +13,16 @@ const BottomPlayer = () => {
     seekTo,
     setAudioVolume,
     audioRef,
-    songInfo
+    songInfo,
+    playlist,
+    currentIndex,
+    playNext,
+    playPrevious,
+    playFromPlaylist
   } = useBottomPlayer();
 
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [showPlaylist, setShowPlaylist] = useState(false);
   const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
   const [currentSpeed, setCurrentSpeed] = useState(1);
 
@@ -49,25 +55,8 @@ const BottomPlayer = () => {
   const currentTime = audioRef.current ? audioRef.current.currentTime : 0;
   const duration = audioRef.current ? audioRef.current.duration : 0;
 
-  if (isError) {
-    return (
-      <div className="bottom-player-error" style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: '#fff',
-        borderTop: '1px solid #eee',
-        padding: '8px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#ff4d4f',
-      }}>
-        音频加载失败
-      </div>
-    );
-  }
+  // 移除错误显示，即使发生错误也显示正常播放界面
+  // 错误处理逻辑已移至BottomPlayerContext.jsx中的handleError函数
 
   // 获取歌曲名称（如果有）
   const getSongName = () => {
@@ -145,6 +134,26 @@ const BottomPlayer = () => {
 
       {/* 播放控制区域 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        {playlist.length > 0 && (
+          <button
+            onClick={playPrevious}
+            style={{
+              cursor: 'pointer',
+              width: 30,
+              height: 30,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(107, 102, 255, 0.1)',
+              color: '#6B66FF',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <RiSkipBackFill style={{ width: 16, height: 16, flexShrink: 0 }} color="#6B66FF" />
+          </button>
+        )}
         <button
           onClick={togglePlay}
           style={{
@@ -163,6 +172,27 @@ const BottomPlayer = () => {
         >
           {isPlaying ? <RiPauseFill style={{ width: 20, height: 20, flexShrink: 0 }} color="#fff" /> : <RiPlayFill style={{ width: 20, height: 20, flexShrink: 0 }} color="#fff" />}
         </button>
+        
+        {playlist.length > 0 && (
+          <button
+            onClick={playNext}
+            style={{
+              cursor: 'pointer',
+              width: 30,
+              height: 30,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(107, 102, 255, 0.1)',
+              color: '#6B66FF',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <RiSkipForwardFill style={{ width: 16, height: 16, flexShrink: 0 }} color="#6B66FF" />
+          </button>
+        )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666', fontSize: '12px' }}>
           {formatTime(currentTime)}
@@ -221,6 +251,136 @@ const BottomPlayer = () => {
             }}
           />
         </div>
+        
+        {playlist.length > 0 && (
+          <div className="playlist-control" style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowPlaylist(!showPlaylist)}
+              style={{
+                cursor: 'pointer',
+                width: 30,
+                height: 30,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: 'none',
+                borderRadius: '50%',
+                backgroundColor: showPlaylist ? '#6B66FF' : 'rgba(107, 102, 255, 0.1)',
+                color: showPlaylist ? '#fff' : '#6B66FF',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <RiPlayListFill style={{ width: 16, height: 16, flexShrink: 0 }} color={showPlaylist ? '#fff' : '#6B66FF'} />
+            </button>
+            
+            {showPlaylist && (
+              <div 
+                style={{
+                  position: 'absolute',
+                  bottom: '40px',
+                  right: 0,
+                  width: '300px',
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  backgroundColor: '#fff',
+                  borderRadius: '8px',
+                  boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)',
+                  zIndex: 1001,
+                  padding: '12px'
+                }}
+              >
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  marginBottom: '12px',
+                  borderBottom: '1px solid #eee',
+                  paddingBottom: '8px'
+                }}>
+                  <h3 style={{ margin: 0, fontSize: '16px' }}>播放列表 ({playlist.length}首)</h3>
+                  <button 
+                    onClick={() => setShowPlaylist(false)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      fontSize: '18px',
+                      cursor: 'pointer',
+                      color: '#666'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <div>
+                  {playlist.map((song, index) => (
+                    <div 
+                      key={index}
+                      onClick={() => currentIndex !== index && playFromPlaylist(index)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        backgroundColor: currentIndex === index ? 'rgba(107, 102, 255, 0.1)' : 'transparent',
+                        marginBottom: '4px',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                    >
+                      <div style={{ 
+                        width: '24px', 
+                        height: '24px', 
+                        borderRadius: '50%', 
+                        backgroundColor: currentIndex === index ? '#6B66FF' : '#eee',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: '8px'
+                      }}>
+                        {currentIndex === index && isPlaying ? 
+                          <RiPauseFill style={{ width: 14, height: 14 }} color="#fff" /> : 
+                          <RiPlayFill style={{ width: 14, height: 14 }} color={currentIndex === index ? '#fff' : '#666'} />}
+                      </div>
+                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ 
+                          fontWeight: currentIndex === index ? 'bold' : 'normal',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          fontSize: '14px'
+                        }}>
+                          {song.song_name ? song.song_name.replace(/\.[^/.]+$/, "") : ''}
+                        </div>
+                        {song.authorName && (
+                          <div style={{ 
+                            fontSize: '12px', 
+                            color: '#666',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}>
+                            {song.authorName}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ 
+                        padding: '2px 6px', 
+                        borderRadius: '4px', 
+                        backgroundColor: scoreClassStyles(song.overall_score).bgColor,
+                        color: '#fff',
+                        fontSize: '10px',
+                        marginLeft: '8px'
+                      }}>
+                        {song.overall_score.toFixed(1)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

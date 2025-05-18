@@ -1,6 +1,9 @@
 import React from 'react';
 import { FaThumbsUp } from 'react-icons/fa';
+import { RiPlayFill } from 'react-icons/ri';
 import { scoreClassStyles, getAuthorNameColor } from '../utils';
+import { useBottomPlayer } from './BottomPlayer/BottomPlayerContext';
+import { apiBase } from '../utils';
 
 const RankingSection = ({ 
   activeRankTab, 
@@ -9,6 +12,44 @@ const RankingSection = ({
   rankLoading, 
   fetchSongDetail 
 }) => {
+  const { addToPlaylist, playFromPlaylist, play, audioRef } = useBottomPlayer();
+  
+  // 播放单首歌曲并将当前分类下所有歌曲加入播放列表
+  const handlePlaySong = (song, index, e) => {
+    e.stopPropagation(); // 阻止事件冒泡，避免触发fetchSongDetail
+    
+    console.log('点击播放按钮', song, index);
+    
+    // 直接使用歌曲ID获取详情并播放
+    fetch(`${apiBase}/song/${song._id}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const songDetail = data[0];
+          console.log('获取到歌曲详情:', songDetail);
+          
+          // 构建音频URL
+          const url = songDetail.url ? `${apiBase}/audio/${songDetail.url.replace("uploads/", "")}` : '';
+          
+          if (url) {
+            // 将当前分类下所有歌曲添加到播放列表
+            addToPlaylist(rankList);
+            
+            // 将当前索引设置为点击的歌曲索引
+            // 直接使用play函数播放歌曲
+            play(url, songDetail);
+            
+            // 延迟一下再设置播放列表，确保当前歌曲先开始播放
+            setTimeout(() => {
+              addToPlaylist(rankList);
+            }, 100);
+          }
+        }
+      })
+      .catch(error => {
+        console.error('获取歌曲详情出错:', error);
+      });
+  };
   return (
     <section className="ranking-section">
       <div className="ranking-header">
@@ -133,8 +174,49 @@ const RankingSection = ({
             key={index} 
             className="song-card"
             onClick={() => fetchSongDetail(song._id)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '12px 16px',
+              marginBottom: '8px',
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              position: 'relative'
+            }}
           >
-            <div className="song-rank">#{index + 1}</div>
+            <button
+              onClick={(e) => handlePlaySong(song, index, e)}
+              style={{
+                cursor: 'pointer',
+                width: 22,
+                height: 22,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: 'none',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(107, 102, 255, 0.8)',
+                color: '#fff',
+                transition: 'all 0.2s ease',
+                flexShrink: 0,
+                marginRight: '10px',
+                padding: 0
+              }}
+            >
+              <RiPlayFill style={{ width: 12, height: 12 }} color="#fff" />
+            </button>
+            <div className="song-rank" style={{ 
+              width: '30px', 
+              fontSize: '14px', 
+              color: '#666',
+              marginRight: '10px',
+              flexShrink: 0
+            }}>
+              #{index + 1}
+            </div>
             <div className="song-info" style={{ textAlign: 'left' }}>
               <div className="song-title" style={{ textAlign: 'left' }}>{song.song_name ? song.song_name.replace(/\.[^/.]+$/, "") : ''}</div>
               {song.authorName && (
