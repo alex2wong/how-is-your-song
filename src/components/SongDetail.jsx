@@ -93,10 +93,23 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
         : songData.structure.comments;
       
       if (sourceText) {
+        // 有歌词内容，解析现有歌词
         const parsedLyrics = parseSongStructureLyrics(sourceText);
         setEditingLyrics(parsedLyrics);
-        setShowLyricEditModal(true);
+      } else {
+        // 歌词为空，创建一个空的歌词数组，允许用户完整输入
+        setEditingLyrics([{ time: 0, text: '' }]);
       }
+      setShowLyricEditModal(true);
+    } else if (songData.structure === undefined || songData.structure === null) {
+      // 如果structure不存在，创建一个空的结构
+      setSongData(prev => ({
+        ...prev,
+        structure: { comments: '', hasCorrections: false }
+      }));
+      // 创建一个空的歌词数组，允许用户完整输入
+      setEditingLyrics([{ time: 0, text: '' }]);
+      setShowLyricEditModal(true);
     }
     console.log('打开歌词修正模态窗口', songData.structure);
   };
@@ -111,13 +124,49 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
     setEditingLyrics(updatedLyrics);
   };
   
+  // 处理歌词时间戳修改
+  const handleLyricTimeChange = (index, timeStr) => {
+    // 先更新输入框的值，保证用户可以输入
+    const updatedLyrics = [...editingLyrics];
+    updatedLyrics[index] = {
+      ...updatedLyrics[index],
+      _timeStr: timeStr // 存储原始输入的字符串
+    };
+    
+    try {
+      // 验证时间格式是否正确 (MM:SS.SS)
+      const timeMatch = timeStr.match(/^(\d{1,2}):(\d{1,2})(?:\.(\d{1,2}))?$/);
+      if (timeMatch) {
+        const minutes = parseInt(timeMatch[1]);
+        const seconds = parseInt(timeMatch[2]);
+        const centiseconds = timeMatch[3] ? parseInt(timeMatch[3]) : 0;
+        
+        // 计算总秒数
+        const totalSeconds = minutes * 60 + seconds + centiseconds / 100;
+        
+        updatedLyrics[index] = {
+          ...updatedLyrics[index],
+          time: totalSeconds
+        };
+      }
+      setEditingLyrics(updatedLyrics);
+    } catch (error) {
+      console.error('时间戳格式错误', error);
+      // 即使出错也要更新状态，保证用户可以继续输入
+      setEditingLyrics(updatedLyrics);
+    }
+  };
+  
   // 保存修正后的歌词
   const handleSaveLyrics = async () => {
     try {
       setIsSavingLyrics(true);
       
+      // 将修正后的歌词按时间排序
+      const sortedLyrics = [...editingLyrics].sort((a, b) => a.time - b.time);
+      
       // 将修正后的歌词转换为原始格式
-      const formattedLyrics = editingLyrics.map(lyric => {
+      const formattedLyrics = sortedLyrics.map(lyric => {
         const minutes = Math.floor(lyric.time / 60);
         const seconds = lyric.time % 60;
         const timeStr = `[${minutes.toString().padStart(2, '0')}:${seconds.toFixed(2).padStart(5, '0')}]`;
@@ -1160,7 +1209,8 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
               }}
             >
               <p style={{ color: "#666", marginTop: 0 }}>
-                在下方编辑框中修正歌词文本，时间戳无法修改。完成后点击保存按钮。
+                在下方编辑框中修正歌词文本和时间戳。时间戳格式为 分钟:秒数.百分秒（例如 01:23.45）。完成后点击保存按钮。
+                {editingLyrics.length === 0 && "歌词为空，请点击'添加歌词行'按钮添加歌词。"}
               </p>
               <div
                 style={{
@@ -1180,19 +1230,26 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                       alignItems: "center",
                     }}
                   >
-                    <span
+                    <input
+                      type="text"
+                      value={lyric._timeStr !== undefined ? lyric._timeStr : `${Math.floor(lyric.time / 60)
+                        .toString()
+                        .padStart(2, "0")}:${(lyric.time % 60).toFixed(2).padStart(5, "0")}`}
+                      onChange={(e) => handleLyricTimeChange(index, e.target.value)}
                       style={{
                         color: "var(--primary, #4CAF50)",
                         marginRight: "16px",
                         fontFamily: "monospace",
-                        minWidth: "80px",
+                        width: "120px",
+                        padding: "8px 12px",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                        fontSize: "14px",
+                        textAlign: "center"
                       }}
-                    >
-                      {Math.floor(lyric.time / 60)
-                        .toString()
-                        .padStart(2, "0")}:
-                      {(lyric.time % 60).toFixed(2).padStart(5, "0")}
-                    </span>
+                      title="时间戳格式: 分钟:秒数.百分秒"
+                      placeholder="00:00.00"
+                    />
                     <input
                       type="text"
                       value={lyric.text}
@@ -1205,8 +1262,54 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                         fontSize: "14px",
                       }}
                     />
+                    {editingLyrics.length > 1 && (
+                      <button
+                        onClick={() => {
+                          const updatedLyrics = [...editingLyrics];
+                          updatedLyrics.splice(index, 1);
+                          setEditingLyrics(updatedLyrics);
+                        }}
+                        style={{
+                          marginLeft: "8px",
+                          background: "none",
+                          border: "none",
+                          color: "#f44336",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                        }}
+                        title="删除此行"
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 ))}
+                <button
+                  onClick={() => {
+                    // 添加新的歌词行，时间戳设置为最后一行的时间+5秒，如果没有行则设为0
+                    // 按时间排序找到最大时间
+                    const sortedLyrics = [...editingLyrics].sort((a, b) => b.time - a.time);
+                    const lastTime = sortedLyrics.length > 0 
+                      ? sortedLyrics[0].time + 5 
+                      : 0;
+                    setEditingLyrics([...editingLyrics, { time: lastTime, text: '' }]);
+                  }}
+                  style={{
+                    marginTop: "12px",
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    border: "1px dashed #4CAF50",
+                    backgroundColor: "white",
+                    color: "#4CAF50",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                  }}
+                >
+                  + 添加歌词行
+                </button>
               </div>
             </div>
             <div
