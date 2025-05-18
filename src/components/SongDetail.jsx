@@ -489,7 +489,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
               target="_blank"
               href={`/poster/song/${selectedSong._id}`}
             >
-              <span className="tag-entry-text">🎵音乐分享海报</span>
+              <span className="tag-entry-text">🎵音乐海报</span>
             </a>
             {isLoading ? (
               <FaSpinner

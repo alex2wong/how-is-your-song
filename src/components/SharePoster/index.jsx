@@ -129,6 +129,7 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
   const imageWrapperClasses = `poster-image-wrapper${isMobile?' image-wrapper-mobile' : ''} ${isPlaying ? ' circle is-rotating' : ''}`;
   const titleMobileClasses = `poster-song-title${isMobile?' poster-title-mobile' : ''}`;
   const posterMessageClasses = `poster-message${isMobile?' poster-message-mobile' : ''}`;
+  const posterLyricsClasses = `poster-lyrics${isMobile?' poster-lyrics-mobile' : ''}`;
 
   return (
     <div className="share-poster-root">
@@ -212,7 +213,7 @@ const SharePoster = ({ song, message, comment, qrUrl }) => {
               </span>
             </div>
           </div>
-          <div className="poster-lyrics" style={{ opacity: `${activeTab !== 'message' ? 1: 0}` }}>
+          <div className={posterLyricsClasses} style={{ opacity: `${activeTab !== 'message' ? 1: 0}` }}>
             {lyrics.slice(Math.max(0, currentLyricIndex - 2), currentLyricIndex + 3).map((lyric, index) => {
               const isCenter = index === Math.min(2, currentLyricIndex);
               return (
