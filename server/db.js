@@ -252,4 +252,27 @@ async function getSongRankByIds(songIds) {
     return songs;
 }
 
-module.exports = { connectToDb, insertTags, getTags, insertSong, calculateSongPercentiles, getSongRank, getSongRankReverse, getSongById, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds };
+/**
+ * 更新歌曲的歌词
+ * @param {string} songId - 歌曲ID
+ * @param {string} lyrics - 修正后的歌词
+ * @returns {Promise} - 更新操作的结果
+ */
+async function updateSongLyrics(songId, lyrics) {
+    const db = await connectToDb();
+    const id = new ObjectId(songId);
+    
+    // 更新歌曲文档中的歌词信息
+    return db.collection('songs').updateOne(
+        { _id: id },
+        { 
+            $set: { 
+                'structure.correctedLyrics': lyrics,
+                'structure.hasCorrections': true,
+                'updatedAt': Date.now()
+            } 
+        }
+    );
+}
+
+module.exports = { connectToDb, insertTags, getTags, insertSong, calculateSongPercentiles, getSongRank, getSongRankReverse, getSongById, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, updateSongLyrics };

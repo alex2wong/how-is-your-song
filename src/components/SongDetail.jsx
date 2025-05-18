@@ -9,6 +9,8 @@ import {
   FaFilePdf,
   FaFileImage,
   FaImage,
+  FaEdit,
+  FaSave,
 } from "react-icons/fa";
 import { RiPlayFill, RiPauseFill } from "react-icons/ri";
 import { apiBase, scoreClassStyles, getAuthorNameColor } from "../utils";
@@ -48,6 +50,9 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
   )}` : '';
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showLyricEditModal, setShowLyricEditModal] = useState(false);
+  const [editingLyrics, setEditingLyrics] = useState([]);
+  const [isSavingLyrics, setIsSavingLyrics] = useState(false);
   const contentRef = useRef(null);
 
   const { showToast } = useToast();
@@ -57,7 +62,13 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
     const likedSongs = JSON.parse(localStorage.getItem("likedSongs") || "[]");
     setIsLiked(likedSongs.includes(selectedSong._id));
     setSongData(selectedSong);
-  }, [selectedSong._id, selectedSong.likes]);
+    
+    // 初始化编辑歌词数据
+    if (selectedSong.structure && selectedSong.structure.comments) {
+      const parsedLyrics = parseSongStructureLyrics(selectedSong.structure.comments);
+      setEditingLyrics(parsedLyrics);
+    }
+  }, [selectedSong._id, selectedSong.likes, selectedSong.structure]);
 
   // 点击其他区域时关闭下拉菜单
   useEffect(() => {
@@ -72,6 +83,73 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showDownloadOptions]);
+  
+  // 处理歌词修正
+  const handleOpenLyricEditModal = () => {
+    if (songData.structure) {
+      // 如果有已修正的歌词且hasCorrections为true，则使用修正后的歌词作为基础
+      const sourceText = (songData.structure.hasCorrections && songData.structure.correctedLyrics) 
+        ? songData.structure.correctedLyrics 
+        : songData.structure.comments;
+      
+      if (sourceText) {
+        const parsedLyrics = parseSongStructureLyrics(sourceText);
+        setEditingLyrics(parsedLyrics);
+        setShowLyricEditModal(true);
+      }
+    }
+    console.log('打开歌词修正模态窗口', songData.structure);
+  };
+  
+  // 处理歌词文本修改
+  const handleLyricTextChange = (index, newText) => {
+    const updatedLyrics = [...editingLyrics];
+    updatedLyrics[index] = {
+      ...updatedLyrics[index],
+      text: newText
+    };
+    setEditingLyrics(updatedLyrics);
+  };
+  
+  // 保存修正后的歌词
+  const handleSaveLyrics = async () => {
+    try {
+      setIsSavingLyrics(true);
+      
+      // 将修正后的歌词转换为原始格式
+      const formattedLyrics = editingLyrics.map(lyric => {
+        const minutes = Math.floor(lyric.time / 60);
+        const seconds = lyric.time % 60;
+        const timeStr = `[${minutes.toString().padStart(2, '0')}:${seconds.toFixed(2).padStart(5, '0')}]`;
+        return `${timeStr}${lyric.text}`;
+      }).join('\n');
+      
+      // 构建要更新的数据
+      const updatedSongData = {
+        ...songData,
+        structure: {
+          ...songData.structure,
+          correctedLyrics: formattedLyrics,
+          hasCorrections: true // 标记歌词已被修正
+        }
+      };
+      
+      // 调用API更新歌词
+      await axios.post(`${apiBase}/update-lyrics/${selectedSong._id}`, {
+        lyrics: formattedLyrics
+      });
+      
+      // 更新本地状态
+      setSongData(updatedSongData);
+      setShowLyricEditModal(false);
+      showToast("歌词已成功保存");
+    } catch (error) {
+      console.error("保存歌词时出错:", error);
+      showToast("保存歌词失败，请重试");
+    } finally {
+      setIsSavingLyrics(false);
+    }
+  };
 
   // Toggle like status and update localStorage
   const handleLike = async () => {
@@ -323,6 +401,7 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
   };
 
   return (
+    <>
     <div
       style={{
         position: "fixed",
@@ -710,6 +789,31 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                     {section.data?.score}分
                   </span>
                 </div>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: "16px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    歌词
+                  </h3>
+                  {songData.structure?.hasCorrections && (
+                    <span
+                      style={{
+                        marginLeft: "8px",
+                        fontSize: "12px",
+                        color: "#f0ad4e",
+                        backgroundColor: "rgba(240, 173, 78, 0.1)",
+                        padding: "2px 6px",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      已修正
+                    </span>
+                  )}
+                </div>
                 <p
                   style={{
                     margin: 0,
@@ -931,6 +1035,26 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                 >
                   <FaCopy style={{ marginRight: "4px" }} /> 复制歌词
                 </button>
+                <button
+                  onClick={handleOpenLyricEditModal}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    backgroundColor: "#f0ad4e",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "6px 12px",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s",
+                    fontWeight: "bold",
+                  }}
+                  title="修正歌词错误"
+                >
+                  <FaEdit style={{ marginRight: "4px" }} /> 修正歌词
+                </button>
               </div>
             </div>
             <div
@@ -941,7 +1065,12 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                 border: "1px solid rgba(0, 0, 0, 0.05)",
               }}
             >
-              {parseSongStructureLyrics(selectedSong.structure.comments).map(
+              {parseSongStructureLyrics(
+                // 如果有修正后的歌词，则显示修正后的歌词，否则显示原始歌词
+                songData.structure.hasCorrections && songData.structure.correctedLyrics
+                  ? songData.structure.correctedLyrics
+                  : songData.structure.comments
+              ).map(
                 (lyric, index) => (
                   <div
                     key={index}
@@ -972,6 +1101,167 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
           </div>
         )}
       </div>
+      
+      
     </div>
+    {/* 歌词修正模态窗口 */}
+    {showLyricEditModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "12px",
+              padding: "24px",
+              width: "80%",
+              maxWidth: "800px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+              }}
+            >
+              <h2 style={{ margin: 0, fontSize: "20px" }}>修正歌词</h2>
+              <button
+                onClick={() => setShowLyricEditModal(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "24px",
+                  cursor: "pointer",
+                  color: "#666",
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div
+              style={{
+                marginBottom: "20px",
+              }}
+            >
+              <p style={{ color: "#666", marginTop: 0 }}>
+                在下方编辑框中修正歌词文本，时间戳无法修改。完成后点击保存按钮。
+              </p>
+              <div
+                style={{
+                  maxHeight: "50vh",
+                  overflowY: "auto",
+                  border: "1px solid #eee",
+                  borderRadius: "8px",
+                  padding: "16px",
+                }}
+              >
+                {editingLyrics.map((lyric, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      marginBottom: "12px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "var(--primary, #4CAF50)",
+                        marginRight: "16px",
+                        fontFamily: "monospace",
+                        minWidth: "80px",
+                      }}
+                    >
+                      {Math.floor(lyric.time / 60)
+                        .toString()
+                        .padStart(2, "0")}:
+                      {(lyric.time % 60).toFixed(2).padStart(5, "0")}
+                    </span>
+                    <input
+                      type="text"
+                      value={lyric.text}
+                      onChange={(e) => handleLyricTextChange(index, e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: "8px 12px",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                        fontSize: "14px",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "12px",
+              }}
+            >
+              <button
+                onClick={() => setShowLyricEditModal(false)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "4px",
+                  border: "1px solid #ddd",
+                  backgroundColor: "#f5f5f5",
+                  cursor: "pointer",
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleSaveLyrics}
+                disabled={isSavingLyrics}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "4px",
+                  border: "none",
+                  backgroundColor: "var(--primary, #4CAF50)",
+                  color: "white",
+                  cursor: isSavingLyrics ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                {isSavingLyrics ? (
+                  <>
+                    <FaSpinner
+                      style={{
+                        animation: "spin 1s linear infinite",
+                      }}
+                    />
+                    保存中...
+                  </>
+                ) : (
+                  <>
+                    <FaSave /> 保存修改
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

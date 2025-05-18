@@ -6,7 +6,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { analyzeMusic, getLyrics } = require('./genai-analyze');
-const { connectToDb, insertSong, getSongRank, getTags, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, calculateSongPercentiles } = require('./db');
+const { connectToDb, insertTags, getTags, insertSong, getSongRank, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, calculateSongPercentiles, updateSongLyrics } = require('./db');
 
 const app = express();
 const port = 3000;
@@ -342,6 +342,25 @@ app.get('/api/rank-by-ids', async (req, res) => {
 app.get('/api/rank-by-likes', async (req, res) => {
   const songs = await getRankByLike();
   res.json(songs);
+});
+
+// 更新歌词API端点
+app.post('/api/update-lyrics/:songId', async (req, res) => {
+  console.log('# Updating lyrics for song: ', req.params.songId);
+  try {
+    const { songId } = req.params;
+    const { lyrics } = req.body;
+    
+    if (!lyrics) {
+      return res.status(400).json({ success: false, message: '歌词内容不能为空' });
+    }
+    
+    await updateSongLyrics(songId, lyrics);
+    res.status(200).json({ success: true, message: '歌词更新成功' });
+  } catch (error) {
+    console.error('更新歌词时出错:', error);
+    res.status(500).json({ success: false, message: '更新歌词失败: ' + error.message });
+  }
 });
 
 const server = app.listen(port, () => {
