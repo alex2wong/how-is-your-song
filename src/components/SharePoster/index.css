@@ -206,12 +206,17 @@
 }
 
 .poster-lyrics {
+  font-size: 1.0rem;
   width: 50%;
   overflow-y: auto;
   overflow-x: hidden;
   height: auto;
   padding: 20px;
   transition: opacity 0.32s;
+}
+
+.poster-lyrics-mobile {
+  font-size: 1.2rem;
 }
 
 .poster-message {
