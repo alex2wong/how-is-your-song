@@ -87,6 +87,7 @@ export const useRankTabLogic = (activeRankTab, setRankLoading, setRankList, fetc
     setRankLoading(true);
     setRankList([]);
     
+    console.log('fetchRankList, ', tag, timestamp, eventTag);
     fetchRankList(tag, timestamp, eventTag)
       .then(data => {
         setRankList(data);

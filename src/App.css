@@ -423,6 +423,13 @@ body::before {
   margin: var(--spacing-lg) 0;
 }
 
+.ranking-event-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+}
+
 .ranking-header {
   text-align: center;
   margin-bottom: 30px;

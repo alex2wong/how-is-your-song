@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './App.css';
 
 // Import modular components
@@ -34,6 +35,7 @@ function App() {
 function AppContent() {
   // 添加顶层Tab状态
   const [activeMainTab, setActiveMainTab] = useState('single');
+  const [searchParams] = useSearchParams();
   
   // 添加事件监听器，处理从歌曲详情页切换到MV生成页面的事件
   useEffect(() => {
@@ -103,6 +105,15 @@ function AppContent() {
 
   // Use rank tab logic
   useRankTabLogic(activeRankTab, setRankLoading, setRankList, fetchRankList);
+
+// 处理URL参数，设置榜单激活状态并滚动到榜单位置
+useEffect(() => {
+  const tab = searchParams.get('tab');
+  if (tab) {
+    setActiveMainTab('single');
+    setActiveRankTab(tab);
+  }
+}, [searchParams, setActiveRankTab]);
 
   return (
     <div className="app">

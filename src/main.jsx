@@ -9,6 +9,7 @@ import { ToastProvider } from './components/ToastMessage/ToastContext.jsx';
 import { BottomPlayerProvider } from './components/BottomPlayer/BottomPlayerContext.jsx';
 import BottomPlayer from './components/BottomPlayer/index.jsx';
 import SharePosterPage from './pages/Poster/index.jsx';
+import RankPage from './pages/Rank/index.jsx';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "poster/song/:id",
     element: <BottomPlayerProvider><ToastProvider><SharePosterPage /><BottomPlayer /></ToastProvider></BottomPlayerProvider>,
+  },
+  {
+    path: "rank",
+    element: <BottomPlayerProvider><ToastProvider><RankPage /><BottomPlayer /></ToastProvider></BottomPlayerProvider>,
   }
 ]);
 

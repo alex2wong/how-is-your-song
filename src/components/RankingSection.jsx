@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaThumbsUp } from 'react-icons/fa';
 import { RiPlayFill } from 'react-icons/ri';
+import { useSearchParams } from 'react-router-dom';
 import { scoreClassStyles, getAuthorNameColor } from '../utils';
 import { useBottomPlayer } from './BottomPlayer/BottomPlayerContext';
 import { apiBase } from '../utils';
@@ -9,10 +10,13 @@ const RankingSection = ({
   activeRankTab, 
   setActiveRankTab, 
   rankList, 
-  rankLoading, 
-  fetchSongDetail 
+  rankLoading,
+  isSyncTabToQuery=false,
+  fetchSongDetail,
 }) => {
   const { addToPlaylist, playFromPlaylist, play, audioRef } = useBottomPlayer();
+  const [searchParams] = useSearchParams();
+  const [isExpanded, setIsExpanded] = React.useState(!isSyncTabToQuery);
   
   // 播放单首歌曲并将当前分类下所有歌曲加入播放列表
   const handlePlaySong = (song, index, e) => {
@@ -55,9 +59,16 @@ const RankingSection = ({
       <div className="ranking-header">
         <h2>最受 AI 喜爱的歌曲</h2>
       </div>
+      <div className="ranking-event-row">
       <div 
           className={`event-tag ${activeRankTab === 'xiyouji' ? 'active' : ''}`}
-          onClick={() => setActiveRankTab('xiyouji')}
+          onClick={() => {
+            if (isSyncTabToQuery) {
+              searchParams.set('tab', 'xiyouji');
+              window.history.pushState({}, '', `?${searchParams.toString()}`);
+            }
+            setActiveRankTab('xiyouji')
+          }}
           style={{
             display: 'inline-block',
             marginTop: '0px',
@@ -102,6 +113,7 @@ const RankingSection = ({
             }}></span>
           )}
         </div>
+        </div>
         <style jsx>{`
           @keyframes pulse {
             0% { transform: scale(1); }
@@ -114,7 +126,11 @@ const RankingSection = ({
           }
         `}</style>
       
-      <div className="ranking-tabs">
+      <div className="ranking-tabs" style={{
+        maxHeight: isExpanded ? '1000px' : '50px',
+        overflow: 'hidden',
+        transition: 'max-height 0.3s ease-in-out'
+      }}>
         {[
           // { id: '24hours', name: '24小时榜' },
           { id: '48hours', name: '48小时榜' },
@@ -140,14 +156,38 @@ const RankingSection = ({
           { id: 'mylike', name: '我点赞的歌'},
           { id: 'worst', name: '低分榜' },
         ].map(tab => (
+          (isExpanded || tab.id === activeRankTab) && (
           <div
             key={tab.id}
             className={`ranking-tab ${activeRankTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveRankTab(tab.id)}
+            onClick={() => {
+              if (isSyncTabToQuery) {
+                searchParams.set('tab', tab.id);
+                window.history.pushState({}, '', `?${searchParams.toString()}`);
+              }
+              setActiveRankTab(tab.id)
+            }}
           >
             {tab.name}
           </div>
-        ))}
+        )))}
+      </div>
+      <div 
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '8px',
+          marginTop: '10px',
+          cursor: 'pointer',
+          color: '#6B66FF',
+          fontWeight: 'bold',
+          fontSize: '0.9rem',
+          transition: 'all 0.3s ease'
+        }}
+      >
+        {isExpanded ? '收起榜单 ↑' : '更多榜单 ↓'}
       </div>
       
       {rankLoading && (
@@ -167,7 +207,6 @@ const RankingSection = ({
           }}></div>
         </div>
       )}
-      
       <div className="song-list">
         {!rankLoading && rankList.map((song, index) => (
           <div 
