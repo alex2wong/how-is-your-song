@@ -52,7 +52,7 @@ const MVGenerationSection = () => {
   const [titleSecondaryColor, setTitleSecondaryColor] = useLocalStorageState('mvGenerator_titleSecondaryColor', { defaultValue: '#ffffff' }); // 副标题颜色，默认白色
   
   // 视频设置
-  const [videoBitrate, setVideoBitrate] = useLocalStorageState('mvGenerator_videoBitrate', { defaultValue: 10 }); // 视频码率，默认10Mbps
+  const [videoBitrate, setVideoBitrate] = useLocalStorageState('mvGenerator_videoBitrate', { defaultValue: 5 }); // 视频码率，默认10Mbps
   
   // 位置偏移设置
   const [foregroundOffsetY, setForegroundOffsetY] = useLocalStorageState('mvGenerator_foregroundOffsetY', { defaultValue: 0 }); // 前景图垂直偏移，默认0
