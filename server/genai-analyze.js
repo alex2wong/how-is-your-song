@@ -31,7 +31,7 @@ const generationConfig = {
   temperature: 1,
   topP: 0.95,
   topK: 64,
-  maxOutputTokens: 4096,
+  maxOutputTokens: 6000,
   responseMimeType: "application/json",
 };
 

@@ -793,6 +793,11 @@ const BatchAnalysisSection = ({
               }}
             >
               <option value="">不参加活动</option>
+              <option value="sanguoyanyi" style={{ 
+                background: 'linear-gradient(45deg, #FFD700, #FFA500)', 
+                fontWeight: 'bold',
+                color: '#8B4513'
+              }}>AI音乐达人《三国演义》共创盛典</option>
               <option value="xiyouji" style={{ 
                 background: 'linear-gradient(45deg, #FFD700, #FFA500)', 
                 fontWeight: 'bold',

@@ -82,6 +82,9 @@ export const useRankTabLogic = (activeRankTab, setRankLoading, setRankList, fetc
       case 'xiyouji':
         eventTag = 'xiyouji';
         break;
+      case 'sanguoyanyi':
+        eventTag = 'sanguoyanyi';
+        break;
     }
     
     setRankLoading(true);

@@ -60,7 +60,60 @@ const RankingSection = ({
         <h2>最受 AI 喜爱的歌曲</h2>
       </div>
       <div className="ranking-event-row">
-      <div 
+        <div 
+          className={`event-tag ${activeRankTab === 'sanguoyanyi' ? 'active' : ''}`}
+          onClick={() => {
+            if (isSyncTabToQuery) {
+              searchParams.set('tab', 'sanguoyanyi');
+              window.history.pushState({}, '', `?${searchParams.toString()}`);
+            }
+            setActiveRankTab('sanguoyanyi')
+          }}
+          style={{
+            display: 'inline-block',
+            marginTop: '0px',
+            marginBottom: '10px',
+            padding: '6px 12px',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: 'bold',
+            background: activeRankTab === 'sanguoyanyi' 
+              ? 'linear-gradient(45deg, #FF6B66, #6B66FF)' 
+              : 'linear-gradient(45deg, #FF6B66, #9966FF)',
+            color: '#fff',
+            border: activeRankTab === 'sanguoyanyi' 
+              ? '1px solid #6B66FF' 
+              : '0px solid #9966FF',
+            boxShadow: '0 2px 10px rgba(107, 102, 255, 0.3)',
+            transition: 'all 0.3s ease',
+            animation: activeRankTab === 'sanguoyanyi' ? 'pulse 1.5s infinite' : 'none',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <span style={{
+            position: 'relative',
+            zIndex: 2,
+            textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+          }}>
+            AI音乐达人《三国演义》共创盛典
+          </span>
+          {activeRankTab !== 'sanguoyanyi' && (
+            <span style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(45deg, rgba(255,107,102,0.3), rgba(153,102,255,0.3))',
+              zIndex: 1,
+              transform: 'translateX(-100%)',
+              animation: 'shimmer 2s infinite'
+            }}></span>
+          )}
+        </div>
+        <div 
           className={`event-tag ${activeRankTab === 'xiyouji' ? 'active' : ''}`}
           onClick={() => {
             if (isSyncTabToQuery) {
@@ -113,18 +166,19 @@ const RankingSection = ({
             }}></span>
           )}
         </div>
-        </div>
-        <style jsx>{`
-          @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-          }
-          @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-          }
-        `}</style>
+      </div>
+
+      <style jsx>{`
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
       
       <div className="ranking-tabs" style={{
         maxHeight: isExpanded ? '1000px' : '50px',
