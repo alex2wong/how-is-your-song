@@ -183,11 +183,11 @@ body::before {
 .file-upload {
   border: 2px dashed #d1d5db;
   border-radius: var(--border-radius);
-  padding: 40px;
+  padding: 34px;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   position: relative;
   overflow: hidden;
 }

@@ -2,9 +2,10 @@ import axios from 'axios';
 
 export const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
 console.log('apiBase', apiBase);
-export const analyzeMusic = async (file, authorName, onProgress, privacyMode, eventTag) => {
+export const analyzeMusic = async (file, authorName, lyrics, onProgress, privacyMode, eventTag) => {
   const formData = new FormData();
   formData.append('audio', file);
+  formData.append('lyrics', lyrics || '');
 
   const geminiKey = localStorage.getItem('gemini_key');
   const promptVersion = localStorage.getItem('prompt_version') || 'v1.0.0';

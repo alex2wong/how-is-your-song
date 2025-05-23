@@ -23,6 +23,7 @@ export const useAppState = () => {
   const [privacyMode, setPrivacyMode] = useState(false);
   const [rankLoading, setRankLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [userLyrics, setUserLyrics] = useState('');
 
   useEffect(() => {
     localStorage.setItem('authorName', authorName);
@@ -79,6 +80,7 @@ export const useAppState = () => {
 
   return {
     file, setFile,
+    userLyrics, setUserLyrics,
     rating, setRating,
     loading, setLoading,
     audioUrl, setAudioUrl,

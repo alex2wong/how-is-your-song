@@ -38,7 +38,7 @@ const generationConfig = {
 const promptConfigs = {
   'v1.0.0': {
     systemInstruction: "你是一个专业且优秀的音乐评论员。当你收到一个音乐文件，可以首先从整体印象（音乐风格和氛围），然后简要分析编曲配器质量、人声质量和旋律、歌词内容故事性等几个方面，分别简要评价并且打分，分项满分 10分，汇总一个总分数。并且给出一个额外字段是歌曲在各维度的标签，例如 #Cinematic #电子音乐 #合成器 #贝斯 #Dreaming Vocal 。 注意打分差距拉大一些，优秀的作品的分数要比一般的作品高很多，例如优秀作品大于 8 分，一般的作品小于 8 分",
-    history: (mimeType, fileUri) => [
+    history: (mimeType, fileUri, lyrics) => [
       {
         role: "user",
         parts: [
@@ -48,7 +48,7 @@ const promptConfigs = {
               fileUri,
             },
           },
-          {text: "提取音乐的歌词及时间戳、歌曲结构，结合歌词内容和歌曲结构的理解，从流行音乐专业角度评价下这个音乐的编曲配器、人声质量和旋律、歌曲结构、歌词内容寓意等几个方面，并且在标签中返回 细分曲风、乐器等重要标签；注意打分差距拉大一些，有一些亮点的作品就大胆地大于8分，没有太多亮点的就6-8分之间。在给出评分时，如果分数小于8分，要具体说明各维度有哪些明显的不足之处，给出优化建议。输出格式是：\n{\nsong_name: string,\noverall_score: number,\ncomments: string, // 整体评价\narrangement: {score: number, comments: string}, // 编曲、配器评价\nvocal: {score: number, comments: string}, // 人声质量评价\nstructure: { score: number, comments: string }, // 歌词打轴数据和歌曲结构，分两个段落\nlyrics: {score: number, comments: string}, // 歌词内容评价\ntags: string[],\n}"},
+          {text: (lyrics ? "这是我的歌词：\n" + lyrics + "\n" : "") + "提取音乐的歌词及时间戳、歌曲结构，结合歌词内容和歌曲结构的理解，从流行音乐专业角度评价下这个音乐的编曲配器、人声质量和旋律、歌曲结构、歌词内容寓意等几个方面，并且在标签中返回 细分曲风、乐器等重要标签；注意打分差距拉大一些，有一些亮点的作品就大胆地大于8分，没有太多亮点的就6-8分之间。在给出评分时，如果分数小于8分，要具体说明各维度有哪些明显的不足之处，给出优化建议。输出格式是：\n{\nsong_name: string,\noverall_score: number,\ncomments: string, // 整体评价\narrangement: {score: number, comments: string}, // 编曲、配器评价\nvocal: {score: number, comments: string}, // 人声质量评价\nstructure: { score: number, comments: string }, // 歌词打轴数据和歌曲结构，分两个段落\nlyrics: {score: number, comments: string}, // 歌词内容评价\ntags: string[],\n}"},
         ],
       },
       {
@@ -62,7 +62,7 @@ const promptConfigs = {
   },
   'v1.0.0-english': {
     systemInstruction: "You are an experienced music commenter. When you receive a music file, you first analyze the overall impression (music style and atmosphere), then briefly analyze the composer's quality, voice quality, rhythm, lyric content, and story tone of the music. You evaluate each of these aspects separately and give a score out of 10, totaling a total score. You also provide a field called 'tags' that includes #Cinematic, #Electronic Music, #Synthesizer, #Bass, and #Dreaming Vocal. Note that the score difference can be large, and the good work gets a score higher than 8, while most other works get scores between 6 and 8. When giving a score, if the score is less than 8, you must explain what aspects of the work are missing and provide suggestions for improvement",
-    history: (mimeType, fileUri) => [
+    history: (mimeType, fileUri, lyrics) => [
       {
         role: "user",
         parts: [
@@ -72,7 +72,7 @@ const promptConfigs = {
               fileUri,
             },
           },
-          {text: "Extract the lyrics and timestamps of the music, analyze the song structure, and based on your understanding of the lyrics content and song structure, evaluate this music from a professional pop music perspective in terms of arrangement, vocal quality and melody, song structure, lyrical content and meaning, and include important tags for sub-genres, instruments, etc. in the tags section. Note that the scoring difference should be significant - works with some highlights should boldly score above 8, while those without many highlights should be between 6-8. When giving a score, if the score is less than 8, you must specifically explain what aspects are lacking and provide optimization suggestions. The output format is:\n{\nsong_name: string,\noverall_score: number,\ncomments: string, // Overall evaluation\narrangement: {score: number, comments: string}, // Arrangement evaluation\nvocal: {score: number, comments: string}, // Vocal quality evaluation\nstructure: { score: number, comments: string }, // Lyrics timestamp data and song structure, in two paragraphs\nlyrics: {score: number, comments: string}, // Lyrics content evaluation\ntags: string[],\n}"},
+          {text: (lyrics ? "This is my lyrics: \n" + lyrics + "\n" : "") + "Extract the lyrics and timestamps of the music, analyze the song structure, and based on your understanding of the lyrics content and song structure, evaluate this music from a professional pop music perspective in terms of arrangement, vocal quality and melody, song structure, lyrical content and meaning, and include important tags for sub-genres, instruments, etc. in the tags section. Note that the scoring difference should be significant - works with some highlights should boldly score above 8, while those without many highlights should be between 6-8. When giving a score, if the score is less than 8, you must specifically explain what aspects are lacking and provide optimization suggestions. The output format is:\n{\nsong_name: string,\noverall_score: number,\ncomments: string, // Overall evaluation\narrangement: {score: number, comments: string}, // Arrangement evaluation\nvocal: {score: number, comments: string}, // Vocal quality evaluation\nstructure: { score: number, comments: string }, // Lyrics timestamp data and song structure, in two paragraphs\nlyrics: {score: number, comments: string}, // Lyrics content evaluation\ntags: string[],\n}"},
         ],
       },
       {
@@ -86,7 +86,7 @@ const promptConfigs = {
   },
   'v1.1.0-beta': {
     systemInstruction: "你是一个专业且优秀的音乐评论员。当你收到一个音乐文件，可以首先从整体印象（音乐风格和氛围），然后简要分析编曲配器质量、人声质量和旋律、歌词内容故事性等几个方面，分别简要评价并且打分，分项满分 10分，汇总一个总分数。并且给出一个额外字段是歌曲在各维度的标签，例如 #Cinematic #电子音乐 #合成器 #贝斯 #Dreaming Vocal 。 注意打分差距拉大一些，优秀的作品的分数要比一般的作品高很多，例如优秀作品大于 8 分，一般的作品小于 8 分，很差的作品小于 6 分",
-    history: (mimeType, fileUri) => [
+    history: (mimeType, fileUri, lyrics) => [
       {
         role: "user",
         parts: [
@@ -96,7 +96,7 @@ const promptConfigs = {
               fileUri,
             },
           },
-          {text: "提取音乐的歌词及时间戳、歌曲结构，结合歌词内容和歌曲结构的理解，从流行音乐专业角度评价下这个音乐的编曲配器、人声质量和旋律、歌曲结构、歌词内容寓意等几个方面，并且在标签中返回 细分曲风、乐器等重要标签；注意打分差距拉大一些，有一些亮点的作品就大胆地大于8分，没有太多亮点的就6-8分之间。在给出评分时，如果分数小于8分，要具体说明各维度有哪些明显的不足之处，给出优化建议。输出格式是：\n{\nsong_name: string,\noverall_score: number,\ncomments: string, // 整体评价\narrangement: {score: number, comments: string}, // 编曲、配器评价\nvocal: {score: number, comments: string}, // 人声质量评价\nstructure: { score: number, comments: string }, // 歌词打轴数据和歌曲结构，分两个段落\nlyrics: {score: number, comments: string}, // 歌词内容评价\ntags: string[],\n}"},
+          {text: (lyrics ? "这是我的歌词：\n" + lyrics + "\n" : "") + "提取音乐的歌词及时间戳、歌曲结构，结合歌词内容和歌曲结构的理解，从流行音乐专业角度评价下这个音乐的编曲配器、人声质量和旋律、歌曲结构、歌词内容寓意等几个方面，并且在标签中返回 细分曲风、乐器等重要标签；注意打分差距拉大一些，有一些亮点的作品就大胆地大于8分，没有太多亮点的就6-8分之间。在给出评分时，如果分数小于8分，要具体说明各维度有哪些明显的不足之处，给出优化建议。输出格式是：\n{\nsong_name: string,\noverall_score: number,\ncomments: string, // 整体评价\narrangement: {score: number, comments: string}, // 编曲、配器评价\nvocal: {score: number, comments: string}, // 人声质量评价\nstructure: { score: number, comments: string }, // 歌词打轴数据和歌曲结构，分两个段落\nlyrics: {score: number, comments: string}, // 歌词内容评价\ntags: string[],\n}"},
         ],
       },
       {
@@ -135,7 +135,7 @@ const lyricConfigs = {
   message: "提取音乐的歌词及时间戳，返回LRC格式的歌词。",
 }
 
-async function analyzeMusic(audioPath, apiKey, promptVersion, modelName) {
+async function analyzeMusic(audioPath, apiKey, promptVersion, modelName, lyrics) {
   console.log('analyzeMusic:',{audioPath, apiKey: apiKey.slice(0,4)+'...'+apiKey.slice(-4), promptVersion, modelName});
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
@@ -156,7 +156,7 @@ async function analyzeMusic(audioPath, apiKey, promptVersion, modelName) {
 
   const chatSession = model.startChat({
     generationConfig,
-    history: promptConfigs[promptVersion].history(files[0].file.mimeType, files[0].file.uri),
+    history: promptConfigs[promptVersion].history(files[0].file.mimeType, files[0].file.uri, lyrics),
   });
 
   const result = await chatSession.sendMessage(promptConfigs[promptVersion].message);

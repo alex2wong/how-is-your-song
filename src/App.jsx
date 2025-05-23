@@ -55,6 +55,7 @@ function AppContent() {
   // Initialize app state
   const {
     file, setFile,
+    userLyrics, setUserLyrics,
     rating, setRating,
     loading, setLoading,
     audioUrl, setAudioUrl,
@@ -87,6 +88,7 @@ function AppContent() {
   } = useFileHandlers(
     file, 
     setFile, 
+    userLyrics,
     audioUrl, 
     setAudioUrl, 
     fileInputRef, 
@@ -191,6 +193,8 @@ useEffect(() => {
         <>
           <UploadSection 
             file={file}
+            userLyrics={userLyrics}
+            setUserLyrics={setUserLyrics}
             audioUrl={audioUrl}
             loading={loading}
             uploadProgress={uploadProgress}

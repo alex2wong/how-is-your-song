@@ -5,6 +5,7 @@ import { useToast } from "./ToastMessage/ToastContext";
 export const useFileHandlers = (
   file, 
   setFile, 
+  userLyrics,
   audioUrl, 
   setAudioUrl, 
   fileInputRef, 
@@ -80,7 +81,7 @@ export const useFileHandlers = (
     setLoading(true);
     setUploadProgress(0);
     try {
-      const response = await analyzeMusic(file, authorName, (progress) => {
+      const response = await analyzeMusic(file, authorName, userLyrics, (progress) => {
         setUploadProgress(progress);
       }, privacyMode, eventTag);
       if (response) {
