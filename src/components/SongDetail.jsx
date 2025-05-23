@@ -963,8 +963,9 @@ export const SongDetail = ({ selectedSong, _scoreRender, onClose }) => {
                       const cleanedLyrics = rawLyrics.replace(/\n+/g, "\n");
                       pureLyrics = JSON.stringify(cleanedLyrics);
                     }
-
-                    localStorage.setItem("mvGenerator_lyrics", pureLyrics);
+                    console.log('selectedSong.structure.correctedLyrics', selectedSong.structure.correctedLyrics?.replace(/\n+/g, "\\n"));
+                    console.log('pureLyrics', pureLyrics);
+                    localStorage.setItem("mvGenerator_lyrics", selectedSong.structure.correctedLyrics? selectedSong.structure.correctedLyrics.replace(/\n+/g, "\\n") : pureLyrics);
 
                     // 关闭当前详情页
                     onClose();

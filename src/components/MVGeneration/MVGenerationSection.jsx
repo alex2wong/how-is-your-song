@@ -96,6 +96,15 @@ const MVGenerationSection = () => {
       alert('当前浏览器不支持视频录制，无法生成MV。请使用Chrome浏览器或其他支持视频录制的现代浏览器。');
     }
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      const lyrics = localStorage.getItem("mvGenerator_lyrics");
+      if (lyrics) {
+        setLyrics(lyrics.replace(/\\n/g, "\n").replaceAll("\"", "").replaceAll("\\", ""));
+      }
+    }, 200);
+  }, []);
   
   // 在组件首次加载时应用默认模板
   useEffect(() => {
