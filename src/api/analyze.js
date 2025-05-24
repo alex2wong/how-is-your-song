@@ -17,9 +17,14 @@ export const analyzeMusic = async (file, authorName, lyrics, onProgress, privacy
     modelName = 'gemini-2.5-flash-preview-04-17';
   }
 
+  // 从 localStorage 获取认证 token
+  const token = localStorage.getItem('token');
+  console.log('分析请求使用的token:', token ? '存在' : '不存在');
+  
   const response = await axios.post(`${apiBase}/analyze?prompt_version=${promptVersion}&model_name=${modelName}&file_name=${encodeURIComponent(file.name)}${geminiKey ? `&gemini_key=${geminiKey}` : ''}${authorName ? `&author_name=${encodeURIComponent(authorName)}` : ''}&privacy_mode=${privacyMode ? '1' : '0'}${eventTag ? `&event_tag=${encodeURIComponent(eventTag)}` : ''}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
+      'Authorization': token ? `Bearer ${token}` : ''
     },
     timeout: 600000, // 10 minutes in milliseconds
     onUploadProgress: (progressEvent) => {

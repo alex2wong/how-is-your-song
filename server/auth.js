@@ -20,28 +20,41 @@ const verifyToken = (token) => {
 
 // 认证中间件
 const authMiddleware = async (req, res, next) => {
+  console.log('认证中间件开始处理请求:', req.path);
+  console.log('请求头:', JSON.stringify(req.headers, null, 2));
+  
   // 从请求头或cookie中获取令牌
   const token = req.headers.authorization?.split(' ')[1] || req.cookies?.token;
+  console.log('获取到的token:', token ? '存在token' : '无token');
   
   if (!token) {
+    console.log('认证失败: 未提供token');
     return res.status(401).json({ success: false, message: '未授权，请先登录', requireAuth: true });
   }
   
   // 验证令牌
   const decoded = verifyToken(token);
+  console.log('令牌解码结果:', decoded ? `有效，用户ID: ${decoded.id}` : '无效');
+  
   if (!decoded) {
+    console.log('认证失败: 令牌无效或已过期');
     return res.status(401).json({ success: false, message: '令牌无效或已过期', requireAuth: true });
   }
   
   try {
     // 获取用户信息
+    console.log('尝试查找用户:', decoded.id);
     const user = await findUserById(decoded.id);
+    console.log('查找用户结果:', user ? `找到用户: ${user.email}` : '未找到用户');
+    
     if (!user) {
+      console.log('认证失败: 用户不存在');
       return res.status(401).json({ success: false, message: '用户不存在', requireAuth: true });
     }
     
     // 将用户信息添加到请求对象
     req.user = user;
+    console.log('认证成功, 用户:', user.email);
     next();
   } catch (error) {
     console.error('认证错误:', error);

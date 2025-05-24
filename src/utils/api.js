@@ -8,8 +8,23 @@ export const buildApiUrl = (endpoint) => {
   return `${API_BASE_URL}/${normalizedEndpoint}`;
 };
 
-// 封装fetch请求，自动添加API基础URL
+// 封装fetch请求，自动添加API基础URL和认证token
 export const fetchApi = async (endpoint, options = {}) => {
   const url = buildApiUrl(endpoint);
+  
+  // 从 localStorage 获取 token
+  const token = localStorage.getItem('token');
+  
+  // 如果有token，添加到请求头中
+  if (token) {
+    options.headers = {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`
+    };
+  }
+  
+  // 确保请求包含凭证
+  options.credentials = 'include';
+  
   return fetch(url, options);
 };

@@ -17,15 +17,31 @@ async function connectToDb() {
 }
 
 async function insertTags(tags) {
-    if (!tags) return;
+    // 如果tags不存在或为空数组，直接返回
+    if (!tags || !Array.isArray(tags) || tags.length === 0) {
+        console.log('没有标签需要插入');
+        return;
+    }
+    
+    // 过滤掉空值
+    const validTags = tags.filter(tag => tag && typeof tag === 'string');
+    
+    if (validTags.length === 0) {
+        console.log('没有有效的标签需要插入');
+        return;
+    }
+    
+    console.log('插入标签:', validTags);
+    
     const db = await connectToDb();
-    const operations = tags.map(tag => ({
+    const operations = validTags.map(tag => ({
         updateOne: {
             filter: { tag },
             update: { $set: { tag } },
             upsert: true
         }
     }));
+    
     return db.collection('tags').bulkWrite(operations);
 }
 
@@ -35,9 +51,40 @@ async function getTags() {
 }
 
 async function insertSong(songJson) {
-    await insertTags(songJson.tags ? songJson.tags : (songJson.arrangement?.tags ? songJson.arrangement.tags : []));
+    // 确保songJson存在
+    if (!songJson) {
+        console.error('insertSong: songJson不能为空');
+        throw new Error('songJson不能为空');
+    }
+    
+    // 尝试获取标签，按优先级：songJson.tags > songJson.structure?.tags
+    let tags = [];
+    
+    if (songJson.tags && Array.isArray(songJson.tags)) {
+        tags = songJson.tags;
+    } else if (songJson.structure?.tags && Array.isArray(songJson.structure.tags)) {
+        tags = songJson.structure.tags;
+    }
+    
+    console.log('歌曲标签:', tags);
+    
+    // 只有在有有效标签时才插入标签
+    if (tags.length > 0) {
+        try {
+            await insertTags(tags);
+        } catch (err) {
+            console.error('插入标签失败，但继续处理歌曲:', err.message);
+        }
+    }
+    
     const db = await connectToDb();
     songJson.createAt = Date.now();
+    
+    // 确保songJson有一个tags字段
+    if (!songJson.tags) {
+        songJson.tags = tags;
+    }
+    
     return db.collection('songs').insertOne(songJson);
 }
 
