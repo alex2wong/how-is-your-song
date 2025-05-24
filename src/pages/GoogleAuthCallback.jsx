@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { fetchApi } from '../utils/api';
 
 // 调试辅助函数
@@ -83,8 +83,17 @@ const GoogleAuthCallback = () => {
   
 
 
+  // 使用引用来追踪是否已经处理过授权码
+  const isProcessedRef = useRef(false);
+  
   useEffect(() => {
-    logDebug('组件加载');
+    // 如果已经处理过，则直接返回
+    if (isProcessedRef.current) {
+      return;
+    }
+    
+    logDebug('组件加载，首次处理');
+    isProcessedRef.current = true;
     
     // 从URL中获取授权码
     const urlParams = new URLSearchParams(window.location.search);
@@ -100,24 +109,31 @@ const GoogleAuthCallback = () => {
     
     // 开始处理回调
     const processCallback = async () => {
-      const success = await handleCallback(code);
-      
-      // 如果失败且重试次数未超过上限，则重试
-      if (!success && retryCount < maxRetries) {
-        logDebug('将在 2 秒后重试', { retryCount: retryCount + 1 });
-        setIsRetrying(true);
-        setStatus(`登录失败，正在重试 (${retryCount + 1}/${maxRetries})...`);
+      try {
+        logDebug('开始处理回调，重试次数:', retryCount);
+        const success = await handleCallback(code);
         
-        // 等待 2 秒后重试
-        setTimeout(() => {
-          setRetryCount(prev => prev + 1);
-          setIsRetrying(false);
-        }, 2000);
-      } else if (!success && retryCount >= maxRetries) {
-        // 重试次数已超过上限，显示错误信息
-        logDebug('重试次数已超过上限');
+        // 如果失败且重试次数未超过上限，则重试
+        if (!success && retryCount < maxRetries) {
+          logDebug('将在 2 秒后重试', { retryCount: retryCount + 1 });
+          setIsRetrying(true);
+          setStatus(`登录失败，正在重试 (${retryCount + 1}/${maxRetries})...`);
+          
+          // 等待 2 秒后重试
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+            setIsRetrying(false);
+          }, 2000);
+        } else if (!success && retryCount >= maxRetries) {
+          // 重试次数已超过上限，显示错误信息
+          logDebug('重试次数已超过上限');
+          setStatus('登录失败');
+          setError('登录失败，请返回首页重新登录');
+        }
+      } catch (error) {
+        logDebug('处理回调时发生错误:', error);
         setStatus('登录失败');
-        setError('登录失败，请返回首页重新登录');
+        setError(`登录处理错误: ${error.message}`);
       }
     };
     
