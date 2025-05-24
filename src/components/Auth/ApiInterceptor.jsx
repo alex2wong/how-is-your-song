@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { API_BASE_URL } from '../../utils/api';
 import axios from 'axios';
+import { showErrorToast } from '../ToastMessage/simpleToast';
 
 /**
  * API拦截器组件，用于处理API调用时的认证和积分相关响应
@@ -42,7 +43,8 @@ const ApiInterceptor = () => {
         if (error.response && error.response.status === 403) {
           const data = error.response.data;
           if (data && data.insufficientCredits) {
-            alert('今日积分额度已耗尽，请明天再试或充值积分');
+            console.log('今日积分额度已耗尽，请明天再试或充值积分');
+            showErrorToast('今日积分额度已耗尽，请明天再试或充值积分', 5000);
           }
         }
         
@@ -85,7 +87,8 @@ const ApiInterceptor = () => {
           
           // 处理积分不足错误
           if (response.status === 403 && data.insufficientCredits) {
-            alert('今日积分额度已耗尽，请明天再试或充值积分');
+            console.log('今日积分额度已耗尽，请明天再试或充值积分');
+            showErrorToast('今日积分额度已耗尽，请明天再试或充值积分', 5000);
           }
           
           // 更新用户积分（如果响应中包含积分信息）

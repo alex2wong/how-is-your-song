@@ -33,10 +33,11 @@ function App() {
   // Wrap the entire app with providers
   return (
     <AuthProvider>
-      <ApiInterceptor />
       <BottomPlayerProvider>
         <AppContent />
       </BottomPlayerProvider>
+      {/* 将ApiInterceptor放在这里，确保它能访问ToastContext */}
+      <ApiInterceptor />
     </AuthProvider>
   );
 }

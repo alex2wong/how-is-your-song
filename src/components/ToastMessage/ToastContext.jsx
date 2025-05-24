@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import ToastMessage from './index';
+import { setupToastListener } from './globalToast';
 
 const ToastContext = createContext(null);
 
@@ -23,6 +24,12 @@ export const ToastProvider = ({ children }) => {
   const hideToast = useCallback(() => {
     setToast(prev => ({ ...prev, visible: false }));
   }, []);
+  
+  // 监听全局toast事件
+  useEffect(() => {
+    const cleanup = setupToastListener(showToast);
+    return cleanup;
+  }, [showToast]);
 
   return (
     <ToastContext.Provider value={{ showToast, hideToast }}>
