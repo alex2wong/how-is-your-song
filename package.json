@@ -16,9 +16,13 @@
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "axios": "^1.6.7",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
     "dom-to-image-more": "^3.5.0",
     "echarts": "^5.6.0",
+    "express-session": "^1.18.1",
     "html2canvas": "^1.4.1",
+    "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.1",
     "lodash": "^4.17.21",
     "qrcode.react": "^4.2.0",

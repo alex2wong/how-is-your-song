@@ -5,11 +5,60 @@ const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const { analyzeMusic, getLyrics } = require('./genai-analyze');
-const { connectToDb, insertTags, getTags, insertSong, getSongRank, getSongById, getSongRankReverse, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, calculateSongPercentiles, updateSongLyrics } = require('./db');
+const { 
+  connectToDb, 
+  insertTags, 
+  getTags, 
+  insertSong, 
+  getSongRank, 
+  getSongById, 
+  getSongsByName, 
+  addLike, 
+  removeLike, 
+  getRankByLike, 
+  getSongRankByIds, 
+  calculateSongPercentiles, 
+  getSongRankReverse, 
+  updateSongLyrics,
+  createUser,
+  findUserByIdentifier,
+  findUserById,
+  verifyPassword,
+  updateUserCredits,
+  consumeCredits
+} = require('./db');
+
+const { 
+  generateToken, 
+  verifyToken, 
+  authMiddleware, 
+  creditCheckMiddleware, 
+  refreshAllUserCredits,
+  scheduleCreditsRefresh 
+} = require('./auth');
+
+const { handleGoogleCallback } = require('./googleAuth');
 
 const app = express();
 const port = 3000;
+
+// 添加CORS支持，允许前端页面访问API
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // 处理预检请求
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
 
 // 统计数据
 let stats = {
@@ -36,8 +85,23 @@ setInterval(() => {
   }
 }, 5000);
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your_session_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 7 * 24 * 60 * 60 * 1000 } // 7天
+}));
+
+// 启动时刷新所有用户积分
+refreshAllUserCredits();
+// 设置每日自动刷新积分
+scheduleCreditsRefresh();
 
 // 确保uploads目录存在
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -61,7 +125,273 @@ const upload = multer({ storage: storage });
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from API!' });
-})
+});
+
+// 提供Google客户端ID
+app.get('/api/auth/google-client-id', (req, res) => {
+  res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
+});
+
+// 用户认证相关API
+
+// 手机验证码登录
+app.post('/api/auth/phone-login', async (req, res) => {
+  try {
+    const { phone, verificationCode } = req.body;
+    
+    if (!phone || !verificationCode) {
+      return res.status(400).json({ success: false, message: '手机号和验证码不能为空' });
+    }
+    
+    // 在实际应用中，这里应该验证验证码是否正确
+    // 这里简化处理，假设验证码是 '123456'
+    if (verificationCode !== '123456') {
+      return res.status(400).json({ success: false, message: '验证码错误' });
+    }
+    
+    // 查找用户
+    let user = await findUserByIdentifier(phone);
+    
+    // 如果用户不存在，创建新用户
+    if (!user) {
+      const userData = {
+        phone,
+        name: `用户${phone.substring(phone.length - 4)}`, // 使用手机号后4位作为默认用户名
+      };
+      
+      const result = await createUser(userData);
+      user = await findUserById(result.insertedId);
+    }
+    
+    // 生成JWT令牌
+    const token = generateToken(user._id);
+    
+    // 设置cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7天
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    
+    // 返回用户信息（不包含敏感数据）
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        credits: user.credits
+      },
+      token
+    });
+  } catch (error) {
+    console.error('手机登录错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// Google登录 - 旧的实现方式
+app.post('/api/auth/google-login', async (req, res) => {
+  try {
+    const { googleToken, email, name } = req.body;
+    
+    if (!googleToken || !email) {
+      return res.status(400).json({ success: false, message: '谷歌令牌和邮箱不能为空' });
+    }
+    
+    console.log('收到Google登录请求:', { email, name });
+    
+    // 在实际应用中，这里应该验证谷歌令牌是否有效
+    // 这里简化处理，假设令牌有效
+    
+    // 查找用户
+    let user = await findUserByIdentifier(email);
+    
+    // 如果用户不存在，创建新用户
+    if (!user) {
+      const userData = {
+        email,
+        name: name || email.split('@')[0], // 使用邮箱前缀作为默认用户名
+        googleId: googleToken // 在实际应用中，这应该是从谷歌验证响应中提取的ID
+      };
+      
+      const result = await createUser(userData);
+      user = await findUserById(result.insertedId);
+    }
+    
+    // 生成JWT令牌
+    const token = generateToken(user._id);
+    
+    // 设置cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7天
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    
+    // 返回用户信息（不包含敏感数据）
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        credits: user.credits
+      },
+      token
+    });
+  } catch (error) {
+    console.error('谷歌登录错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误: ' + error.message });
+  }
+});
+
+// 新的 Google OAuth 回调处理 - 支持POST和GET请求
+app.all('/api/auth/google/callback', async (req, res) => {
+  console.log('收到Google回调请求:', {
+    method: req.method,
+    url: req.url,
+    query: req.query,
+    headers: req.headers,
+    origin: req.headers.origin || 'unknown'
+  });
+  
+  try {
+    // 从请求中获取授权码，支持GET和POST请求
+    let code = null;
+    
+    if (req.method === 'GET') {
+      // 从查询参数中获取授权码
+      code = req.query.code;
+      console.log('收到GET请求的Google回调，授权码:', code);
+    } else {
+      // 从请求体中获取授权码
+      code = req.body.code;
+      console.log('收到POST请求的Google回调，授权码:', code);
+    }
+    
+    if (!code) {
+      console.error('授权码不能为空');
+      return res.status(400).json({ success: false, message: '授权码不能为空' });
+    }
+    
+    // 构建重定向URI（与前端使用的相同）
+    const redirectUri = 'http://localhost:5173/auth/google/callback';
+    console.log('使用重定向URI:', redirectUri);
+    
+    // 处理Google回调
+    console.log('开始处理Google回调...');
+    const result = await handleGoogleCallback(code, redirectUri);
+    console.log('处理结果:', result.success ? '成功' : '失败');
+    
+    // 设置cookie
+    res.cookie('token', result.token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7天
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax', // 改为lax以允许跨域请求
+      domain: 'localhost' // 指定域名为localhost
+    });
+    
+    // 返回用户信息
+    console.log('返回成功响应');
+    return res.json(result);
+  } catch (error) {
+    console.error('Google回调处理错误:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: '处理Google登录回调失败: ' + error.message,
+      error: error.stack
+    });
+  }
+});
+
+// 获取当前用户信息
+app.get('/api/auth/me', authMiddleware, async (req, res) => {
+  try {
+    // 用户信息已在authMiddleware中添加到req对象
+    res.json({
+      success: true,
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        phone: req.user.phone,
+        credits: req.user.credits
+      }
+    });
+  } catch (error) {
+    console.error('获取用户信息错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// 退出登录
+app.post('/api/auth/logout', (req, res) => {
+  // 清除cookie
+  res.clearCookie('token');
+  res.json({ success: true, message: '已成功退出登录' });
+});
+
+// 发送手机验证码
+app.post('/api/auth/send-verification-code', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    
+    if (!phone) {
+      return res.status(400).json({ success: false, message: '手机号不能为空' });
+    }
+    
+    // 在实际应用中，这里应该发送真实的验证码
+    // 这里简化处理，假设验证码总是 '123456'
+    
+    // 模拟发送验证码的延迟
+    setTimeout(() => {
+      console.log(`向 ${phone} 发送验证码: 123456`);
+    }, 1000);
+    
+    res.json({ success: true, message: '验证码已发送' });
+  } catch (error) {
+    console.error('发送验证码错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// 充值积分（模拟）
+app.post('/api/credits/recharge', authMiddleware, async (req, res) => {
+  try {
+    const { amount } = req.body;
+    const userId = req.user._id;
+    
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ success: false, message: '充值金额必须大于0' });
+    }
+    
+    // 在实际应用中，这里应该处理实际的支付逻辑
+    // 这里简化处理，直接增加积分
+    
+    // 每1元充值10积分
+    const creditsToAdd = amount * 10;
+    
+    // 更新用户积分
+    await updateUserCredits(userId, req.user.credits + creditsToAdd);
+    
+    // 获取更新后的用户信息
+    const updatedUser = await findUserById(userId);
+    
+    res.json({
+      success: true,
+      message: `成功充值 ${creditsToAdd} 积分`,
+      credits: updatedUser.credits
+    });
+  } catch (error) {
+    console.error('充值积分错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
 
 app.get('/api/stats', (req, res) => {
   // 增加访问人次
@@ -165,7 +495,7 @@ app.get('/api/song/:id', async (req, res) => {
 });
 
 // 处理音频文件上传
-app.post('/api/analyze', upload.single('audio'), async (req, res) => {
+app.post('/api/analyze', upload.single('audio'), authMiddleware, creditCheckMiddleware, async (req, res) => {
   if (!req.file) {
     return res.status(400).send('未上传文件');
   }
@@ -254,6 +584,15 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
       stats.rank = rank;
     }
 
+    // 分析成功后扣除积分
+    await consumeCredits(req.user._id, req.creditCost);
+    
+    // 获取更新后的用户信息
+    const updatedUser = await findUserById(req.user._id);
+    
+    // 在响应中包含更新后的积分信息
+    result.userCredits = updatedUser.credits;
+    
     res.json(result);
   } catch (error) {
     console.error('分析失败:', error);
@@ -272,7 +611,7 @@ app.post('/api/analyze', upload.single('audio'), async (req, res) => {
   }
 });
 
-app.post('/api/getLyrics', upload.single('audio'), async (req, res) => {
+app.post('/api/getLyrics', upload.single('audio'), authMiddleware, creditCheckMiddleware, async (req, res) => {
   console.log('# Request getLyrics: ', req.file, req.query.model_name);
   if (!req.file) {
     return res.status(400).send('未上传文件');
@@ -294,7 +633,16 @@ app.post('/api/getLyrics', upload.single('audio'), async (req, res) => {
     console.log('# upload as localfile done, path ', filePath, fileName);
     let result = await getLyrics(filePath, apiKey, modelName);
 
-    res.json({ lyrics: result });
+    // 分析成功后扣除积分
+    await consumeCredits(req.user._id, req.creditCost);
+    
+    // 获取更新后的用户信息
+    const updatedUser = await findUserById(req.user._id);
+    
+    res.json({ 
+      lyrics: result,
+      userCredits: updatedUser.credits
+    });
   } catch (error) {
     console.error('分析失败:', error);
     res.status(500).json({ error: '分析失败: ' + error.message });
@@ -366,6 +714,33 @@ app.post('/api/update-lyrics/:songId', async (req, res) => {
     res.status(500).json({ success: false, message: '更新歌词失败: ' + error.message });
   }
 });
+
+// 创建.env.example文件，提供配置示例
+const envExamplePath = path.join(__dirname, '../.env.example');
+if (!fs.existsSync(envExamplePath)) {
+  const envExampleContent = `# 服务器配置
+PORT=3000
+
+# 数据库配置
+DB_URL=mongodb://localhost:27017/how-is-your-song
+
+# JWT密钥
+JWT_SECRET=your_jwt_secret_key
+
+# 会话密钥
+SESSION_SECRET=your_session_secret
+
+# Google OAuth配置
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# API密钥
+APIKEY=your_api_key
+`;
+  
+  fs.writeFileSync(envExamplePath, envExampleContent);
+  console.log('.env.example 文件已创建');
+}
 
 const server = app.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);

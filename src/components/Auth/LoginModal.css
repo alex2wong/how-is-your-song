@@ -1,0 +1,156 @@
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.login-modal {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.login-modal h2 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 24px;
+}
+
+.login-subtitle {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.login-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.login-tab {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #666;
+}
+
+.login-tab.active {
+  color: #6B66FF;
+  border-bottom: 2px solid #6B66FF;
+}
+
+.login-error {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: #333;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.verification-code {
+  position: relative;
+}
+
+.send-code-btn {
+  position: absolute;
+  right: 5px;
+  top: 32px;
+  background-color: transparent;
+  border: none;
+  color: #6B66FF;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px;
+}
+
+.send-code-btn:disabled {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.login-button, .google-login-button {
+  background: var(--primary-gradient, linear-gradient(90deg, #6B66FF 0%, #8C87FF 100%));
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-button:disabled, .google-login-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.google-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.google-login-button {
+  width: 100%;
+}

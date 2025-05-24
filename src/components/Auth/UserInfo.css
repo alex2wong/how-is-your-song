@@ -1,0 +1,130 @@
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-name, .user-credits {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  color: #333;
+}
+
+.user-icon, .credits-icon, .logout-icon {
+  font-size: 18px;
+  color: #6B66FF;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #f1f1f1;
+}
+
+.recharge-button {
+  background: none;
+  border: none;
+  color: #6B66FF;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin-left: 2px;
+}
+
+/* 充值弹窗样式 */
+.recharge-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.recharge-modal {
+  background-color: white;
+  border-radius: 10px;
+  padding: 25px;
+  width: 90%;
+  max-width: 350px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.recharge-modal h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.recharge-info {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.recharge-error {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.recharge-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.recharge-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.cancel-button, .confirm-button {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-button {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.confirm-button {
+  background: var(--primary-gradient, linear-gradient(90deg, #6B66FF 0%, #8C87FF 100%));
+  color: white;
+}
+
+.cancel-button:disabled, .confirm-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

@@ -1,11 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { fetchApi } from './utils/api';
 import './App.css';
+import './components/Auth/auth.css';
 
 // Import modular components
 import Header from './components/Header';
 import BottomPlayer from './components/BottomPlayer';
 import { BottomPlayerProvider } from './components/BottomPlayer/BottomPlayerContext';
+import { AuthProvider, useAuth } from './components/Auth/AuthContext';
+import ApiInterceptor from './components/Auth/ApiInterceptor';
 import UploadSection from './components/UploadSection';
 import BatchAnalysisSection from './components/BatchAnalysisSection';
 import AnalysisResult from './components/AnalysisResult';
@@ -23,12 +27,17 @@ import { useFileHandlers } from './components/FileHandlers';
 import { useRankingUtils } from './components/RankingUtils';
 import { useRankTabLogic } from './components/RankTabLogic';
 
+// App组件
+
 function App() {
-  // Wrap the entire app with BottomPlayerProvider
+  // Wrap the entire app with providers
   return (
-    <BottomPlayerProvider>
-      <AppContent />
-    </BottomPlayerProvider>
+    <AuthProvider>
+      <ApiInterceptor />
+      <BottomPlayerProvider>
+        <AppContent />
+      </BottomPlayerProvider>
+    </AuthProvider>
   );
 }
 

@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App.jsx'
 import SongDetailPage from './pages/SongDetail/index.jsx';
+import GoogleAuthCallback from './pages/GoogleAuthCallback.jsx';
 // import './index.css'
 import './styles/theme.css'
 import { ToastProvider } from './components/ToastMessage/ToastContext.jsx';
 import { BottomPlayerProvider } from './components/BottomPlayer/BottomPlayerContext.jsx';
+import { AuthProvider } from './components/Auth/AuthContext.jsx';
 import BottomPlayer from './components/BottomPlayer/index.jsx';
 import SharePosterPage from './pages/Poster/index.jsx';
 import RankPage from './pages/Rank/index.jsx';
@@ -27,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: "rank",
     element: <BottomPlayerProvider><ToastProvider><RankPage /><BottomPlayer /></ToastProvider></BottomPlayerProvider>,
+  },
+  {
+    path: "auth/google/callback",
+    element: <ToastProvider><BottomPlayerProvider><AuthProvider><GoogleAuthCallback /></AuthProvider></BottomPlayerProvider></ToastProvider>,
   }
 ]);
 

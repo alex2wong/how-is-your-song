@@ -3,6 +3,7 @@ require('dotenv').config();
 const MONGO_URI = process.env.DB_URL || 'mongodb://localhost:27017/how-is-your-song';
 
 const { MongoClient, ObjectId } = require('mongodb');
+const bcrypt = require('bcryptjs');
 
 let _db;
 
@@ -275,4 +276,268 @@ async function updateSongLyrics(songId, lyrics) {
     );
 }
 
-module.exports = { connectToDb, insertTags, getTags, insertSong, calculateSongPercentiles, getSongRank, getSongRankReverse, getSongById, getSongsByName, addLike, removeLike, getRankByLike, getSongRankByIds, updateSongLyrics };
+// 用户相关函数
+
+/**
+ * 创建新用户
+ * @param {Object} userData - 用户数据
+ * @returns {Promise} - 创建结果
+ */
+async function createUser(userData) {
+  const db = await connectToDb();
+  
+  console.log('尝试创建用户:', userData.email);
+  
+  // 检查用户是否已存在
+  let existingUser;
+  try {
+    existingUser = await db.collection('users').findOne({
+      email: userData.email
+    });
+    console.log('检查用户是否存在:', existingUser ? '已存在' : '不存在');
+    
+    if (existingUser) {
+      console.log('用户已存在:', existingUser);
+      return existingUser; // 直接返回存在的用户，而不是抛出错误
+    }
+  } catch (err) {
+    console.error('检查用户存在时出错:', err);
+  }
+  
+  // 如果有密码，进行加密
+  if (userData.password) {
+    const salt = await bcrypt.genSalt(10);
+    userData.password = await bcrypt.hash(userData.password, salt);
+  }
+  
+  // 设置初始积分和创建时间
+  userData.credits = 100;
+  userData.lastCreditRefresh = new Date().toISOString().split('T')[0]; // 今天的日期，格式：YYYY-MM-DD
+  userData.createdAt = Date.now();
+  
+  try {
+    const result = await db.collection('users').insertOne(userData);
+    console.log('用户创建成功:', result.insertedId);
+    return result;
+  } catch (err) {
+    console.error('创建用户失败:', err.message);
+    // 如果创建失败，再次检查用户是否存在
+    existingUser = await db.collection('users').findOne({ email: userData.email });
+    if (existingUser) {
+      console.log('用户已存在，返回存在的用户');
+      return { insertedId: existingUser._id }; // 返回兼容的对象格式
+    }
+    throw err;
+  }
+}
+
+/**
+ * 通过邮箱或手机号查找用户
+ * @param {string} identifier - 邮箱或手机号
+ * @returns {Promise} - 用户数据
+ */
+async function findUserByIdentifier(identifier) {
+  const db = await connectToDb();
+  console.log('查找用户，标识符:', identifier);
+  
+  // 确保标识符存在
+  if (!identifier) {
+    console.log('标识符为空');
+    return null;
+  }
+  
+  const user = await db.collection('users').findOne({
+    $or: [
+      { email: identifier },
+      { phone: identifier }
+    ]
+  });
+  
+  console.log('查找用户结果:', user ? '找到用户' : '未找到用户');
+  return user;
+}
+
+/**
+ * 通过ID查找用户
+ * @param {string} userId - 用户ID
+ * @returns {Promise} - 用户数据
+ */
+async function findUserById(userId) {
+  const db = await connectToDb();
+  return db.collection('users').findOne({ _id: new ObjectId(userId) });
+}
+
+/**
+ * 验证用户密码
+ * @param {string} password - 明文密码
+ * @param {string} hashedPassword - 加密后的密码
+ * @returns {Promise<boolean>} - 密码是否匹配
+ */
+async function verifyPassword(password, hashedPassword) {
+  return bcrypt.compare(password, hashedPassword);
+}
+
+/**
+ * 更新用户积分
+ * @param {string} userId - 用户ID
+ * @param {number} credits - 新的积分值
+ * @returns {Promise} - 更新结果
+ */
+async function updateUserCredits(userId, credits) {
+  const db = await connectToDb();
+  return db.collection('users').updateOne(
+    { _id: new ObjectId(userId) },
+    { $set: { credits, lastUpdated: Date.now() } }
+  );
+}
+
+/**
+ * 消费用户积分
+ * @param {string} userId - 用户ID
+ * @param {number} amount - 消费的积分数量
+ * @returns {Promise<boolean>} - 是否成功消费积分
+ */
+async function consumeCredits(userId, amount) {
+  const db = await connectToDb();
+  const user = await findUserById(userId);
+  
+  if (!user) {
+    throw new Error('用户不存在');
+  }
+  
+  if (user.credits < amount) {
+    return false; // 积分不足
+  }
+  
+  await db.collection('users').updateOne(
+    { _id: new ObjectId(userId) },
+    { $inc: { credits: -amount } }
+  );
+  
+  return true;
+}
+
+/**
+ * 刷新所有用户的积分
+ * 每天为积分少于100的用户补充到100分
+ * @returns {Promise} - 更新结果
+ */
+async function refreshUserCredits() {
+  const db = await connectToDb();
+  const today = new Date().toISOString().split('T')[0]; // 今天的日期，格式：YYYY-MM-DD
+  
+  // 查找所有需要刷新积分的用户（积分<100或最后刷新日期不是今天）
+  const result = await db.collection('users').updateMany(
+    { 
+      $or: [
+        { credits: { $lt: 100 } },
+        { lastCreditRefresh: { $ne: today } }
+      ]
+    },
+    [
+      { 
+        $set: { 
+          credits: { 
+            $cond: { 
+              if: { $lt: ["$credits", 100] }, 
+              then: 100, 
+              else: "$credits" 
+            } 
+          },
+          lastCreditRefresh: today
+        } 
+      }
+    ]
+  );
+  
+  return result;
+}
+
+/**
+ * 查找或创建用户
+ * @param {Object} userData - 用户数据
+ * @returns {Promise} - 用户数据
+ */
+async function findOrCreateUser(userData) {
+  if (!userData || !userData.email) {
+    throw new Error('用户数据不完整');
+  }
+  
+  console.log('尝试查找或创建用户:', userData.email);
+  
+  const db = await connectToDb();
+  
+  // 直接从数据库查询，避免使用中间函数
+  let user = await db.collection('users').findOne({ email: userData.email });
+  
+  // 如果用户已存在，直接返回
+  if (user) {
+    console.log('直接查询到用户:', user.email);
+    return user;
+  }
+  
+  // 用户不存在，创建新用户
+  try {
+    console.log('尝试创建新用户:', userData.email);
+    
+    // 准备用户数据
+    const newUser = {
+      ...userData,
+      credits: 100,
+      lastCreditRefresh: new Date().toISOString().split('T')[0],
+      createdAt: Date.now()
+    };
+    
+    // 尝试插入新用户
+    try {
+      const result = await db.collection('users').insertOne(newUser);
+      console.log('新用户插入成功:', result.insertedId);
+      
+      // 查询并返回创建的用户
+      user = await db.collection('users').findOne({ _id: result.insertedId });
+      return user;
+    } catch (insertError) {
+      console.error('插入用户失败:', insertError.message);
+      
+      // 如果插入失败，可能是并发操作导致的用户已存在
+      // 再次尝试查找
+      user = await db.collection('users').findOne({ email: userData.email });
+      if (user) {
+        console.log('并发插入失败，但找到了已存在的用户:', user.email);
+        return user;
+      }
+      
+      // 如果仍然找不到用户，抛出原始错误
+      throw insertError;
+    }
+  } catch (error) {
+    console.error('创建或查找用户失败:', error.message);
+    throw error;
+  }
+}
+
+module.exports = { 
+  connectToDb, 
+  insertTags, 
+  getTags, 
+  insertSong, 
+  calculateSongPercentiles, 
+  getSongRank, 
+  getSongRankReverse, 
+  getSongById, 
+  getSongsByName, 
+  addLike, 
+  removeLike, 
+  getRankByLike, 
+  getSongRankByIds, 
+  updateSongLyrics,
+  // 用户相关函数
+  createUser,
+  findUserByIdentifier,
+  findUserById,
+  findOrCreateUser,
+  verifyPassword,
+  updateUserCredits,
+  consumeCredits,
+  refreshUserCredits
+};
