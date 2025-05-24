@@ -16,6 +16,11 @@ async function connectToDb() {
     return _db;
 }
 
+// 获取数据库连接
+async function getDb() {
+    return await connectToDb();
+}
+
 async function insertTags(tags) {
     // 如果tags不存在或为空数组，直接返回
     if (!tags || !Array.isArray(tags) || tags.length === 0) {
@@ -565,6 +570,7 @@ async function findOrCreateUser(userData) {
 
 module.exports = { 
   connectToDb, 
+  getDb,
   insertTags, 
   getTags, 
   insertSong, 

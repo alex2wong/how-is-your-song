@@ -19,6 +19,7 @@ const {
   addLike, 
   removeLike, 
   getRankByLike, 
+  getDb,
   getSongRankByIds, 
   calculateSongPercentiles, 
   getSongRankReverse, 
@@ -360,35 +361,243 @@ app.post('/api/auth/send-verification-code', async (req, res) => {
   }
 });
 
-// 充值积分（模拟）
-app.post('/api/credits/recharge', authMiddleware, async (req, res) => {
+// 获取积分套餐列表
+app.get('/api/credits/packages', async (req, res) => {
   try {
-    const { amount } = req.body;
+    // 套餐列表
+    const packages = [
+      { id: 'basic', name: '基础套餐', price: 10, credits: 100 },
+      { id: 'standard', name: '标准套餐', price: 30, credits: 350 },
+      { id: 'premium', name: '高级套餐', price: 50, credits: 650 },
+      { id: 'ultimate', name: '旗舰套餐', price: 100, credits: 1500 }
+    ];
+    res.json({ success: true, packages });
+  } catch (error) {
+    console.error('获取积分套餐错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// 创建支付订单
+app.post('/api/payment/create-order', authMiddleware, async (req, res) => {
+  try {
+    const { amount, paymentMethod = 'alipay' } = req.body;
     const userId = req.user._id;
     
     if (!amount || amount <= 0) {
-      return res.status(400).json({ success: false, message: '充值金额必须大于0' });
+      return res.status(400).json({ success: false, message: '请输入有效的充值金额' });
     }
     
-    // 在实际应用中，这里应该处理实际的支付逻辑
-    // 这里简化处理，直接增加积分
+    // 生成包含用户ID的订单号
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const orderId = `ORDER${timestamp}${random}_${userId}`;
     
-    // 每1元充值10积分
-    const creditsToAdd = amount * 10;
+    // 计算积分（每1元充值10积分）
+    const credits = amount * 10;
     
-    // 更新用户积分
-    await updateUserCredits(userId, req.user.credits + creditsToAdd);
+    // 获取基础URL
+    const host = `${req.protocol}://${req.get('host')}`;
     
-    // 获取更新后的用户信息
-    const updatedUser = await findUserById(userId);
+    // 构建支付参数
+    const params = {
+      pid: process.env.PAYMENT_ID || '', // 商户ID
+      type: paymentMethod, // 支付方式：alipay或wxpay
+      out_trade_no: orderId, // 订单号
+      notify_url: `${host}/api/payment/notify`, // 异步通知地址
+      return_url: `${host}`, // 同步跳转地址
+      name: `充值${credits}积分`, // 商品名称
+      money: amount.toFixed(2), // 金额
+      timestamp: Math.floor(Date.now() / 1000).toString() // 时间戳，秒级，转换为字符串
+    };
+    
+    // 生成签名
+    const crypto = require('crypto');
+    
+    // 完全按照SDK的方式生成签名
+    console.log('========== 支付签名调试信息 ==========');
+    console.log('原始参数:', params);
+    
+    // 1. 按照参数名字母升序排序
+    const sortedKeys = Object.keys(params).sort();
+    console.log('排序后的参数名:', sortedKeys);
+    
+    // 2. 拼接成key=value&key=value的形式
+    let signStr = '';
+    
+    for (const key of sortedKeys) {
+      // 使用isEmpty函数检查空值，与SDK保持一致
+      const isEmpty = value => value === null || value === undefined || String(value).trim() === '';
+      
+      if (!isEmpty(params[key]) && key !== 'sign' && key !== 'sign_type') {
+        signStr += '&' + key + '=' + params[key];
+      }
+    }
+    
+    // 去掉第一个&
+    signStr = signStr.substring(1);
+    console.log('待签名字符串:', signStr);
+    
+    // 3. 使用商户私钥生成RSA签名
+    const rawPrivateKey = process.env.PAYMENT_PK || '';
+    console.log('私钥长度:', rawPrivateKey.length);
+    
+    try {
+      // 使用wordwrap函数将私钥按照每行64个字符进行格式化
+      const wordwrap = (str, width) => {
+        const regex = new RegExp(`(.{1,${width}})`, 'g');
+        return str.match(regex).join('\n');
+      };
+      
+      const formattedKey = wordwrap(rawPrivateKey, 64);
+      
+      // 使用BEGIN PRIVATE KEY格式
+      const pemPrivateKey = `-----BEGIN PRIVATE KEY-----\n${formattedKey}\n-----END PRIVATE KEY-----`;
+      console.log('PEM格式私钥结构:', pemPrivateKey.substring(0, 100) + '...');
+      
+      // 使用SHA256WithRSA算法生成签名，与SDK的openssl_sign函数保持一致
+      const sign = crypto.createSign('SHA256')
+        .update(signStr)
+        .sign(pemPrivateKey, 'base64');
+      
+      console.log('生成的RSA签名:', sign);
+      console.log('签名长度:', sign.length);
+      console.log('========== 支付签名调试信息结束 ==========');
+      
+      // 设置签名参数
+      params.sign = sign;
+      params.sign_type = 'RSA'; // 使用RSA签名类型，与SDK保持一致
+    } catch (error) {
+      console.error('生成签名错误:', error);
+      throw error;
+    }
+    
+    // 保存订单信息到数据库
+    const db = await getDb();
+    await db.collection('orders').insertOne({
+      orderId,
+      userId,
+      amount: parseFloat(amount),
+      credits,
+      paymentMethod,
+      status: 'pending',
+      createdAt: new Date()
+    });
+    
+    // 返回支付参数
+    res.json({
+      success: true,
+      params, // 直接返回支付参数
+      orderId,
+      amount,
+      credits
+    });
+  } catch (error) {
+    console.error('创建支付订单错误:', error);
+    res.status(500).json({ success: false, message: '创建订单失败，请稍后再试' });
+  }
+});
+
+// 支付通知处理 - 易支付接口
+app.get('/api/payment/notify', async (req, res) => {
+  try {
+    const notifyData = req.query;
+    console.log('收到支付通知:', notifyData);
+    
+    // 验证必要参数
+    if (!notifyData.out_trade_no || !notifyData.trade_no || !notifyData.trade_status) {
+      console.error('支付通知参数不完整');
+      return res.send('fail');
+    }
+    
+    // 检查交易状态
+    if (notifyData.trade_status !== 'TRADE_SUCCESS') {
+      console.log(`支付状态不是成功: ${notifyData.trade_status}`);
+      return res.send('fail');
+    }
+    
+    // 解析订单号和金额
+    const orderId = notifyData.out_trade_no;
+    const amount = parseFloat(notifyData.money);
+    
+    // 查询订单信息
+    const db = await getDb();
+    const order = await db.collection('orders').findOne({ orderId });
+    
+    // 如果订单存在，使用订单中的用户ID和积分
+    if (order) {
+      // 如果订单已完成，直接返回成功
+      if (order.status === 'completed') {
+        console.log(`订单已处理: ${orderId}`);
+        return res.send('success');
+      }
+      
+      // 更新订单状态
+      await db.collection('orders').updateOne(
+        { orderId },
+        { $set: { status: 'completed', paidAt: new Date() } }
+      );
+      
+      // 更新用户积分
+      await updateUserCredits(order.userId, order.credits);
+      
+      console.log(`支付成功: 用户 ${order.userId} 充值 ${order.amount} 元，获得 ${order.credits} 积分`);
+    } else {
+      // 如果订单不存在，从订单号提取用户ID
+      const orderParts = orderId.split('_');
+      if (orderParts.length < 2) {
+        console.error(`订单号格式错误: ${orderId}`);
+        return res.send('fail');
+      }
+      
+      const userId = orderParts[1];
+      const credits = Math.floor(amount * 10); // 每1元充值10积分
+      
+      // 更新用户积分
+      await updateUserCredits(userId, credits);
+      
+      // 保存订单记录
+      await db.collection('orders').insertOne({
+        orderId,
+        userId,
+        amount,
+        credits,
+        status: 'completed',
+        paymentMethod: notifyData.type || 'alipay',
+        paidAt: new Date(),
+        createdAt: new Date()
+      });
+      
+      console.log(`支付成功(新订单): 用户 ${userId} 充值 ${amount} 元，获得 ${credits} 积分`);
+    }
+    
+    res.send('success');
+  } catch (error) {
+    console.error('处理支付通知错误:', error);
+    res.send('fail');
+  }
+});
+
+// 支付结果页面跳转
+app.get('/payment/result', (req, res) => {
+  // 重定向到首页
+  res.redirect('/');
+});
+
+// 获取用户订单历史
+app.get('/api/credits/orders', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    const { getUserOrderHistory } = require('./payment');
+    const orders = await getUserOrderHistory(userId);
     
     res.json({
       success: true,
-      message: `成功充值 ${creditsToAdd} 积分`,
-      credits: updatedUser.credits
+      orders
     });
   } catch (error) {
-    console.error('充值积分错误:', error);
+    console.error('获取订单历史错误:', error);
     res.status(500).json({ success: false, message: '服务器错误' });
   }
 });
@@ -714,33 +923,6 @@ app.post('/api/update-lyrics/:songId', async (req, res) => {
     res.status(500).json({ success: false, message: '更新歌词失败: ' + error.message });
   }
 });
-
-// 创建.env.example文件，提供配置示例
-const envExamplePath = path.join(__dirname, '../.env.example');
-if (!fs.existsSync(envExamplePath)) {
-  const envExampleContent = `# 服务器配置
-PORT=3000
-
-# 数据库配置
-DB_URL=mongodb://localhost:27017/how-is-your-song
-
-# JWT密钥
-JWT_SECRET=your_jwt_secret_key
-
-# 会话密钥
-SESSION_SECRET=your_session_secret
-
-# Google OAuth配置
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-# API密钥
-APIKEY=your_api_key
-`;
-  
-  fs.writeFileSync(envExamplePath, envExampleContent);
-  console.log('.env.example 文件已创建');
-}
 
 const server = app.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);

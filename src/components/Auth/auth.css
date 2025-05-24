@@ -1,4 +1,4 @@
-.login-btn {
+.login-btn, .recharge-btn {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -9,11 +9,27 @@
   cursor: pointer;
   padding: 5px 10px;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  text-decoration: none;
 }
 
-.login-btn:hover {
+.login-btn:hover, .recharge-btn:hover {
   background-color: #f1f1f1;
+}
+
+.recharge-btn {
+  background-color: #f8f4ff;
+  border: 1px solid #e6e1f9;
+}
+
+.recharge-btn:hover {
+  background-color: #f1ebff;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(107, 102, 255, 0.1);
+}
+
+.recharge-btn .nav-icon {
+  color: #f56c6c;
 }
 
 .nav-icon {

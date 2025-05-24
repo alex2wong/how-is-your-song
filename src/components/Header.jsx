@@ -1,5 +1,6 @@
 import React from 'react';
-import { RiMusic2Fill, RiSettings4Line, RiLoginBoxLine } from 'react-icons/ri';
+import { RiMusic2Fill, RiSettings4Line, RiLoginBoxLine, RiCoinLine } from 'react-icons/ri';
+import { Link } from 'react-router-dom';
 import Settings from './Settings';
 import { useAuth } from './Auth/AuthContext';
 import UserInfo from './Auth/UserInfo';
@@ -20,7 +21,9 @@ const Header = () => {
       
       <div className="nav-links">
         {user ? (
-          <UserInfo />
+          <>
+            <UserInfo />
+          </>
         ) : (
           <button 
             className="login-btn" 
