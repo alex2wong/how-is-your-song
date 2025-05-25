@@ -619,9 +619,112 @@ app.get('/api/payment/notify', async (req, res) => {
 });
 
 // 支付结果页面跳转
-app.get('/payment/result', (req, res) => {
-  // 重定向到首页
-  res.redirect('/');
+app.get('/payment/result', async (req, res) => {
+  try {
+    console.log('\n====== 收到支付结果跳转 ======');
+    console.log('支付结果参数:', req.query);
+    
+    // 验证必要参数
+    const notifyData = req.query;
+    if (!notifyData.out_trade_no || !notifyData.trade_no || !notifyData.trade_status) {
+      console.error('支付结果参数不完整');
+      return res.redirect('/?payment=incomplete');
+    }
+    
+    // 检查交易状态
+    if (notifyData.trade_status !== 'TRADE_SUCCESS') {
+      console.log(`支付状态不是成功: ${notifyData.trade_status}`);
+      return res.redirect(`/?payment=failed&status=${notifyData.trade_status}`);
+    }
+    
+    // 解析订单号和金额
+    const orderId = notifyData.out_trade_no;
+    const amount = parseFloat(notifyData.money);
+    console.log(`订单号: ${orderId}, 金额: ${amount}`);
+    
+    // 查询订单信息
+    const db = await getDb();
+    const order = await db.collection('orders').findOne({ orderId });
+    console.log('查询到的订单:', order);
+    
+    // 如果订单存在，使用订单中的用户ID和积分
+    if (order) {
+      // 如果订单已完成，直接返回成功
+      if (order.status === 'completed') {
+        console.log(`订单已处理: ${orderId}`);
+        return res.redirect('/?payment=already-processed');
+      }
+      
+      // 更新订单状态
+      await db.collection('orders').updateOne(
+        { orderId },
+        { $set: { status: 'completed', paidAt: new Date() } }
+      );
+      
+      // 更新用户积分
+      const updateResult = await updateUserCredits(order.userId, order.credits);
+      console.log(`用户积分更新结果:`, updateResult);
+      
+      console.log(`支付成功: 用户 ${order.userId} 充值 ${order.amount} 元，获得 ${order.credits} 积分`);
+      return res.redirect('/?payment=success');
+    } else {
+      // 如果订单不存在，从订单号提取用户ID
+      console.log(`处理未存储的订单: ${orderId}`);
+      
+      // 订单号格式应为 ORDER{timestamp}{random}_{userId}
+      const orderParts = orderId.split('_');
+      if (orderParts.length < 2) {
+        console.error(`订单号格式错误: ${orderId}`);
+        return res.redirect('/?payment=invalid-order');
+      }
+      
+      const userId = orderParts[1];
+      console.log(`从订单号提取的用户ID: ${userId}`);
+      
+      // 根据充值金额计算积分
+      let credits = 0;
+      
+      if (amount === 10) {
+        credits = 100; // 基础套餐
+      } else if (amount === 30) {
+        credits = 350; // 标准套餐
+      } else if (amount === 50) {
+        credits = 650; // 高级套餐
+      } else if (amount === 100) {
+        credits = 1500; // 旗舰套餐
+      } else {
+        // 如果不是标准套餐，按照每1元=10积分计算
+        credits = Math.floor(amount * 10);
+      }
+      
+      console.log(`根据金额 ${amount} 元计算积分: ${credits}`);
+      
+      // 更新用户积分
+      const updateResult = await updateUserCredits(userId, credits);
+      console.log(`用户积分更新结果:`, updateResult);
+      
+      // 保存订单记录
+      const orderResult = await db.collection('orders').insertOne({
+        orderId,
+        userId,
+        amount,
+        credits,
+        status: 'completed',
+        paymentMethod: notifyData.type || 'alipay',
+        paidAt: new Date(),
+        createdAt: new Date()
+      });
+      
+      console.log(`订单保存结果:`, orderResult);
+      console.log(`支付成功(新订单): 用户 ${userId} 充值 ${amount} 元，获得 ${credits} 积分`);
+      
+      // 重定向到首页，带上支付成功参数
+      return res.redirect('/?payment=success');
+    }
+  } catch (error) {
+    console.error('处理支付结果错误:', error);
+    res.redirect('/?payment=error');
+  }
 });
 
 // 获取用户订单历史
