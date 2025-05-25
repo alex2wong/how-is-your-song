@@ -1,5 +1,5 @@
 // API基础URL
-export const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/' : 'https://aiyueping.com/';
+export const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://aiyueping.com';
 
 // 构建完整的API URL
 export const buildApiUrl = (endpoint) => {
