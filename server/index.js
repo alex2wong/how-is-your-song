@@ -622,7 +622,7 @@ app.get('/api/payment/notify', async (req, res) => {
 app.get('/payment/result', async (req, res) => {
   try {
     console.log('\n====== 收到支付结果跳转 ======');
-    console.log('支付结果参数:', req.query);
+    console.log('支付结果参数:', JSON.stringify(req.query, null, 2));
     
     // 验证必要参数
     const notifyData = req.query;
@@ -645,7 +645,7 @@ app.get('/payment/result', async (req, res) => {
     // 查询订单信息
     const db = await getDb();
     const order = await db.collection('orders').findOne({ orderId });
-    console.log('查询到的订单:', order);
+    console.log('查询到的订单:', order ? JSON.stringify(order, null, 2) : '未找到订单');
     
     // 如果订单存在，使用订单中的用户ID和积分
     if (order) {
@@ -663,10 +663,30 @@ app.get('/payment/result', async (req, res) => {
       
       // 更新用户积分
       const updateResult = await updateUserCredits(order.userId, order.credits);
-      console.log(`用户积分更新结果:`, updateResult);
+      console.log(`用户积分更新结果:`, updateResult ? JSON.stringify(updateResult, null, 2) : '更新失败');
       
       console.log(`支付成功: 用户 ${order.userId} 充值 ${order.amount} 元，获得 ${order.credits} 积分`);
-      return res.redirect('/?payment=success');
+      
+      // 使用HTML表单自动提交到首页，确保跳转成功
+      const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>支付成功</title>
+        <meta http-equiv="refresh" content="0;url=/">
+        <script type="text/javascript">
+          window.onload = function() {
+            window.location.href = '/?payment=success';
+          }
+        </script>
+      </head>
+      <body>
+        <h1>支付成功，正在跳转...</h1>
+        <p>如果没有自动跳转，请点击<a href="/?payment=success">这里</a></p>
+      </body>
+      </html>
+      `;
+      return res.send(html);
     } else {
       // 如果订单不存在，从订单号提取用户ID
       console.log(`处理未存储的订单: ${orderId}`);
@@ -680,6 +700,14 @@ app.get('/payment/result', async (req, res) => {
       
       const userId = orderParts[1];
       console.log(`从订单号提取的用户ID: ${userId}`);
+      
+      // 检查用户是否存在
+      const user = await findUserById(userId);
+      if (!user) {
+        console.error(`找不到用户: ${userId}`);
+        return res.redirect('/?payment=user-not-found');
+      }
+      console.log(`找到用户: ${userId}, 当前积分: ${user.credits || 0}`);
       
       // 根据充值金额计算积分
       let credits = 0;
@@ -699,27 +727,62 @@ app.get('/payment/result', async (req, res) => {
       
       console.log(`根据金额 ${amount} 元计算积分: ${credits}`);
       
-      // 更新用户积分
-      const updateResult = await updateUserCredits(userId, credits);
-      console.log(`用户积分更新结果:`, updateResult);
-      
-      // 保存订单记录
-      const orderResult = await db.collection('orders').insertOne({
-        orderId,
-        userId,
-        amount,
-        credits,
-        status: 'completed',
-        paymentMethod: notifyData.type || 'alipay',
-        paidAt: new Date(),
-        createdAt: new Date()
-      });
-      
-      console.log(`订单保存结果:`, orderResult);
-      console.log(`支付成功(新订单): 用户 ${userId} 充值 ${amount} 元，获得 ${credits} 积分`);
-      
-      // 重定向到首页，带上支付成功参数
-      return res.redirect('/?payment=success');
+      try {
+        // 直接使用原子操作更新用户积分，避免使用updateUserCredits函数可能存在的问题
+        const updateDirectResult = await db.collection('users').updateOne(
+          { _id: new ObjectId(userId) },
+          { $inc: { credits: credits }, $set: { lastUpdated: Date.now() } }
+        );
+        
+        console.log(`直接更新用户积分结果:`, JSON.stringify(updateDirectResult, null, 2));
+        
+        // 同时仍然调用updateUserCredits函数以便于调试
+        const updateResult = await updateUserCredits(userId, credits);
+        console.log(`updateUserCredits函数返回结果:`, updateResult ? JSON.stringify(updateResult, null, 2) : '更新失败');
+        
+        // 查询更新后的用户信息
+        const updatedUser = await findUserById(userId);
+        console.log(`更新后的用户信息: 用户ID=${userId}, 积分=${updatedUser ? updatedUser.credits : '未知'}`);
+        
+        // 保存订单记录
+        const orderResult = await db.collection('orders').insertOne({
+          orderId,
+          userId,
+          amount,
+          credits,
+          status: 'completed',
+          paymentMethod: notifyData.type || 'alipay',
+          paidAt: new Date(),
+          createdAt: new Date()
+        });
+        
+        console.log(`订单保存结果:`, JSON.stringify(orderResult, null, 2));
+        console.log(`支付成功(新订单): 用户 ${userId} 充值 ${amount} 元，获得 ${credits} 积分`);
+        
+        // 使用HTML表单自动提交到首页，确保跳转成功
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>支付成功</title>
+          <meta http-equiv="refresh" content="0;url=/">
+          <script type="text/javascript">
+            window.onload = function() {
+              window.location.href = '/?payment=success';
+            }
+          </script>
+        </head>
+        <body>
+          <h1>支付成功，正在跳转...</h1>
+          <p>如果没有自动跳转，请点击<a href="/?payment=success">这里</a></p>
+        </body>
+        </html>
+        `;
+        return res.send(html);
+      } catch (updateError) {
+        console.error('更新用户积分错误:', updateError);
+        return res.redirect('/?payment=update-error');
+      }
     }
   } catch (error) {
     console.error('处理支付结果错误:', error);
