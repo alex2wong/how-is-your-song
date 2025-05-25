@@ -21,7 +21,7 @@ const GoogleAuthCallback = () => {
       
       // 将授权码发送到后端
       // 使用直接请求而不是fetchApi，避免跨域问题
-      const apiUrl = `http://localhost:3000/api/auth/google/callback?code=${code}`;
+      const apiUrl = `https://aiyueping.com/api/auth/google/callback?code=${code}`;
       logDebug('请求后端 API', apiUrl);
       
       const response = await fetch(apiUrl, {
