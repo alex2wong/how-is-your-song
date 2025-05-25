@@ -194,7 +194,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             </div>
             
             <div className="form-group verification-code">
-              <label>验证码</label>
+              <label>验证码（请填写默认值：123456）</label>
               <input
                 type="text"
                 value={verificationCode}

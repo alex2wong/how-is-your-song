@@ -160,8 +160,22 @@ app.post('/api/auth/phone-login', async (req, res) => {
         name: `用户${phone.substring(phone.length - 4)}`, // 使用手机号后4位作为默认用户名
       };
       
-      const result = await createUser(userData);
-      user = await findUserById(result.insertedId);
+      try {
+        const result = await createUser(userData);
+        if (!result || !result.insertedId) {
+          console.log('创建用户失败，无效的结果:', result);
+          return res.status(500).json({ success: false, message: '创建用户失败' });
+        }
+        
+        user = await findUserById(result.insertedId);
+        if (!user) {
+          console.log('创建用户后无法找到用户:', result.insertedId);
+          return res.status(500).json({ success: false, message: '创建用户后无法找到用户' });
+        }
+      } catch (error) {
+        console.error('创建用户错误:', error);
+        return res.status(500).json({ success: false, message: '创建用户时发生错误' });
+      }
     }
     
     // 生成JWT令牌

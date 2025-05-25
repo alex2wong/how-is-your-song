@@ -343,14 +343,22 @@ async function createUser(userData) {
   // 检查用户是否已存在
   let existingUser;
   try {
-    existingUser = await db.collection('users').findOne({
-      email: userData.email
-    });
-    console.log('检查用户是否存在:', existingUser ? '已存在' : '不存在');
+    // 构建查询条件，根据提供的字段检查
+    const query = {};
+    if (userData.email) query.email = userData.email;
+    if (userData.phone) query.phone = userData.phone;
     
-    if (existingUser) {
-      console.log('用户已存在:', existingUser);
-      return existingUser; // 直接返回存在的用户，而不是抛出错误
+    // 只有当有查询条件时才执行查询
+    if (Object.keys(query).length > 0) {
+      existingUser = await db.collection('users').findOne(query);
+      console.log('检查用户是否存在:', existingUser ? '已存在' : '不存在');
+      
+      if (existingUser) {
+        console.log('用户已存在:', existingUser);
+        return { insertedId: existingUser._id }; // 返回兼容的对象格式
+      }
+    } else {
+      console.log('没有提供有效的用户标识符(email或phone)');
     }
   } catch (err) {
     console.error('检查用户存在时出错:', err);
@@ -374,10 +382,16 @@ async function createUser(userData) {
   } catch (err) {
     console.error('创建用户失败:', err.message);
     // 如果创建失败，再次检查用户是否存在
-    existingUser = await db.collection('users').findOne({ email: userData.email });
-    if (existingUser) {
-      console.log('用户已存在，返回存在的用户');
-      return { insertedId: existingUser._id }; // 返回兼容的对象格式
+    const query = {};
+    if (userData.email) query.email = userData.email;
+    if (userData.phone) query.phone = userData.phone;
+    
+    if (Object.keys(query).length > 0) {
+      existingUser = await db.collection('users').findOne(query);
+      if (existingUser) {
+        console.log('用户已存在，返回存在的用户');
+        return { insertedId: existingUser._id }; // 返回兼容的对象格式
+      }
     }
     throw err;
   }
