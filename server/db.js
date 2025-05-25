@@ -446,14 +446,33 @@ async function verifyPassword(password, hashedPassword) {
 /**
  * 更新用户积分
  * @param {string} userId - 用户ID
- * @param {number} credits - 新的积分值
+ * @param {number} creditsToAdd - 要增加的积分值
  * @returns {Promise} - 更新结果
  */
-async function updateUserCredits(userId, credits) {
+async function updateUserCredits(userId, creditsToAdd) {
+  if (!userId || !creditsToAdd || creditsToAdd <= 0) {
+    console.error(`更新积分参数无效: userId=${userId}, creditsToAdd=${creditsToAdd}`);
+    return null;
+  }
+  
   const db = await connectToDb();
+  console.log(`尝试增加用户积分: userId=${userId}, creditsToAdd=${creditsToAdd}`);
+  
+  // 查询用户当前积分
+  const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+  if (!user) {
+    console.error(`找不到用户: ${userId}`);
+    return null;
+  }
+  
+  const currentCredits = user.credits || 0;
+  const newCredits = currentCredits + creditsToAdd;
+  
+  console.log(`用户积分更新: ${userId}, 当前=${currentCredits}, 增加=${creditsToAdd}, 新积分=${newCredits}`);
+  
   return db.collection('users').updateOne(
     { _id: new ObjectId(userId) },
-    { $set: { credits, lastUpdated: Date.now() } }
+    { $set: { credits: newCredits, lastUpdated: Date.now() } }
   );
 }
 

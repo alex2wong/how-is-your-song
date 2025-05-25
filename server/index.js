@@ -419,7 +419,7 @@ app.post('/api/payment/create-order', authMiddleware, async (req, res) => {
       type: paymentMethod, // 支付方式：alipay或wxpay
       out_trade_no: orderId, // 订单号
       notify_url: `${host}/api/payment/notify`, // 异步通知地址
-      return_url: `${host}`, // 同步跳转地址
+      return_url: `${host}/payment/result`, // 同步跳转地址
       name: `充值${credits}积分`, // 商品名称
       money: amount.toFixed(2), // 金额
       timestamp: Math.floor(Date.now() / 1000).toString() // 时间戳，秒级，转换为字符串
@@ -558,6 +558,9 @@ app.get('/api/payment/notify', async (req, res) => {
       console.log(`支付成功: 用户 ${order.userId} 充值 ${order.amount} 元，获得 ${order.credits} 积分`);
     } else {
       // 如果订单不存在，从订单号提取用户ID
+      console.log(`处理未存储的订单: ${orderId}`);
+      
+      // 订单号格式应为 ORDER{timestamp}{random}_{userId}
       const orderParts = orderId.split('_');
       if (orderParts.length < 2) {
         console.error(`订单号格式错误: ${orderId}`);
@@ -565,7 +568,30 @@ app.get('/api/payment/notify', async (req, res) => {
       }
       
       const userId = orderParts[1];
-      const credits = Math.floor(amount * 10); // 每1元充值10积分
+      console.log(`从订单号提取的用户ID: ${userId}`);
+      
+      // 根据充值金额计算积分
+      // 充值套餐：
+      // 10元 = 100积分（基础套餐）
+      // 30元 = 350积分（标准套餐）
+      // 50元 = 650积分（高级套餐）
+      // 100元 = 1500积分（旗舰套餐）
+      let credits = 0;
+      
+      if (amount === 10) {
+        credits = 100; // 基础套餐
+      } else if (amount === 30) {
+        credits = 350; // 标准套餐
+      } else if (amount === 50) {
+        credits = 650; // 高级套餐
+      } else if (amount === 100) {
+        credits = 1500; // 旗舰套餐
+      } else {
+        // 如果不是标准套餐，按照每1元=10积分计算
+        credits = Math.floor(amount * 10);
+      }
+      
+      console.log(`根据金额 ${amount} 元计算积分: ${credits}`)
       
       // 更新用户积分
       await updateUserCredits(userId, credits);
