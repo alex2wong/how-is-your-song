@@ -6,7 +6,7 @@ const { generateToken } = require('./auth');
 // 处理 Google 授权回调
 const handleGoogleCallback = async (code, redirectUri) => {
   // 确保使用固定的重定向URI，与前端和Google Cloud Console配置一致
-  redirectUri = 'http://localhost:5173/auth/google/callback';
+  redirectUri = 'https://aiyueping.com/auth/google/callback';
   console.log('使用重定向URI:', redirectUri);
   
   try {

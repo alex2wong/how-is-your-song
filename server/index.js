@@ -48,7 +48,7 @@ const port = 3000;
 
 // 添加CORS支持，允许前端页面访问API
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -294,7 +294,7 @@ app.all('/api/auth/google/callback', async (req, res) => {
     }
     
     // 构建重定向URI（与前端使用的相同）
-    const redirectUri = 'http://localhost:5173/auth/google/callback';
+    const redirectUri = 'https://aiyueping.com/auth/google/callback';
     console.log('使用重定向URI:', redirectUri);
     
     // 处理Google回调

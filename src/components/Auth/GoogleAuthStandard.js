@@ -46,7 +46,7 @@ export const startGoogleLogin = async () => {
     // 构建 OAuth 授权 URL
     // 使用固定的重定向URI，必须与Google Cloud Console中配置的完全一致
     // 根据您在Google Cloud Console中的配置使用正确的URI
-    const redirectUri = 'http://localhost:5173/auth/google/callback';
+    const redirectUri = 'https://aiyueping.com/auth/google/callback';
     const scope = 'email profile';
     const responseType = 'code';
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
