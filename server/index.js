@@ -419,7 +419,7 @@ app.post('/api/payment/create-order', authMiddleware, async (req, res) => {
       type: paymentMethod, // 支付方式：alipay或wxpay
       out_trade_no: orderId, // 订单号
       notify_url: `${host}/api/payment/notify`, // 异步通知地址
-      return_url: `${host}/payment/result`, // 同步跳转地址
+      return_url: `${host}/api/payment/result`, // 同步跳转地址
       name: `充值${credits}积分`, // 商品名称
       money: amount.toFixed(2), // 金额
       timestamp: Math.floor(Date.now() / 1000).toString() // 时间戳，秒级，转换为字符串
@@ -619,7 +619,7 @@ app.get('/api/payment/notify', async (req, res) => {
 });
 
 // 支付结果页面跳转
-app.get('/payment/result', async (req, res) => {
+app.get('/api/payment/result', async (req, res) => {
   try {
     console.log('\n====== 收到支付结果跳转 ======');
     console.log('支付结果参数:', JSON.stringify(req.query, null, 2));
