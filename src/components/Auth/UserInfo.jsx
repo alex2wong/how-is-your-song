@@ -121,7 +121,6 @@ const UserInfo = () => {
           <div className="recharge-modal">
             <h3>积分充值</h3>
             <p className="recharge-info">每充值1元获得10积分</p>
-            <p className="recharge-info">当前还在测试阶段，请不要充值！！！</p>
             
             {error && <div className="recharge-error">{error}</div>}
             {success && <div className="recharge-success">{success}</div>}
